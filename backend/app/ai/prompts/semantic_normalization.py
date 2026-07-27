@@ -74,6 +74,7 @@ Responsibilities:
 
 6. Classify diet type (is_veg)
    - Must be one of: VEG, NON_VEG, or EGG
+   - CRITICAL: Any item containing "Chaap" (e.g., Soya Chaap, Malai Chaap, Afghani Chaap) MUST be classified as VEG. Soya Chaap is a vegetarian meat alternative.
 
 7. Identify meat types (meat_types)
    - If NON_VEG, extract meat types.
