@@ -16,7 +16,7 @@ class Settings(BaseSettings):
     BEDROCK_MODEL: str | None = None
 
     MONGODB_URI: str
-    DATABASE_NAME: str = "zomato"
+    DATABASE_NAME: str = "production"
     AWS_SQS_MENU_UPLOAD_QUEUE: str
     
     MAX_CONCURRENT_REQUESTS: int = 2

@@ -25,6 +25,7 @@ class UploadService:
         self,
         restaurant_id: str,
         files: list[UploadFile],
+        platform: str = "zomato",
         allowed_file_extension: list[str] | None = None,
     ):
         processed_files = []
@@ -95,6 +96,7 @@ class UploadService:
         job = MenuUploadJob(
             job_id=job_id,
             restaurant_id=restaurant_id,
+            platform=platform,
             upload_type=upload_type,
             status=JobStatus.PENDING,
             files=uploaded_file_models,

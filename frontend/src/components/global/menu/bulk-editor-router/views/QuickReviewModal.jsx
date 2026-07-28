@@ -6,8 +6,9 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
-import { uploadZomatoImage } from "@/services/zomatoImageService";
+import { uploadPlatformImage } from "@/services/imageService";
 import { useMenu } from "@/store/hooks/useMenu";
+import { useSelector } from "react-redux";
 import api from "@/lib/api/axios";
 import axios from "axios";
 
@@ -40,6 +41,7 @@ export default function QuickReviewModal({
     const [images, setImages] = useState([]);
     const [datasetImagesList, setDatasetImagesList] = useState([]);
     const [swiggyImagesList, setSwiggyImagesList] = useState([]);
+    const { activePlatform } = useSelector((state) => state.menu);
     const [page, setPage] = useState(1);
     const [hasMoreDataset, setHasMoreDataset] = useState(true);
     const [hasMoreSwiggy, setHasMoreSwiggy] = useState(true);
@@ -355,30 +357,46 @@ export default function QuickReviewModal({
         }
 
         // Background upload
-        uploadZomatoImage(activeResId, imageUrl)
-            .then(result => {
-                if (result.success) {
-                    updateItem({
-                        itemId: itemIdToUpdate,
-                        updates: { media: result.mediaArray }
-                    });
-                    toast.success(`Image applied for ${itemName}!`);
-                } else {
+        if (activePlatform === "swiggy") {
+            updateItem({
+                itemId: itemIdToUpdate,
+                updates: { 
+                    media: [{
+                        tempReferenceId: tempId,
+                        url: imageUrl,
+                        thumbUrl: imageUrl,
+                        isNewlyUploaded: true,
+                        isUploading: false,
+                    }] 
+                }
+            });
+            toast.success(`Image applied for ${itemName}!`);
+        } else {
+            uploadPlatformImage(activePlatform, activeResId, imageUrl, itemName)
+                .then(result => {
+                    if (result.success) {
+                        updateItem({
+                            itemId: itemIdToUpdate,
+                            updates: { media: result.mediaArray }
+                        });
+                        toast.success(`Image applied for ${itemName}!`);
+                    } else {
+                        updateItem({
+                            itemId: itemIdToUpdate,
+                            updates: { media: [] }
+                        });
+                        toast.error(`Failed to upload for ${itemName}: ${result.message}`);
+                    }
+                })
+                .catch(err => {
+                    console.error("Apply image background error:", err);
                     updateItem({
                         itemId: itemIdToUpdate,
                         updates: { media: [] }
                     });
-                    toast.error(`Failed to upload for ${itemName}: ${result.message}`);
-                }
-            })
-            .catch(err => {
-                console.error("Apply image background error:", err);
-                updateItem({
-                    itemId: itemIdToUpdate,
-                    updates: { media: [] }
+                    toast.error(`Upload failed for ${itemName}`);
                 });
-                toast.error(`Upload failed for ${itemName}`);
-            });
+        }
     };
 
     if (!isOpen || !currentItem) return null;

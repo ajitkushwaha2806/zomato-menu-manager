@@ -4,10 +4,11 @@
   "description": "Zomato Menu Manager — monorepo with Next.js frontend and Python/FastAPI backend",
   "private": true,
   "scripts": {
-    "dev": "npx concurrently --names \"NEXT,API,WORKER\" --prefix-colors \"cyan,green,magenta\" \"npm run dev:frontend\" \"npm run dev:backend\" \"npm run dev:bg-worker\"",
+    "dev": "npx concurrently --names \"NEXT,SWIGGY-WORKER,DASHBOARD,API,BG-WORK\" --prefix-colors \"cyan,blue,magenta,green,gray\" \"npm run dev:frontend\" \"npm run dev:swiggy-worker\" \"npm run dev:dashboard\" \"npm run dev:backend\" \"npm run dev:bg-worker\"",
     "dev:all": "npm run dev",
     "dev:frontend": "cd frontend && npm run next:dev",
-    "dev:worker": "cd frontend && node src/lib/bullmq/worker/menu-parser.js",
+    "dev:swiggy-worker": "cd frontend && npm run start:swiggy",
+    "dev:dashboard": "cd frontend && npm run start:dashboard",
     "dev:backend": "cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 1001",
     "dev:bg-worker": "cd backend && uv run python -m app.workers.menu_worker"
   },

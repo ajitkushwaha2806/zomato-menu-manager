@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Sparkles, Loader2 } from "lucide-react";
+import { Sparkles, Loader2, Zap } from "lucide-react";
 import api from "@/lib/api/axios";
 import { useMenu } from "@/store/hooks/useMenu";
 import useNotification from "@/store/hooks/useNotification";
 
 export default function DescriptionEditor({ allItems, updateItem }) {
-    const { activeResId, getMenuByResId } = useMenu();
+    const { activeResId, activePlatform, getMenuByResId } = useMenu();
     const notification = useNotification();
     const [isGenerating, setIsGenerating] = useState(false);
 
@@ -20,7 +20,9 @@ export default function DescriptionEditor({ allItems, updateItem }) {
     const generateDescriptions = async () => {
         setIsGenerating(true);
         try {
-            const { data } = await api.post(`/api/menu/${activeResId}/bulk-editor/description`);
+            const { data } = await api.post(`/api/menu/${activeResId}/bulk-editor/description`, {
+                platform: activePlatform || "zomato"
+            });
 
             if (!data.success) {
                 throw new Error(data.message || "Failed to generate descriptions");
@@ -29,7 +31,7 @@ export default function DescriptionEditor({ allItems, updateItem }) {
             notification.success(`Successfully generated ${data.updated_items || 0} descriptions!`, {
                 duration: 5000,
             });
-            getMenuByResId(activeResId);
+            getMenuByResId({ resId: activeResId, platform: activePlatform });
         } catch (error) {
             console.error("Generate description error:", error);
             const errMsg = error.response?.data?.message || error.message || "Something went wrong while generating descriptions.";
@@ -55,6 +57,63 @@ export default function DescriptionEditor({ allItems, updateItem }) {
         notification.success(`Cleared ${count} description${count !== 1 ? 's' : ''}.`, { duration: 3000 });
     };
 
+    const enrichItems = () => {
+        let count = 0;
+        allItems.forEach(item => {
+            const isNew = item.id?.toString().startsWith("temp-") || item.temp_id?.toString().startsWith("temp-");
+            const isUpdate = item.temp_id?.toString().startsWith("update-");
+            
+            if (isNew || isUpdate) {
+                let updated = false;
+                let newName = item.name || "";
+                let newDesc = item.description || "";
+                const catName = (item._parentCategoryName || "").toLowerCase();
+                const subCatName = (item._parentSubCategoryName || "").toLowerCase();
+                const itemNameLower = newName.toLowerCase();
+                
+                const matchesPizza = catName.includes("pizza") || subCatName.includes("pizza") || itemNameLower.includes("pizza");
+                const matchesChaap = catName.includes("chaap") || subCatName.includes("chaap") || itemNameLower.includes("chaap");
+                const matchesMomo = catName.includes("momo") || subCatName.includes("momo") || itemNameLower.includes("momo");
+                const matchesBeverage = catName.includes("beverage") || subCatName.includes("beverage") || catName.includes("drink") || itemNameLower.includes("beverage");
+
+                if (matchesPizza) {
+                    if (!itemNameLower.includes("inch")) {
+                        newName = `${newName} [6 inch]`.trim();
+                        updated = true;
+                    }
+                }
+                
+                if (matchesChaap) {
+                    if (!newDesc.toLowerCase().includes("mock meat")) {
+                        newDesc = newDesc ? `${newDesc} - Made with mock meat` : "Made with mock meat";
+                        updated = true;
+                    }
+                }
+                
+                if (matchesMomo) {
+                    if (!itemNameLower.includes("pcs") && !itemNameLower.includes("piece")) {
+                        newName = `${newName} [6 pcs]`.trim();
+                        updated = true;
+                    }
+                }
+                
+                if (matchesBeverage) {
+                    if (!itemNameLower.includes("ml")) {
+                        newName = `${newName} [200 ML]`.trim();
+                        updated = true;
+                    }
+                }
+                
+                if (updated) {
+                    updateItem({ itemId: item.id, updates: { name: newName, description: newDesc } });
+                    count++;
+                }
+            }
+        });
+        
+        notification.success(`Enriched ${count} items!`, { duration: 3000 });
+    };
+
     return (
         <div className="flex-1 overflow-y-auto p-4 bg-gray-50/30">
             <div className="mx-auto space-y-4">
@@ -67,6 +126,14 @@ export default function DescriptionEditor({ allItems, updateItem }) {
                             className="flex items-center gap-2 text-sm bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 font-semibold shadow-sm transition-colors disabled:opacity-50"
                         >
                             Clear all
+                        </button>
+                        <button
+                            onClick={enrichItems}
+                            disabled={isGenerating}
+                            className="flex items-center gap-2 text-sm bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-200 font-semibold shadow-sm transition-colors disabled:opacity-50"
+                        >
+                            <Zap size={16} />
+                            Enrich Items
                         </button>
                         <button
                             onClick={generateDescriptions}

@@ -12,7 +12,7 @@ if (typeof window !== "undefined") {
 }
 
 export default function UploadMenuEditor() {
-    const { activeResId } = useSelector((state) => state.menu);
+    const { activeResId, activePlatform } = useSelector((state) => state.menu);
     const notification = useNotification();
     
     // UI States
@@ -143,6 +143,7 @@ export default function UploadMenuEditor() {
         try {
             const formData = new FormData();
             formData.append("restaurant_id", activeResId);
+            formData.append("platform", activePlatform || "zomato");
             imagesToUpload.forEach(img => formData.append("files", img.file));
 
             const { data } = await axios.post(`/api/backend/menu/upload`, formData, {

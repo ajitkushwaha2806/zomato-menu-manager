@@ -1,0 +1,2429 @@
+{
+    "resId": "1348996",
+    "platform": "swiggy",
+    "menu": [
+        {
+            "name": "Snacks",
+            "sub_category": [
+                {
+                    "name": "Patties",
+                    "items": [
+                        {
+                            "id": "temp-temp-af9a607e-9c9e-4464-ab3a-605b284bcd9a",
+                            "name": "Normal Patties",
+                            "category": "Snacks",
+                            "sub_category": "Patties",
+                            "is_veg": "VEG",
+                            "base_price": 30,
+                            "description": "Classic patties with a savory twist.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-af9a607e-9c9e-4464-ab3a-605b284bcd9a",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2026/6/27/8f72e082-5fd5-4be1-9626-d5468625a4b1_91305b80-ae12-41b8-93d0-15f5ee004214.jpg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-2252b186-22d3-4cb1-adee-feba10e4a46e",
+                            "name": "Mayo Patties",
+                            "category": "Snacks",
+                            "sub_category": "Patties",
+                            "is_veg": "VEG",
+                            "base_price": 50,
+                            "description": "Delightful patties with a creamy mayo filling.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-2252b186-22d3-4cb1-adee-feba10e4a46e",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/7f2e9cf65225c98f1db135e8859c361a",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-861ffa3b-5732-4c5a-9591-e88b43701254",
+                            "name": "Cheese Patties",
+                            "category": "Snacks",
+                            "sub_category": "Patties",
+                            "is_veg": "VEG",
+                            "base_price": 50,
+                            "description": "Cheese-filled patties with a cheesy delight.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-861ffa3b-5732-4c5a-9591-e88b43701254",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2025/5/5/465f6dc4-c1d7-4a92-a544-ea682e6cde5b_67566f15-cb1a-45a1-b0b3-24d7cebb56e0.png",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-68c79684-d99d-44f2-8843-ee63fe04f92e",
+                            "name": "Pizza Patties [2 inch]",
+                            "category": "Snacks",
+                            "sub_category": "Patties",
+                            "is_veg": "VEG",
+                            "base_price": 50,
+                            "description": "Pizza-inspired patties with a tangy flavor.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-68c79684-d99d-44f2-8843-ee63fe04f92e",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2025/1/17/f0ec3636-2286-4f78-872b-03ab153eaa23_6117c045-74b2-4ed5-8d41-45e34dd66449.jpg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-c7d720e8-30b0-426d-b7b9-91497953b054",
+                            "name": "Tandoori Patties",
+                            "category": "Snacks",
+                            "sub_category": "Patties",
+                            "is_veg": "VEG",
+                            "base_price": 50,
+                            "description": "Spicy tandoori patties with a fiery kick.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-c7d720e8-30b0-426d-b7b9-91497953b054",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/px7twimbkkt38pwdzrmq",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-1ec7530a-f772-4bd4-8be6-2ef90ece6345",
+                            "name": "Churu Special Patties",
+                            "category": "Snacks",
+                            "sub_category": "Patties",
+                            "is_veg": "VEG",
+                            "base_price": 60,
+                            "description": "Unique Churu special patties with a distinct flavor.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-1ec7530a-f772-4bd4-8be6-2ef90ece6345",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2024/10/17/94d178bc-bef6-4b58-b02b-d9b4548f3c9a_73a8d4bc-df1a-4331-8d39-7127b4fdc962.jpg",
+                                    "mediaId": null
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "temp-77965786"
+                },
+                {
+                    "name": "Fries",
+                    "items": [
+                        {
+                            "id": "temp-temp-277cce9e-13c3-4d8c-9c7d-39248ae1f09e",
+                            "name": "French Fries",
+                            "category": "Snacks",
+                            "sub_category": "Fries",
+                            "is_veg": "VEG",
+                            "base_price": 119,
+                            "description": "Crispy French fries with a golden crunch.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-277cce9e-13c3-4d8c-9c7d-39248ae1f09e",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-ecc4db7b-a523-402d-87a6-9d79efcce052",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/images/d7b0cb70-5099-474d-98a0-f5a6b421f830.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/images/d7b0cb70-5099-474d-98a0-f5a6b421f830.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-e142a6d1-196e-4b3b-8225-ffcce4954da4",
+                            "name": "Cheese Fries",
+                            "category": "Snacks",
+                            "sub_category": "Fries",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Cheese-coated fries with a cheesy delight.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-e142a6d1-196e-4b3b-8225-ffcce4954da4",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-e4380538-6bb9-4a58-b86a-e0fc740bbec3",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/f05de62f-2b1b-4430-9dc2-f003f366c567.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/f05de62f-2b1b-4430-9dc2-f003f366c567.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-ee5c21b3-a200-4950-9cc2-43de195e2756",
+                            "name": "Peri Peri Fries",
+                            "category": "Snacks",
+                            "sub_category": "Fries",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Spicy Peri Peri fries with a tangy flavor.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-ee5c21b3-a200-4950-9cc2-43de195e2756",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/bc1088e5-6308-457c-8446-432e8832a5e2.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-45fea85e-1fd1-481e-b14c-9c581b57a7ba",
+                            "name": "Masala Fries",
+                            "category": "Snacks",
+                            "sub_category": "Fries",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Masala-infused fries with a flavorful kick.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-45fea85e-1fd1-481e-b14c-9c581b57a7ba",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/images/b26b3971-ce0e-49cf-a7f0-a16c0560f5d8.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-76de3995-4768-478f-b45c-d2fa68b1710c",
+                            "name": "Cheese Peri Peri Fries",
+                            "category": "Snacks",
+                            "sub_category": "Fries",
+                            "is_veg": "VEG",
+                            "base_price": 189,
+                            "description": "Spicy cheese Peri Peri fries with a zesty flavor.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-76de3995-4768-478f-b45c-d2fa68b1710c",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/17aa4b55-c8d7-4efd-8714-17d50aec0c83.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-06a70b9d-40af-4ba5-9165-6e085e0ba079",
+                            "name": "Cheese Corn Roll",
+                            "category": "Snacks",
+                            "sub_category": "Fries",
+                            "is_veg": "VEG",
+                            "base_price": 219,
+                            "description": "Cheese-filled corn roll with a cheesy delight.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-06a70b9d-40af-4ba5-9165-6e085e0ba079",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/14d56b4b-38d2-4c54-b378-9448da0979cf.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "temp-77965906"
+                },
+                {
+                    "name": "Maggi",
+                    "items": [
+                        {
+                            "id": "temp-temp-20644c95-3641-4a1a-9fc6-d546b02be283",
+                            "name": "Normal Maggi",
+                            "category": "Snacks",
+                            "sub_category": "Maggi",
+                            "is_veg": "VEG",
+                            "base_price": 40,
+                            "description": "Classic Maggi noodles with a comforting flavor.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-20644c95-3641-4a1a-9fc6-d546b02be283",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-e1c7aafc-aad8-4708-99c8-9e2f700aef17",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/6500feb9-2b2a-43b4-92a6-4359f725bfec.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/6500feb9-2b2a-43b4-92a6-4359f725bfec.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-d802ee6a-5faa-4741-bfd8-0fcb3344dcae",
+                            "name": "Butter Maggi",
+                            "category": "Snacks",
+                            "sub_category": "Maggi",
+                            "is_veg": "VEG",
+                            "base_price": 50,
+                            "description": "Butter-infused Maggi noodles with a rich taste.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-d802ee6a-5faa-4741-bfd8-0fcb3344dcae",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-cafff400-501d-4164-a7c5-de8c6b6d4d08",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/1bb98365-2e13-4c32-b58b-d41b723a365b.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/1bb98365-2e13-4c32-b58b-d41b723a365b.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-460ed564-6229-4627-89eb-fc214dc68e91",
+                            "name": "Cheese Maggi",
+                            "category": "Snacks",
+                            "sub_category": "Maggi",
+                            "is_veg": "VEG",
+                            "base_price": 50,
+                            "description": "Cheese-infused Maggi noodles with a cheesy delight.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-460ed564-6229-4627-89eb-fc214dc68e91",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-9c1b4dfc-9365-4eef-8fcd-6229f7388c4e",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/938be291-06af-4d98-b22d-a5151264a1cf.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/938be291-06af-4d98-b22d-a5151264a1cf.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-4498b7ba-aff8-42c3-9907-7f62b216e4ff",
+                            "name": "Veg Maggi",
+                            "category": "Snacks",
+                            "sub_category": "Maggi",
+                            "is_veg": "VEG",
+                            "base_price": 60,
+                            "description": "Vegetarian Maggi noodles with a flavorful twist.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-4498b7ba-aff8-42c3-9907-7f62b216e4ff",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-49df8af5-174c-40bf-830c-60b0a4b5ed05",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/9be1f6c4-0eee-44fd-a3b3-a568bd8943e9.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/9be1f6c4-0eee-44fd-a3b3-a568bd8943e9.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-e98d5620-ef52-42e0-8fa9-4eeb0a6cda3f",
+                            "name": "Churu Special Maggi",
+                            "category": "Snacks",
+                            "sub_category": "Maggi",
+                            "is_veg": "VEG",
+                            "base_price": 80,
+                            "description": "Unique Churu special Maggi noodles with a distinct flavor.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-e98d5620-ef52-42e0-8fa9-4eeb0a6cda3f",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/dfd40e7b25dea3d6a360d6e88fa772df",
+                                    "mediaId": null
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "temp-77965907"
+                }
+            ],
+            "id": "temp-77965765",
+            "items": []
+        },
+        {
+            "name": "Breads",
+            "sub_category": [
+                {
+                    "name": "Garlic Bread",
+                    "items": [
+                        {
+                            "id": "temp-temp-51af19c0-4978-489c-be54-98c3b7408f5f",
+                            "name": "Paneer Parcel",
+                            "category": "Breads",
+                            "sub_category": "Garlic Bread",
+                            "is_veg": "VEG",
+                            "base_price": 89,
+                            "description": "Delicious paneer parcel with a creamy filling.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-51af19c0-4978-489c-be54-98c3b7408f5f",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2025/8/12/0ba9c7bc-e906-4474-b9cc-052bb9ce0eb2_081cd41d-4b7c-46b7-b9a7-4b75f14e15fd.jpg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-eb656bcf-52da-4dc4-bfa3-f8e7b60f2218",
+                            "name": "Calzone Pocket",
+                            "category": "Breads",
+                            "sub_category": "Garlic Bread",
+                            "is_veg": "VEG",
+                            "base_price": 99,
+                            "description": "Savory calzone pocket with a cheesy delight.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-eb656bcf-52da-4dc4-bfa3-f8e7b60f2218",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-65635e79-cd24-428b-b0df-eba362cddc6d",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/717875c0-bae2-48dd-b30d-eba37406427b.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/717875c0-bae2-48dd-b30d-eba37406427b.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-550d7960-ff1d-41ee-8bd3-624ff4dfecde",
+                            "name": "Round Garlic Bread",
+                            "category": "Breads",
+                            "sub_category": "Garlic Bread",
+                            "is_veg": "VEG",
+                            "base_price": 129,
+                            "description": "Round garlic bread with a garlicky aroma.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-550d7960-ff1d-41ee-8bd3-624ff4dfecde",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-90a39328-ec7b-417e-852d-d0cf0be3e340",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/4d754aec-4c3b-466b-abdc-d0948ea446dc.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/4d754aec-4c3b-466b-abdc-d0948ea446dc.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-652573ae-b083-46e2-9011-382daaa45ab6",
+                            "name": "Stuffed Garlic Bread",
+                            "category": "Breads",
+                            "sub_category": "Garlic Bread",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Stuffed garlic bread with a flavorful filling.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-652573ae-b083-46e2-9011-382daaa45ab6",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/da4a7893-c676-4e89-ace9-1c70b7705f04.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "temp-77965908"
+                }
+            ],
+            "id": "temp-77965766",
+            "items": []
+        },
+        {
+            "name": "Chinese",
+            "sub_category": [
+                {
+                    "name": "Chinese",
+                    "items": [
+                        {
+                            "id": "temp-temp-822a4733-925b-4e6a-abcc-f14b791aa859",
+                            "name": "Honey Chilli Potato",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 239,
+                            "description": "Sweet and spicy honey chilli potato with a delightful flavor.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-822a4733-925b-4e6a-abcc-f14b791aa859",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/8dadc50c-095b-43ba-83d0-440a4c902371.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-00856c63-582d-41ae-9d82-3830d9bc2c49",
+                            "name": "Mushroom Chilli",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 229,
+                            "description": "Tangy mushroom chilli with a spicy kick.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-00856c63-582d-41ae-9d82-3830d9bc2c49",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/82f4e47f-7147-4b39-a63d-796e6b09022c.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-cb381489-4939-4697-ab7e-dee3cd0deae1",
+                            "name": "Hakka Noodles",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Classic Hakka noodles with a flavorful twist.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-cb381489-4939-4697-ab7e-dee3cd0deae1",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/5bc9ddb2-3bc4-48d7-abde-a11b45528d6f.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-e5ce0757-9dd2-4b7b-94e7-a14f588d61d6",
+                            "name": "Paneer Noodles",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 199,
+                            "description": "Paneer-infused noodles with a creamy delight.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-e5ce0757-9dd2-4b7b-94e7-a14f588d61d6",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-dfa37276-eadd-4b2d-91d7-7939e10d9a45",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/9cc10841-289c-4616-9593-bbfb0c147a25.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/9cc10841-289c-4616-9593-bbfb0c147a25.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-d5d7f559-1d74-4155-8203-4e8844935167",
+                            "name": "Veg Noodles",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Vegetarian noodles with a flavorful twist.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-d5d7f559-1d74-4155-8203-4e8844935167",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-c2308c88-7642-4197-8ea0-a0d8b3ce5a58",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/02c75f79-60ab-4e6f-add9-214e07587502.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/02c75f79-60ab-4e6f-add9-214e07587502.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-101f0e33-b8b6-44e7-acb0-370f58460c5d",
+                            "name": "Cheese Chilli",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 269,
+                            "description": "Spicy cheese chilli with a cheesy delight.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-101f0e33-b8b6-44e7-acb0-370f58460c5d",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/03b60178-c19a-4c6b-aea1-324feab6ebef.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-9bd292ed-983e-4a77-a9b5-937d26f45c01",
+                            "name": "Cheese Corn Nuggets",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 229,
+                            "description": "Cheese-coated corn nuggets with a crispy texture.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-9bd292ed-983e-4a77-a9b5-937d26f45c01",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-0aea91cc-feac-450b-9064-108c5a78df5b",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/images/0ab9b19d-b45e-4ae3-8854-b84d044d9316.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/images/0ab9b19d-b45e-4ae3-8854-b84d044d9316.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-e7af618b-c722-45fb-847f-e788f9f73dc8",
+                            "name": "Spring Roll",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 229,
+                            "description": "Crispy spring roll with a flavorful filling.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-e7af618b-c722-45fb-847f-e788f9f73dc8",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/9f840a32-3504-4b00-b8f1-d3dbbea8c8a3.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-a5b700ca-41af-4ede-8e39-bae022ba4467",
+                            "name": "Momos [6 pcs]",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Delicious momos with a savory filling.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-a5b700ca-41af-4ede-8e39-bae022ba4467",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2026/7/15/8da53c7c-1804-4dbd-ae62-4cc0007f4c70_8aa3a329-fed1-4d93-ae22-8eeb59a53f55.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-61328fad-4675-4fca-b814-fb9b3c1a361d",
+                            "name": "Cheese Balls",
+                            "category": "Chinese",
+                            "sub_category": "Chinese",
+                            "is_veg": "VEG",
+                            "base_price": 219,
+                            "description": "Cheese-filled balls with a cheesy delight.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-61328fad-4675-4fca-b814-fb9b3c1a361d",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2026/5/9/5dbd1035-1adc-46d9-ba0b-aa9efa04860e_42340885-9095-4d12-a66f-d1663e7e2698.jpg",
+                                    "mediaId": null
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "77965909"
+                }
+            ],
+            "id": "temp-77965900",
+            "items": []
+        },
+        {
+            "name": "Momos",
+            "sub_category": [
+                {
+                    "name": "Momos",
+                    "items": [
+                        {
+                            "id": "temp-temp-0988c200-e4b7-4c91-97ec-6613c4f5d801",
+                            "name": "Momos [6 pcs]",
+                            "category": "Momos",
+                            "sub_category": "Momos",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Delicious momos with a savory filling.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-0988c200-e4b7-4c91-97ec-6613c4f5d801",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2026/7/15/c107d1af-f933-4154-b43a-9a99cb61b79c_fffe964b-f55d-45bb-bab5-ce30989d1280.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "temp-77965910"
+                }
+            ],
+            "id": "tempp-77965901",
+            "items": []
+        },
+        {
+            "name": "Main Course",
+            "sub_category": [
+                {
+                    "name": "Paneer",
+                    "items": [
+                        {
+                            "id": "temp-temp-7a2c9492-de61-4cac-a375-7c30b4231a33",
+                            "name": "Paneer Spicy Chilli",
+                            "category": "Main Course",
+                            "sub_category": "Paneer",
+                            "is_veg": "VEG",
+                            "base_price": 329,
+                            "description": "Spicy paneer chilli with a fiery kick.",
+                            "variants": [
+                                {
+                                    "property_name": "Portion",
+                                    "options": [
+                                        {
+                                            "price": 329,
+                                            "option_name": "Small",
+                                            "option_id": "temp-4069b2aa-4169-4704-89e4-b5d591c3dbe2",
+                                            "variant_id": "temp-ea15ca3c-b2fe-4c29-ab80-c492b4815029",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 629,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-66047e4c-973e-4422-b2b2-a6cc156210c7",
+                                            "variant_id": "temp-2b7fd811-93b6-4186-ada6-2a85d6a08776",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 849,
+                                            "option_name": "Large",
+                                            "option_id": "temp-fcaa03eb-cb8f-476f-ba4e-6cdf667ee62c",
+                                            "variant_id": "temp-aaef7153-8db3-4f8d-806a-6ed2bd39c462",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-8d77a0f4-2e38-4b29-8cbd-881e28143fcc"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-7a2c9492-de61-4cac-a375-7c30b4231a33",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-94a30018-a472-4946-83df-c21606da2f90",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/b64ddb37-b250-4d4d-a863-0c6ef8c7d2e8.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/b64ddb37-b250-4d4d-a863-0c6ef8c7d2e8.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "temp-77965911"
+                }
+            ],
+            "id": "temp-77965767",
+            "items": []
+        },
+        {
+            "name": "Burgers",
+            "sub_category": [
+                {
+                    "name": "Burgers",
+                    "items": [
+                        {
+                            "id": "temp-temp-aea23812-e12c-4dc8-a0bc-a920340b2350",
+                            "name": "Classic Burger",
+                            "category": "Burgers",
+                            "sub_category": "Burgers",
+                            "is_veg": "VEG",
+                            "base_price": 89,
+                            "description": "Classic burger with a juicy patty and fresh toppings.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-aea23812-e12c-4dc8-a0bc-a920340b2350",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-99467c53-08f8-4090-ab5b-c90ed2222d5b",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/ddaa2828-d21c-465a-9e0c-e0b6a87326b9.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/ddaa2828-d21c-465a-9e0c-e0b6a87326b9.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-db013518-1e7e-4714-bae5-276c178374dc",
+                            "name": "Veg Burger",
+                            "category": "Burgers",
+                            "sub_category": "Burgers",
+                            "is_veg": "VEG",
+                            "base_price": 109,
+                            "description": "Fresh veggies in a crispy bun, perfect for vegetarians.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-db013518-1e7e-4714-bae5-276c178374dc",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-0abd7751-3522-4ccc-b936-43ff42846fec",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/eefbcf3e-774c-4c21-9abd-6b5a7d54348d.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/eefbcf3e-774c-4c21-9abd-6b5a7d54348d.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-8b792d17-d477-4939-bb27-f75496c2cab3",
+                            "name": "Pizza Burger [6 inch]",
+                            "category": "Burgers",
+                            "sub_category": "Burgers",
+                            "is_veg": "VEG",
+                            "base_price": 109,
+                            "description": "A delightful fusion of pizza and burger, cheesy and savory.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-8b792d17-d477-4939-bb27-f75496c2cab3",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/afe9096778a80464e5fe9e31ee4fa85d",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-80ca1a12-728d-4b32-975b-980351a67e3c",
+                            "name": "Cheese Burger",
+                            "category": "Burgers",
+                            "sub_category": "Burgers",
+                            "is_veg": "VEG",
+                            "base_price": 129,
+                            "description": "Classic cheeseburger with melted cheese and juicy patty.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-80ca1a12-728d-4b32-975b-980351a67e3c",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-8b14b293-ee88-493e-95c2-c1799ba9811e",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/b2762e9e-9ae1-4e92-be37-9f0aa1568c99.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/b2762e9e-9ae1-4e92-be37-9f0aa1568c99.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-268bcc09-b64f-4a50-a521-b5813789371b",
+                            "name": "Paneer Burger",
+                            "category": "Burgers",
+                            "sub_category": "Burgers",
+                            "is_veg": "VEG",
+                            "base_price": 159,
+                            "description": "Paneer burger with tangy sauce and fresh veggies.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-268bcc09-b64f-4a50-a521-b5813789371b",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-4a2675c3-bd48-4262-97e8-0b9b7732b1f0",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/a7e47de6-17a6-4630-a972-eaa42f91507f.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/a7e47de6-17a6-4630-a972-eaa42f91507f.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-dae2f9da-c0b1-429d-a909-7cee37ecab37",
+                            "name": "Churu Special Burger",
+                            "category": "Burgers",
+                            "sub_category": "Burgers",
+                            "is_veg": "VEG",
+                            "base_price": 189,
+                            "description": "Churu special burger with unique spices and fresh ingredients.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-dae2f9da-c0b1-429d-a909-7cee37ecab37",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-5703ede7-4b3a-42ba-b9a1-83835fd028f8",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/5f424523-2f3f-4af2-8a89-64f7a19d1432.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/5f424523-2f3f-4af2-8a89-64f7a19d1432.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "temp-77965912"
+                }
+            ],
+            "id": "temp-77965780",
+            "items": []
+        },
+        {
+            "name": "Sandwiches",
+            "sub_category": [
+                {
+                    "name": "Sandwiches",
+                    "items": [
+                        {
+                            "id": "temp-temp-e321ae39-407b-47c5-9d84-c3453b845bec",
+                            "name": "Breakfast Sandwich",
+                            "category": "Sandwiches",
+                            "sub_category": "Sandwiches",
+                            "is_veg": "VEG",
+                            "base_price": 109,
+                            "description": "Savory breakfast sandwich with eggs and cheese.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-e321ae39-407b-47c5-9d84-c3453b845bec",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/dada265d-3c72-415a-bc8f-5fa58bb5fe9d.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-1b1d9f26-f2d2-4a41-b0ec-279e2291dbef",
+                            "name": "Mushroom Sandwich",
+                            "category": "Sandwiches",
+                            "sub_category": "Sandwiches",
+                            "is_veg": "VEG",
+                            "base_price": 109,
+                            "description": "Mushroom sandwich with creamy sauce and fresh herbs.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-1b1d9f26-f2d2-4a41-b0ec-279e2291dbef",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-d388510c-0866-4992-abc7-f8433beaec6f",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/55ea8453-5923-4ea1-a13c-455c001e92a9.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/55ea8453-5923-4ea1-a13c-455c001e92a9.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-66c512a5-f7bb-4587-a9ea-63998e1b15d7",
+                            "name": "Mexican Corn Sandwich",
+                            "category": "Sandwiches",
+                            "sub_category": "Sandwiches",
+                            "is_veg": "VEG",
+                            "base_price": 129,
+                            "description": "Mexican corn sandwich with spicy sauce and fresh toppings.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-66c512a5-f7bb-4587-a9ea-63998e1b15d7",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/b3b71cc9-5ca2-4d58-8515-0ac845392b81.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-9b88ba11-be15-47a0-97ab-606b34a57a39",
+                            "name": "Hot & Spicy Sandwich",
+                            "category": "Sandwiches",
+                            "sub_category": "Sandwiches",
+                            "is_veg": "VEG",
+                            "base_price": 139,
+                            "description": "Hot and spicy sandwich with fiery sauce and crunchy veggies.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-9b88ba11-be15-47a0-97ab-606b34a57a39",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/0a3c82e6-b146-460b-a918-3f42c786b8cf.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-5ece0b39-ef9c-4cc0-898c-1a0dcf24668d",
+                            "name": "Paneer Corn Sandwich",
+                            "category": "Sandwiches",
+                            "sub_category": "Sandwiches",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Paneer corn sandwich with creamy sauce and fresh veggies.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-5ece0b39-ef9c-4cc0-898c-1a0dcf24668d",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-62d94e97-ffe4-4cfe-b318-697be7d890a7",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/5e791b68-c718-4357-aecb-136cc9790f53.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/5e791b68-c718-4357-aecb-136cc9790f53.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-0ccfb1f2-6b6a-49f4-8230-f99557e9b401",
+                            "name": "Makhni Corn Sandwich",
+                            "category": "Sandwiches",
+                            "sub_category": "Sandwiches",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Makhni corn sandwich with rich gravy and fresh ingredients.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-0ccfb1f2-6b6a-49f4-8230-f99557e9b401",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/images/77827acd-ea5d-49d4-bd07-2d1ee414c5be.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-c1aa6d14-16d6-4aa7-9225-d23de530965e",
+                            "name": "Grilled Sandwich",
+                            "category": "Sandwiches",
+                            "sub_category": "Sandwiches",
+                            "is_veg": "VEG",
+                            "base_price": 109,
+                            "description": "Grilled sandwich with melted cheese and crispy bread.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-c1aa6d14-16d6-4aa7-9225-d23de530965e",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-28e97de2-0359-4053-96ac-b160d9c0468f",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/76ffd78f-0510-472a-a44e-98172615ccf0.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/76ffd78f-0510-472a-a44e-98172615ccf0.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "temp-77965925"
+                }
+            ],
+            "id": "temp-77965781",
+            "items": []
+        },
+        {
+            "name": "Pizza",
+            "sub_category": [
+                {
+                    "name": "Pizza",
+                    "items": [
+                        {
+                            "id": "temp-temp-44d5ebbb-4220-4b53-ac57-bfa5d0cd46c5",
+                            "name": "Margherita Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Classic Margherita pizza with fresh tomatoes and mozzarella.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 149,
+                                            "option_name": "Small",
+                                            "option_id": "temp-c225f826-e35e-499a-9862-b5ed7366b7bc",
+                                            "variant_id": "temp-b31b1343-1ac2-4679-893f-ba61edb98248",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 329,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-cfa7b653-9571-42d0-8f3d-35147d54099e",
+                                            "variant_id": "temp-9b442be0-7aa0-4279-8363-63d4eecda5c5",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 449,
+                                            "option_name": "Large",
+                                            "option_id": "temp-b57cb14c-e917-4614-9146-d18f6958c855",
+                                            "variant_id": "temp-271f2adf-caed-4d0d-ae79-38d7fb69e1e7",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-e70efaa2-e371-407b-94b5-86e77b5d05e8"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-44d5ebbb-4220-4b53-ac57-bfa5d0cd46c5",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/3b9afa62-2c9c-466a-9ccc-ed362de63b60.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-1823e170-14f8-465c-89b0-800bf6be6d9c",
+                            "name": "Basil Corn Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Basil corn pizza with creamy sauce and fresh toppings.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 149,
+                                            "option_name": "Small",
+                                            "option_id": "temp-9ec3eef3-39e7-4a17-9fcb-9f2061ce5220",
+                                            "variant_id": "temp-cd0ce3db-42d3-413c-87fc-c29fac692a7f",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 329,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-760dab31-5b62-4fbd-9e51-d1064f2011c8",
+                                            "variant_id": "temp-9ddd65ad-635b-4127-bc93-da65dcf6efc3",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 449,
+                                            "option_name": "Large",
+                                            "option_id": "temp-9d1d6406-cd7f-442f-abe1-cfe563d3fcef",
+                                            "variant_id": "temp-886fa3f3-bac3-4f85-af0e-1cd610477cab",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-82e40bce-fbf1-4f7e-8e45-2462462df38d"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-1823e170-14f8-465c-89b0-800bf6be6d9c",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/15520183-25ee-4015-95be-77e34f617ff0.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-508bba93-e94b-404a-9f3e-bb682b1e539c",
+                            "name": "Veggie Fresh Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Veggie fresh pizza with colorful veggies and fresh herbs.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 149,
+                                            "option_name": "Small",
+                                            "option_id": "temp-55a56135-71f4-4b00-bd73-635ebde1e59d",
+                                            "variant_id": "temp-592af710-2ba5-43b4-9078-8ef9764bb646",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 329,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-2622ce7c-704a-450e-b307-e250197172a2",
+                                            "variant_id": "temp-cd1246d4-1f56-4b1d-8819-1b491c3108b4",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 449,
+                                            "option_name": "Large",
+                                            "option_id": "temp-cd9142f2-2739-40f0-91ea-0f9270e9da1e",
+                                            "variant_id": "temp-7512bf14-bd5c-4393-b04e-9c1befb4bd9c",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-4d2d3e45-3638-4606-b259-f127ed8634ad"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-508bba93-e94b-404a-9f3e-bb682b1e539c",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-bb07c76c-de04-4cf1-9ee9-e09f50f9242c",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/1f847e1e-3e0c-4ad7-b288-6259bdce9246.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/1f847e1e-3e0c-4ad7-b288-6259bdce9246.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-a50aafb9-c341-4194-aa3d-048e2a6bd6f0",
+                            "name": "OTC Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 199,
+                            "description": "OTC pizza with unique spices and fresh ingredients.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 199,
+                                            "option_name": "Small",
+                                            "option_id": "temp-3e4ad802-44da-4a2f-b933-b9ce9c4a0e06",
+                                            "variant_id": "temp-6e9bb523-e207-4c0d-9ec9-9c218d47904a",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 369,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-6b1cc026-9f68-4c43-aa97-7d027f6532dd",
+                                            "variant_id": "temp-9b104810-38d7-47df-98fa-abc4cbd8527f",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 499,
+                                            "option_name": "Large",
+                                            "option_id": "temp-d1f1aadf-6210-409b-96fb-8d67439aa02a",
+                                            "variant_id": "temp-3c4bc326-e235-4ea5-9d06-a0cf8d3f4f8b",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-d692a057-486d-4cbd-aabc-9428ecbda05f"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-a50aafb9-c341-4194-aa3d-048e2a6bd6f0",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/28debe04-776c-41a9-8b21-599a9e56cfaa.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-1f7a3d96-e06d-43eb-9b6d-6405655a5b1f",
+                            "name": "Fungo Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 199,
+                            "description": "Fungo pizza with creamy sauce and fresh toppings.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 199,
+                                            "option_name": "Small",
+                                            "option_id": "temp-59bc3ff2-5b7f-4d9f-8d93-fb4874e6a8f6",
+                                            "variant_id": "temp-28ab432f-60a5-4f84-83c3-2ec0d9cfef6a",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 369,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-4acb80c8-0da3-4d53-8089-886f9de1ab29",
+                                            "variant_id": "temp-f0d037de-4466-44f3-872c-d6851ec3d2e1",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 499,
+                                            "option_name": "Large",
+                                            "option_id": "temp-5d474334-fcaf-4a6e-84df-53bbc328f567",
+                                            "variant_id": "temp-0fd53c36-061c-4d33-bd7f-6ff15b3ca312",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-793bc028-33e5-453e-bb20-bdc2634147f1"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-1f7a3d96-e06d-43eb-9b6d-6405655a5b1f",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-93f67c53-d42f-4564-b858-0e77dae5427a",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/c238103a-39d9-49a7-9322-edcbcf53a339.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/c238103a-39d9-49a7-9322-edcbcf53a339.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-5d97f2ca-fd94-4a1d-ad28-eefd6ebb368d",
+                            "name": "Paneer Onion Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 199,
+                            "description": "Paneer onion pizza with creamy sauce and fresh ingredients.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 199,
+                                            "option_name": "Small",
+                                            "option_id": "temp-5a0c9147-f12b-4d2a-9713-d8c42fc15757",
+                                            "variant_id": "temp-737230c9-042f-4e74-9cfa-f24839822662",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 369,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-a16c18ae-7f22-4597-9c0f-dce3179607e3",
+                                            "variant_id": "temp-9916b3c6-c916-4a47-945a-a72a8966986c",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 499,
+                                            "option_name": "Large",
+                                            "option_id": "temp-43d1101b-5a90-4f4c-8081-3158913752a5",
+                                            "variant_id": "temp-346a7f12-902a-4d2a-bb3e-7272061a0ee8",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-a506574d-5801-411f-ae50-318bc4a64fad"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-5d97f2ca-fd94-4a1d-ad28-eefd6ebb368d",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/5e5fb3d1-74fc-4272-b7d2-9ba866afc5fe.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-3586b814-073d-4075-a47e-992e05c54603",
+                            "name": "Mexican Veggie Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 259,
+                            "description": "Mexican veggie pizza with spicy sauce and fresh toppings.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 259,
+                                            "option_name": "Small",
+                                            "option_id": "temp-06f7ba51-4303-45f6-98e3-5a2edc9fb334",
+                                            "variant_id": "temp-6dac73d8-b951-443b-a75f-87f539ab041e",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 449,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-88f788c0-a03c-4a7b-88a2-e54f9c473230",
+                                            "variant_id": "temp-e363b4fa-b4f4-42a3-91fa-bf617293a7b8",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 629,
+                                            "option_name": "Large",
+                                            "option_id": "temp-8acc9232-336f-46df-8bd9-fad212c0c4f0",
+                                            "variant_id": "temp-dc145579-0491-455a-bfc5-4e5725bc3199",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-0b9fec5b-a892-4fae-b241-469c68996fd8"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-3586b814-073d-4075-a47e-992e05c54603",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/04e0dd0d-9d25-4d85-870d-bdbe16139097.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-4fec335c-71ed-4e82-9c64-48a14be4c79f",
+                            "name": "Love Bite Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 259,
+                            "description": "Love bite pizza with creamy sauce and fresh ingredients.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 259,
+                                            "option_name": "Small",
+                                            "option_id": "temp-09c398ba-b1c8-434d-bb30-16f82fefbdc5",
+                                            "variant_id": "temp-f1002791-3db9-4fa4-b020-687fd71a5e2f",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 449,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-6157c352-c2a2-4c51-a78c-1ccf3ba615a6",
+                                            "variant_id": "temp-33ab1561-7f77-4360-aecc-c72433eff9ed",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 629,
+                                            "option_name": "Large",
+                                            "option_id": "temp-2813bc18-79f4-41e6-a774-db4a118d7bbb",
+                                            "variant_id": "temp-c16b42f6-414e-4ac8-82eb-ac50016c53a1",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-36650e38-1f20-4714-a9dd-a9d62f1b3bec"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-4fec335c-71ed-4e82-9c64-48a14be4c79f",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/acae7373-bf60-4150-a070-fb51f10be391.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-c3d63b47-64d8-40e3-8473-b27d4050cb59",
+                            "name": "Spicy Paneer Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 259,
+                            "description": "Spicy paneer pizza with fiery sauce and fresh ingredients.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 259,
+                                            "option_name": "Small",
+                                            "option_id": "temp-e39c9e4a-23a3-45a5-8e0f-ad81e722d202",
+                                            "variant_id": "temp-c4caf487-29c9-47e1-9d07-b8041498b0ea",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 449,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-6207095c-ea5e-4f76-ae1b-a29e8b6339d7",
+                                            "variant_id": "temp-c0012904-68a1-49d6-a3c0-f4c8794da7a2",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 629,
+                                            "option_name": "Large",
+                                            "option_id": "temp-b6da645a-dc26-431a-a438-f8fa9e1010a7",
+                                            "variant_id": "temp-38b731a3-9397-4575-b36c-4f35ae9c2007",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-e633825e-90e4-4d62-8bb0-dcaca1104821"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-c3d63b47-64d8-40e3-8473-b27d4050cb59",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-c0cce9a7-9fe5-4cdc-9898-1be95d2f97f2",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/b7d7be37-0456-4bed-b8e1-2f95f68ff287.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/b7d7be37-0456-4bed-b8e1-2f95f68ff287.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-0bf001e9-270c-41e3-b34c-b63f88f8e339",
+                            "name": "Tandoori Paneer Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 299,
+                            "description": "Tandoori paneer pizza with rich gravy and fresh ingredients.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 299,
+                                            "option_name": "Small",
+                                            "option_id": "temp-f708e43c-1dd6-4c45-8463-73363d0afd79",
+                                            "variant_id": "temp-4dfe7716-81d5-4172-9b7d-a5db267a72ac",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 549,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-fd675d6e-8a03-4419-a2e3-f5f82284940d",
+                                            "variant_id": "temp-9abe895b-f551-4893-9fb4-4905571fb24f",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 749,
+                                            "option_name": "Large",
+                                            "option_id": "temp-0601df61-df12-416b-8a51-12e44f109a34",
+                                            "variant_id": "temp-68ef2284-0f45-4b82-b18a-36071ec81d14",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-04e4d269-808e-4ee7-8ae3-b1ff984abf9f"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-0bf001e9-270c-41e3-b34c-b63f88f8e339",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-79646e8d-24a8-4bc7-a229-7f13c04bb2a4",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/37ea8354-267d-47e0-8810-cde1e88e9f40.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/37ea8354-267d-47e0-8810-cde1e88e9f40.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-00abb4a2-0165-462e-a224-6ebccaa2ed9c",
+                            "name": "Spicy Chilli Paneer Pizza [6 inch]",
+                            "category": "Pizza",
+                            "sub_category": "Pizza",
+                            "is_veg": "VEG",
+                            "base_price": 329,
+                            "description": "Spicy chilli paneer pizza with fiery sauce and fresh ingredients.",
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "options": [
+                                        {
+                                            "price": 329,
+                                            "option_name": "Small",
+                                            "option_id": "temp-69fd666d-299e-4919-a5ac-1c4047dfe653",
+                                            "variant_id": "temp-47cb8726-52a7-427f-830f-88c3cc46af5f",
+                                            "is_default": true
+                                        },
+                                        {
+                                            "price": 629,
+                                            "option_name": "Medium",
+                                            "option_id": "temp-7dceb78e-b92e-4379-b86a-7551bbb34a3b",
+                                            "variant_id": "temp-cce3ebff-84b9-46ff-99fa-e6bc2ff11189",
+                                            "is_default": false
+                                        },
+                                        {
+                                            "price": 849,
+                                            "option_name": "Large",
+                                            "option_id": "temp-52bc6dc1-9951-4df5-9f2e-650d2ba2f58c",
+                                            "variant_id": "temp-062e7505-1aa3-4933-97b3-3b1d220cd500",
+                                            "is_default": false
+                                        }
+                                    ],
+                                    "property_id": "temp-0d4fa14d-bf87-41af-a2a8-999d28cf82c9"
+                                }
+                            ],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-00abb4a2-0165-462e-a224-6ebccaa2ed9c",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/136ea6b5-11a0-406d-b064-26fe1b41928d.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "temp-77965926"
+                }
+            ],
+            "id": "temp-77965902",
+            "items": []
+        },
+        {
+            "name": "Wraps",
+            "sub_category": [
+                {
+                    "name": "Wraps",
+                    "items": [
+                        {
+                            "id": "temp-temp-85e3663d-23ae-45f9-acf2-e5ea19b8d59e",
+                            "name": "Veg Wrap",
+                            "category": "Wraps",
+                            "sub_category": "Wraps",
+                            "is_veg": "VEG",
+                            "base_price": 109,
+                            "description": "Fresh veggies wrapped in a soft tortilla, perfect for vegetarians.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-85e3663d-23ae-45f9-acf2-e5ea19b8d59e",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/12dbe76d-61c0-4a45-ac9c-f423f6b86f23.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-52d7a3b7-7041-4c53-9172-b893fa043860",
+                            "name": "Crispy Wrap",
+                            "category": "Wraps",
+                            "sub_category": "Wraps",
+                            "is_veg": "VEG",
+                            "base_price": 139,
+                            "description": "Crispy wrap with fresh veggies and creamy sauce.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-52d7a3b7-7041-4c53-9172-b893fa043860",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/baf209fa-d6b9-44e9-8c1a-38bcfbb8b470.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-90faf530-221f-4789-b38b-f97ed9152198",
+                            "name": "Tandoori Paneer Wrap",
+                            "category": "Wraps",
+                            "sub_category": "Wraps",
+                            "is_veg": "VEG",
+                            "base_price": 159,
+                            "description": "Tandoori paneer wrap with rich gravy and fresh ingredients.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-90faf530-221f-4789-b38b-f97ed9152198",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2026/7/25/48902b2b-4c06-4966-a74c-a1799d8111ca_5497f9ae-7f51-4ded-aa97-7f3eae5f39d9.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-81771928-3462-4bcb-92da-2d14761d81fd",
+                            "name": "Cheese Wrap",
+                            "category": "Wraps",
+                            "sub_category": "Wraps",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Cheese wrap with melted cheese and fresh veggies.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-81771928-3462-4bcb-92da-2d14761d81fd",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-1928dcb7-4b4e-4acc-97c5-4974056f94e6",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/504678bc-efa8-42b3-a640-5c5049d791be.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/504678bc-efa8-42b3-a640-5c5049d791be.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-cec08547-3095-4d6d-9eba-863a0a8c3c7b",
+                            "name": "Paneer Wrap",
+                            "category": "Wraps",
+                            "sub_category": "Wraps",
+                            "is_veg": "VEG",
+                            "base_price": 189,
+                            "description": "Paneer wrap with creamy sauce and fresh ingredients.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-cec08547-3095-4d6d-9eba-863a0a8c3c7b",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-45a5bad4-5473-4bdd-8677-7c58ac853176",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/d70ff848-8dc8-4fe9-a6aa-5e906039dcd9.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/d70ff848-8dc8-4fe9-a6aa-5e906039dcd9.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-e0a27082-07c2-4c5d-8f21-f27f04ce0074",
+                            "name": "Cheese Potato Wrap",
+                            "category": "Wraps",
+                            "sub_category": "Wraps",
+                            "is_veg": "VEG",
+                            "base_price": 219,
+                            "description": "Cheese potato wrap with creamy sauce and fresh ingredients.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-e0a27082-07c2-4c5d-8f21-f27f04ce0074",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-feceed44-0685-4f17-8a56-7721d2614b58",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/00ef4ac7-39ac-4815-bc8c-14a997d022e9.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/00ef4ac7-39ac-4815-bc8c-14a997d022e9.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "77965927"
+                }
+            ],
+            "id": "77965782",
+            "items": []
+        },
+        {
+            "name": "Pasta",
+            "sub_category": [
+                {
+                    "name": "Pasta",
+                    "items": [
+                        {
+                            "id": "temp-temp-cfb999b1-f4ec-4d5d-a74a-35db00200589",
+                            "name": "Red Sauce Pasta",
+                            "category": "Pasta",
+                            "sub_category": "Pasta",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Classic red sauce pasta with fresh tomatoes and basil.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-cfb999b1-f4ec-4d5d-a74a-35db00200589",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/a4f0651e-3485-408d-8e4e-e79e8c6fe016.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-57f1b2ee-053a-4759-a99a-5760de7af662",
+                            "name": "White Sauce Pasta",
+                            "category": "Pasta",
+                            "sub_category": "Pasta",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Creamy white sauce pasta with fresh ingredients.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-57f1b2ee-053a-4759-a99a-5760de7af662",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/7355ca01-5b6d-42ab-b60a-89759771fe62.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-7646abff-e659-40f7-9dc4-f3e52b8dde5e",
+                            "name": "Mixed Sauce Pasta",
+                            "category": "Pasta",
+                            "sub_category": "Pasta",
+                            "is_veg": "VEG",
+                            "base_price": 219,
+                            "description": "Mixed sauce pasta with creamy and spicy sauces.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-7646abff-e659-40f7-9dc4-f3e52b8dde5e",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-f01f6d3a-e096-4cd9-8b78-9ec905990807",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/2c8065f6-59b7-4ade-8eab-763922d8e9ba.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/2c8065f6-59b7-4ade-8eab-763922d8e9ba.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-d34231e6-96b0-4bdc-ba1a-6b0f229174ff",
+                            "name": "Cheese Pasta",
+                            "category": "Pasta",
+                            "sub_category": "Pasta",
+                            "is_veg": "VEG",
+                            "base_price": 249,
+                            "description": "Cheese pasta with melted cheese and fresh ingredients.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-d34231e6-96b0-4bdc-ba1a-6b0f229174ff",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/e94882c5-d9aa-4b94-9c83-ec827e9bc151.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "77965928"
+                }
+            ],
+            "id": "77965905",
+            "items": []
+        },
+        {
+            "name": "Beverages",
+            "sub_category": [
+                {
+                    "name": "Mojito",
+                    "items": [
+                        {
+                            "id": "temp-temp-4f4372cb-bbda-4c9a-9a4b-367b66ae26a7",
+                            "name": "Regular Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 119,
+                            "description": "Classic mojito with mint, lime, and rum.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-4f4372cb-bbda-4c9a-9a4b-367b66ae26a7",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/89df62b6-ee43-46da-be33-2f8e03668ebe.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-7956c882-8abc-4738-9123-f0b4b1ed27b9",
+                            "name": "Premium Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 139,
+                            "description": "Premium mojito with premium rum and fresh mint.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-7956c882-8abc-4738-9123-f0b4b1ed27b9",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-b87dc611-6c88-40f0-9049-4b17908e5f8e",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/24fa26e9-7531-41ca-b6f3-5e65c3166b5e.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/24fa26e9-7531-41ca-b6f3-5e65c3166b5e.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-6edf0180-9b8d-4750-a04c-3feb03cb9b54",
+                            "name": "Mint Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 129,
+                            "description": "Refreshing mint mojito with fresh mint and lime.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-6edf0180-9b8d-4750-a04c-3feb03cb9b54",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/be0fa2c3-743e-4945-a306-aa37aedd0b6d.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-2a3028c6-16f2-4f31-8bde-bd8854e3b50b",
+                            "name": "Green Apple Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 139,
+                            "description": "Green apple mojito with fresh green apple and mint.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-2a3028c6-16f2-4f31-8bde-bd8854e3b50b",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-5ab4e5e1-1f94-4b4d-88ad-bc6a2d3bb64c",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/4b6961a1-3a52-4f84-a779-eff2aba40fa0.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/4b6961a1-3a52-4f84-a779-eff2aba40fa0.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-48c7cf6b-d8f4-44c6-a3cd-5a730bd00d42",
+                            "name": "Blue Curacao Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Blue curacao mojito with blue curacao and fresh mint.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-48c7cf6b-d8f4-44c6-a3cd-5a730bd00d42",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-5520db74-f870-4cca-973c-0929834cd3ae",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/778910ea-5361-45f6-8a24-3c5eaa1ae75d.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/778910ea-5361-45f6-8a24-3c5eaa1ae75d.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-e5e2ffd8-1f25-4f99-96ed-4ff207645afc",
+                            "name": "Virgin Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Virgin mojito with fresh mint and lime, no alcohol.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-e5e2ffd8-1f25-4f99-96ed-4ff207645afc",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-278ac35e-8745-42f2-954c-78d3a7394ad0",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/62266627-1657-4ad2-9557-3d83da11fe78.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/62266627-1657-4ad2-9557-3d83da11fe78.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-c09519ac-3ac2-4419-875f-310d18379bbe",
+                            "name": "Watermelon Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Watermelon mojito with fresh watermelon and mint.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-c09519ac-3ac2-4419-875f-310d18379bbe",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-f2110362-fc57-48ec-9cfa-33989a06e0c2",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/903c5a1a-c913-4cdb-bb61-1fb542ed0226.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/903c5a1a-c913-4cdb-bb61-1fb542ed0226.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-e044942d-aa27-4b68-8c3f-e4c6b2f04323",
+                            "name": "Blueberry Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 159,
+                            "description": "Refreshing mojito with a hint of sweet blueberry.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-e044942d-aa27-4b68-8c3f-e4c6b2f04323",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/5665ad7a-07ac-41bc-ac22-b27f8df4fbef.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-23ed3404-ac7c-4fc8-9234-393e46906ac3",
+                            "name": "Bubble Gum Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 159,
+                            "description": "Delightful mojito with a playful bubble gum twist.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-23ed3404-ac7c-4fc8-9234-393e46906ac3",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2025/5/23/3b4ef9eb-4b6d-4fe2-8532-035f759f5a2a_d4dbebf5-78a1-4c6d-a692-135bffc8fa9e.jpg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-b1eae763-edf8-4669-9c27-e7d541b1819a",
+                            "name": "Blue Cracker Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Crispy blue cracker infused mojito for a unique taste.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-b1eae763-edf8-4669-9c27-e7d541b1819a",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-f36699f2-503c-45cc-bc14-69d55c4b6d35",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/ebaf834f-6839-4a47-bd0e-fdf24b5f8d14.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/ebaf834f-6839-4a47-bd0e-fdf24b5f8d14.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-783d0a58-19d6-4337-baa3-9d9decf37873",
+                            "name": "Kiwi Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Tangy kiwi adds a zesty kick to this refreshing mojito.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-783d0a58-19d6-4337-baa3-9d9decf37873",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-b32b020e-9707-46d5-ae17-d60bf278c013",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/ce5ffcad-c33a-410b-aa69-04ebf1435b07.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/ce5ffcad-c33a-410b-aa69-04ebf1435b07.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-5e2d7588-1fe3-4969-a1f6-f53acdc8b7f5",
+                            "name": "Lychee Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 169,
+                            "description": "Sweet lychee flavor blends perfectly in this mojito.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-5e2d7588-1fe3-4969-a1f6-f53acdc8b7f5",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/43da232b-f679-4d38-a6a5-dd9ec1daac2e.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-9d395050-a853-40f6-8651-1ef34e761e9b",
+                            "name": "Orange Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 149,
+                            "description": "Bright orange adds a citrusy twist to this classic mojito.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-9d395050-a853-40f6-8651-1ef34e761e9b",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/239debb5-c517-477d-9677-273bf669b5d4.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-61928e4b-ae44-41fb-8fd6-e149d67a15d9",
+                            "name": "Black Currant Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Mojito",
+                            "is_veg": "VEG",
+                            "base_price": 159,
+                            "description": "Rich black currant flavor in a refreshing mojito.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-61928e4b-ae44-41fb-8fd6-e149d67a15d9",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/0aee34d0-5334-4972-89a9-c587c74a5162.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "77965929"
+                },
+                {
+                    "name": "Premium Mojitos",
+                    "items": [
+                        {
+                            "id": "temp-temp-d7c814ee-4f71-4413-8d95-2f68088cefce",
+                            "name": "Red Bull Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Premium Mojitos",
+                            "is_veg": "VEG",
+                            "base_price": 249,
+                            "description": "Energetic mojito with a hint of Red Bull.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-d7c814ee-4f71-4413-8d95-2f68088cefce",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/297f4fcecdd8be85164cb4d0a9117c8c",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-de8ceca8-4d2b-450c-9768-8a4e3dd7ef0d",
+                            "name": "Monster Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Premium Mojitos",
+                            "is_veg": "VEG",
+                            "base_price": 279,
+                            "description": "Bold Monster energy drink infused into a mojito.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-de8ceca8-4d2b-450c-9768-8a4e3dd7ef0d",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-ac8977b7-818a-4997-bf3a-9144e9846265",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/8f73f7b1-5a61-4a67-950c-0950c48ac2b2.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/8f73f7b1-5a61-4a67-950c-0950c48ac2b2.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-cb3b5fb5-4c49-4463-82ad-4e3e421931de",
+                            "name": "Fruit Blast Mojito [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Premium Mojitos",
+                            "is_veg": "VEG",
+                            "base_price": 199,
+                            "description": "Refreshing blend of tropical fruits and mint in a fizzy delight.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/6f8a703e-7d86-4644-9abb-2be60701e108.jpeg",
+                                    "mediaId": null
+                                }
+                            ],
+                            "temp_id": "temp-temp-cb3b5fb5-4c49-4463-82ad-4e3e421931de"
+                        }
+                    ],
+                    "id": "77965930"
+                },
+                {
+                    "name": "Shakes",
+                    "items": [
+                        {
+                            "id": "temp-temp-2c9ead79-8c7e-4e7a-846d-0d29c88d9a88",
+                            "name": "Vanilla Shake [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Shakes",
+                            "is_veg": "VEG",
+                            "base_price": 109,
+                            "description": "Creamy vanilla shake with a smooth finish.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-2c9ead79-8c7e-4e7a-846d-0d29c88d9a88",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-555be081-1e02-458e-8ef2-335413f98861",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/53bc1b98-edac-40db-a683-cd3d55ef24a5.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/53bc1b98-edac-40db-a683-cd3d55ef24a5.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-bd8c439f-bf11-4117-9bcb-409cd785430d",
+                            "name": "Strawberry Shake [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Shakes",
+                            "is_veg": "VEG",
+                            "base_price": 119,
+                            "description": "Sweet strawberry shake with a refreshing taste.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-bd8c439f-bf11-4117-9bcb-409cd785430d",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-9a2371b3-a9b5-4e8f-b34f-244de70c96b0",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/c43403b1-4718-4e14-b942-6654f8272fe4.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/c43403b1-4718-4e14-b942-6654f8272fe4.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-4c694702-cec0-4290-9615-14f69f3c2f67",
+                            "name": "Oreo Shake [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Shakes",
+                            "is_veg": "VEG",
+                            "base_price": 129,
+                            "description": "Classic Oreo shake with a delightful crunch.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-4c694702-cec0-4290-9615-14f69f3c2f67",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/762ebcf5-bf90-4f50-9f5c-5f9d56b5d14f.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-5a7d0f51-e6ea-416b-a159-1723ea0d2a80",
+                            "name": "KitKat Shake [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Shakes",
+                            "is_veg": "VEG",
+                            "base_price": 129,
+                            "description": "Chocolatey KitKat shake for a sweet treat.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-5a7d0f51-e6ea-416b-a159-1723ea0d2a80",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-5a84987f-22b0-4b1b-9788-499297df2de2",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/dec20e15-9700-4505-ba59-51ab44f78862.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/dec20e15-9700-4505-ba59-51ab44f78862.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-0cd13dcd-f054-4a55-8752-670af7688afb",
+                            "name": "Butterscotch Shake [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Shakes",
+                            "is_veg": "VEG",
+                            "base_price": 139,
+                            "description": "Rich butterscotch shake with a creamy texture.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-0cd13dcd-f054-4a55-8752-670af7688afb",
+                            "media": [
+                                {
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/050b3f7e-dd39-4f24-bd31-fca137ab4674.jpeg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-1c17a7ca-458a-4b0e-a640-549d52322c55",
+                            "name": "Hot Coffee [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Shakes",
+                            "is_veg": "VEG",
+                            "base_price": 99,
+                            "description": "Warm, rich coffee to start your day.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-1c17a7ca-458a-4b0e-a640-549d52322c55",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-ecf566b6-d9fb-47bb-b626-c4c67083f716",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/4a6435f3-76b6-4536-8f16-557c7b51e6f9.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/4a6435f3-76b6-4536-8f16-557c7b51e6f9.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-15009f16-73f9-421f-8a49-379868bd8e75",
+                            "name": "Cold Coffee Special [200 ML]",
+                            "category": "Beverages",
+                            "sub_category": "Shakes",
+                            "is_veg": "VEG",
+                            "base_price": 159,
+                            "description": "Refreshing cold coffee with a unique twist.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-15009f16-73f9-421f-8a49-379868bd8e75",
+                            "media": [
+                                {
+                                    "tempReferenceId": "temp-auto-18e9ec81-e313-4b4c-8a1c-938dd2a3339c",
+                                    "url": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/679f16b7-1de8-4583-8dcc-69f274cf8b48.jpeg",
+                                    "thumbUrl": "https://foodsnap-plus.s3.ap-southeast-2.amazonaws.com/foodsnap/679f16b7-1de8-4583-8dcc-69f274cf8b48.jpeg",
+                                    "isNewlyUploaded": true,
+                                    "isUploading": false
+                                }
+                            ]
+                        }
+                    ],
+                    "id": "77965931"
+                }
+            ],
+            "id": "77965784",
+            "items": []
+        },
+        {
+            "name": "Combos",
+            "sub_category": [
+                {
+                    "name": "Combos",
+                    "items": [
+                        {
+                            "id": "temp-temp-db42e2b6-cfbb-4ca2-a60e-9c08244ad9c4",
+                            "name": "Combo 1",
+                            "category": "Combos",
+                            "sub_category": "Combos",
+                            "is_veg": "VEG",
+                            "base_price": 399,
+                            "description": "Perfect combo of refreshing drinks and snacks.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-db42e2b6-cfbb-4ca2-a60e-9c08244ad9c4",
+                            "media": []
+                        },
+                        {
+                            "id": "temp-temp-3125e079-f61c-4a1f-8643-b665ffa1e084",
+                            "name": "Pizza + Cold Coffee [6 inch]",
+                            "category": "Combos",
+                            "sub_category": "Combos",
+                            "is_veg": "VEG",
+                            "base_price": 179,
+                            "description": "Crispy pizza paired with a refreshing cold coffee.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-3125e079-f61c-4a1f-8643-b665ffa1e084",
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/FOOD_CATALOG/IMAGES/CMS/2025/3/11/ff0e5739-668c-4a66-9742-7daac4cec84d_c05f516d-2915-400e-ad1f-aae2a439de44.jpg",
+                                    "mediaId": null
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-temp-4c0ff419-085f-4bd9-a1c8-42756646f6fb",
+                            "name": "Combo 2",
+                            "category": "Combos",
+                            "sub_category": "Combos",
+                            "is_veg": "VEG",
+                            "base_price": 349,
+                            "description": "Delicious combo of drinks and snacks for a satisfying meal.",
+                            "variants": [],
+                            "is_available": true,
+                            "meatTypes": [],
+                            "temp_id": "temp-temp-4c0ff419-085f-4bd9-a1c8-42756646f6fb",
+                            "media": []
+                        }
+                    ],
+                    "id": "77965932"
+                }
+            ],
+            "id": "77965785",
+            "items": []
+        }
+    ],
+    "createdAt": {
+        "$date": "2026-07-28T10:56:23.172Z"
+    },
+    "updatedAt": {
+        "$date": "2026-07-28T11:49:05.376Z"
+    },
+    "__v": 114,
+    "addons": []
+}

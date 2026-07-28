@@ -179,7 +179,8 @@ class SemanticNormalizationNode:
         menu_repo = MenuRepository()
         
         # Deep merge with existing menu
-        existing_menu = menu_repo.get_menu(job.restaurant_id, "zomato")
+        job_platform = getattr(job, 'platform', 'zomato')
+        existing_menu = menu_repo.get_menu(job.restaurant_id, job_platform)
         
         for new_cat in prepared_categories:
             new_cat_name = str(new_cat.get("name", "")).lower()
@@ -213,7 +214,7 @@ class SemanticNormalizationNode:
                 existing_menu.append(new_cat)
                 
         # Overwrite the document menu array with the fully merged menu
-        menu_repo.upsert_menu(job.restaurant_id, "zomato", existing_menu, append=False)
+        menu_repo.upsert_menu(job.restaurant_id, job_platform, existing_menu, append=False)
         
         self.repository.update_status(
             job_id,

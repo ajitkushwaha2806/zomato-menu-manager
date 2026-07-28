@@ -1,12 +1,14 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useMenu } from "@/store/hooks/useMenu";
 import useRestaurant from "@/store/hooks/useRestaurant";
+import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
 import useNotification from "@/store/hooks/useNotification";
 import api from "@/lib/api/axios";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send, ChevronsUpDown, Check, Store, Search } from "lucide-react";
+import SwiggyLoginPopover from "./SwiggyLoginPopover";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -33,26 +35,42 @@ function RestaurantImage({ restaurant }) {
 }
 
 export default function TransferMenuEditor() {
-    const { activeResId, setActiveResId } = useMenu();
-    const { restaurants, isLoading: isRestaurantsLoading } = useRestaurant();
+    const { activeResId, setActiveResId, menuData } = useMenu();
+    const [platform, setPlatform] = useState("zomato");
+    const { restaurants: zomatoRes, isLoading: isZomatoLoading } = useRestaurant();
+    const { restaurants: swiggyRes, isLoading: isSwiggyLoading, isError: isSwiggyError, error: swiggyError, refetch: refetchSwiggy } = useSwiggyRestaurant();
     const notification = useNotification();
     const [targetResId, setTargetResId] = useState("");
     const [isTransferring, setIsTransferring] = useState(false);
     const [searchQuery, setSearchQuery] = useState("");
+    const [isLoginPopoverOpen, setIsLoginPopoverOpen] = useState(false);
 
-    const zomatoRestaurants = restaurants?.entities?.filter(r => r.id !== activeResId) || [];
+    useEffect(() => {
+        if (platform === "swiggy" && isSwiggyError) {
+            if (swiggyError?.response?.status === 401) {
+                setIsLoginPopoverOpen(true);
+            }
+        }
+    }, [platform, isSwiggyError, swiggyError]);
+
+    const availableRestaurants = useMemo(() => {
+        const entities = platform === "zomato" ? zomatoRes?.entities : swiggyRes?.entities;
+        return entities?.filter(r => r.id !== activeResId) || [];
+    }, [platform, zomatoRes, swiggyRes, activeResId]);
     
+    const isRestaurantsLoading = platform === "zomato" ? isZomatoLoading : isSwiggyLoading;
+
     const filteredRestaurants = useMemo(() => {
-        if (!searchQuery.trim()) return zomatoRestaurants;
-        return zomatoRestaurants.filter(r => 
+        if (!searchQuery.trim()) return availableRestaurants;
+        return availableRestaurants.filter(r => 
           r.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
           r.subzone?.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [zomatoRestaurants, searchQuery]);
+    }, [availableRestaurants, searchQuery]);
 
     const selectedTarget = useMemo(() => {
-        return zomatoRestaurants.find((r) => r.id === targetResId) || null;
-    }, [zomatoRestaurants, targetResId]);
+        return availableRestaurants.find((r) => r.id === targetResId) || null;
+    }, [availableRestaurants, targetResId]);
 
     const handleTransfer = async () => {
         if (!targetResId) {
@@ -62,13 +80,19 @@ export default function TransferMenuEditor() {
 
         try {
             setIsTransferring(true);
-            const response = await api.post(`/api/menu/${activeResId}/zomato/transfer`, {
-                res_id_to: targetResId
-            });
+            const endpoint = platform === "zomato"
+                ? `/api/menu/${activeResId}/zomato/transfer`
+                : `/api/menu/${activeResId}/swiggy/transfer`;
+
+            const payload = platform === "zomato" 
+                ? { res_id_to: targetResId }
+                : { res_id_to: targetResId, sourceMenu: menuData };
+
+            const response = await api.post(endpoint, payload);
 
             if (response.data) {
                 notification.success("Menu transferred successfully!");
-                setActiveResId(targetResId);
+                setActiveResId({ id: targetResId, platform: platform });
             }
         } catch (error) {
             console.error("Transfer error:", error);
@@ -90,6 +114,28 @@ export default function TransferMenuEditor() {
                     </div>
 
                     <div className="bg-white p-6 rounded-xl border shadow-sm space-y-4">
+                        <div className="space-y-3">
+                            <label className="text-sm font-medium leading-none">
+                                Select Platform
+                            </label>
+                            <div className="flex space-x-4">
+                                <Button
+                                    variant={platform === "zomato" ? "default" : "outline"}
+                                    onClick={() => { setPlatform("zomato"); setTargetResId(""); setSearchQuery(""); }}
+                                    className="w-1/2"
+                                >
+                                    Zomato
+                                </Button>
+                                <Button
+                                    variant={platform === "swiggy" ? "default" : "outline"}
+                                    onClick={() => { setPlatform("swiggy"); setTargetResId(""); setSearchQuery(""); }}
+                                    className="w-1/2"
+                                >
+                                    Swiggy
+                                </Button>
+                            </div>
+                        </div>
+
                         <div className="space-y-3">
                             <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                                 Target Restaurant
@@ -143,7 +189,7 @@ export default function TransferMenuEditor() {
                                                     Target Options
                                                 </p>
                                                 <p className="text-[11px] text-muted-foreground font-normal mt-0.5">
-                                                    {zomatoRestaurants.length} available restaurant{zomatoRestaurants.length > 1 ? "s" : ""}
+                                                    {availableRestaurants.length} available restaurant{availableRestaurants.length > 1 ? "s" : ""}
                                                 </p>
                                             </div>
                                         </div>
@@ -227,6 +273,12 @@ export default function TransferMenuEditor() {
                     </div>
                 </div>
             </div>
+
+            <SwiggyLoginPopover
+                isOpen={isLoginPopoverOpen}
+                onClose={() => setIsLoginPopoverOpen(false)}
+                onSuccess={() => refetchSwiggy()}
+            />
         </div>
     );
 }

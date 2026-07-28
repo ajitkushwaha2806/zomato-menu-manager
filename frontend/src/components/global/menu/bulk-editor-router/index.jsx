@@ -8,37 +8,36 @@ import StructureEditor from "./views/StructureEditor";
 import AddonsBuilder from "./views/AddonsBuilder";
 import ExportImagesEditor from "./views/ExportImagesEditor";
 import HoldItemsEditor from "./views/HoldItemsEditor";
+import SwiggyTicketsViewer from "./views/tickets/SwiggyTicketsViewer";
 
-export default function BulkEditorRouter({ 
-    activeBulkMode, 
-    menuData, 
-    updateItem, 
-    deleteItem, 
-    moveItem 
+export default function BulkEditorRouter({
+    activeBulkMode,
+    menuData,
+    updateItem,
+    deleteItem,
+    moveItem,
+    activeResId
 }) {
     const filteredMenuData = useMemo(() => {
         if (!Array.isArray(menuData)) return [];
         return menuData
-            .filter(c => c.status !== 'delete' && c.status !== 'deleted')
             .map(cat => ({
                 ...cat,
                 sub_category: (cat.sub_category || [])
-                    .filter(s => s.status !== 'delete' && s.status !== 'deleted')
                     .map(sub => ({
                         ...sub,
                         items: (sub.items || [])
-                            .filter(i => i.status !== 'delete' && i.status !== 'deleted')
                             .map(item => ({
                                 ...item,
-                                variants: (item.variants || []).filter(v => v.status !== 'delete' && v.status !== 'deleted')
+                                variants: (item.variants || [])
                             }))
                     }))
             }));
     }, [menuData]);
 
     const allItems = useMemo(() => {
-        return filteredMenuData.flatMap(cat => 
-            (cat.sub_category || []).flatMap(sub => 
+        return filteredMenuData.flatMap(cat =>
+            (cat.sub_category || []).flatMap(sub =>
                 (sub.items || []).map(item => ({
                     ...item,
                     _parentSubCategoryId: sub.id,
@@ -68,6 +67,8 @@ export default function BulkEditorRouter({
             return <HoldItemsEditor allItems={allItems} updateItem={updateItem} deleteItem={deleteItem} categories={filteredMenuData} />;
         case "EXPORT_IMAGES":
             return <ExportImagesEditor allItems={allItems} />;
+        case "TICKETS":
+            return <SwiggyTicketsViewer resId={activeResId} />;
         default:
             return null;
     }

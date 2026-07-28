@@ -7,6 +7,11 @@ const MenuSyncSchema = new mongoose.Schema(
             required: true,
         },
 
+        accountName: {
+            type: String,
+            default: null,
+        },
+
         status: {
             type: String,
             enum: [

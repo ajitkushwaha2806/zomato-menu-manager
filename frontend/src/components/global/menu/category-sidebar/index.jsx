@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useMenu } from "@/store/hooks/useMenu";
 import { useMemo, useState, useEffect } from "react";
 import InlineInput from "@/components/ui/inline-input";
-import { Plus, Layers, Settings2, DollarSign, AlignLeft, Image as ImageIcon, ChevronLeft, ChevronRight, FileUp, Share, Cloud, PlusCircle, AlertTriangle, ClipboardPaste } from "lucide-react";
+import { Plus, Layers, Settings2, DollarSign, AlignLeft, Image as ImageIcon, ChevronLeft, ChevronRight, FileUp, Share, Cloud, PlusCircle, AlertTriangle, ClipboardPaste, Ticket } from "lucide-react";
 
 export default function CategorySidebar() {
     const {
@@ -35,18 +35,18 @@ export default function CategorySidebar() {
     const categories = useMemo(() => {
         if (!Array.isArray(menuData)) return [];
         return menuData
-            .filter(cat => cat.status !== 'delete' && cat.status !== 'deleted')
             .map((cat) => ({
                 id: cat.id,
                 name: cat.name,
                 temp_id: cat.temp_id,
+                status: cat.status,
                 raw: cat,
                 subcategories: (cat.sub_category || [])
-                    .filter(sub => sub.status !== 'delete' && sub.status !== 'deleted')
                     .map((sub) => ({
                         id: sub.id,
                         name: sub.name,
                         temp_id: sub.temp_id,
+                        status: sub.status,
                         raw: sub,
                     }))
             }))
@@ -227,6 +227,13 @@ export default function CategorySidebar() {
                                     }`}
                             >
                                 <Cloud className="w-4 h-4" /> Export Images
+                            </button>
+                            <button
+                                onClick={() => setActiveBulkMode("TICKETS")}
+                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "TICKETS" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
+                                    }`}
+                            >
+                                <Ticket className="w-4 h-4" /> Swiggy Tickets
                             </button>
                         </div>
                     )}

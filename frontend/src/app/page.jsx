@@ -10,16 +10,18 @@ import BulkEditorRouter from "@/components/global/menu/bulk-editor-router";
 import ImageSidebar from "@/components/global/menu/bulk-editor-router/views/ImageSidebar";
 
 const MenuPage = () => {
-    const { activeResId, getMenuByResId, saveMenuByResId, isLoading, isSaving, activeCategory, activeSubCategory, menuData, addItem, updateItem, deleteItem, moveItem, activeView, activeBulkMode } = useMenu();
+    const { activeResId, activePlatform, getMenuByResId, saveMenuByResId, isLoading, isSaving, activeCategory, activeSubCategory, menuData, addItem, updateItem, deleteItem, moveItem, activeView, activeBulkMode } = useMenu();
     const fetchedResId = useRef(null);
+    const fetchedPlatform = useRef(null);
     const notification = useNotification();
 
     useEffect(() => {
-        if (activeResId && activeResId !== fetchedResId.current) {
+        if (activeResId && (activeResId !== fetchedResId.current || activePlatform !== fetchedPlatform.current)) {
             fetchedResId.current = activeResId;
-            getMenuByResId(activeResId);
+            fetchedPlatform.current = activePlatform;
+            getMenuByResId({ resId: activeResId, platform: activePlatform });
         }
-    }, [activeResId, getMenuByResId]);
+    }, [activeResId, activePlatform, getMenuByResId]);
 
     const handleSaveMenu = async () => {
         try {
@@ -52,6 +54,7 @@ const MenuPage = () => {
                         updateItem={updateItem}
                         deleteItem={deleteItem}
                         moveItem={moveItem}
+                        activeResId={activeResId}
                     />
                 ) : (
                     <MenuItemList 

@@ -6,6 +6,8 @@ export async function GET(request, { params }) {
     try {
         await dbConnect();
         const { resId } = await params;
+        const searchParams = request.nextUrl.searchParams;
+        const platform = searchParams.get('platform');
 
         if (!resId) {
             return NextResponse.json(
@@ -17,11 +19,16 @@ export async function GET(request, { params }) {
             );
         }
 
-        const menuData = await Menu.findOne({ resId });
+        const query = { resId };
+        if (platform) {
+            query.platform = platform;
+        }
+
+        const menuData = await Menu.findOne(query);
         if (!menuData) {
             const newMenu = await Menu.create({
                 resId,
-                platform: "zomato",
+                platform: platform || "zomato",
                 menu: [],
             });
             return NextResponse.json(
@@ -84,13 +91,8 @@ export async function PUT(req, { params }) {
             platform,
         });
 
-        // If not found by specific platform, try finding any menu for this resId
         if (!existingMenu) {
-             existingMenu = await Menu.findOne({ resId });
-        }
-
-        if (!existingMenu) {
-            // Or create one if it doesn't exist to be safe
+            // Create one if it doesn't exist for this platform
             existingMenu = await Menu.create({
                 resId,
                 platform,

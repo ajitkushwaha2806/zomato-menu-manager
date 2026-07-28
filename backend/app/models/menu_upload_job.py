@@ -7,6 +7,7 @@ class MenuUploadJob(BaseModel):
     job_id: str
     restaurant_id: str
     upload_type: UploadType
+    platform: str = "zomato"
     status: JobStatus = JobStatus.QUEUED
     files: list[UploadedFile]
     total_files: int

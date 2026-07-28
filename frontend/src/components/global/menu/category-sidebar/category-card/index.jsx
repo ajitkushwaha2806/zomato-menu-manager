@@ -45,17 +45,20 @@ export default function CategoryCard({
     return (
         <div
             className={cn(
-                "overflow-hidden rounded-xl border transition-all duration-300 animate-in slide-in-from-bottom-2 fade-in",
-                isCategoryActive
-                    ? "border-primary/30 bg-primary/[0.02] shadow-sm"
-                    : "border-border/50 bg-white/80 hover:border-border"
+                "group flex flex-col rounded-2xl border transition-all duration-300 overflow-hidden",
+                category.status === 'delete' ? "border-red-300 bg-red-50" :
+                isExpanded ? "border-border/50 bg-muted/30 shadow-sm" : "border-transparent bg-transparent hover:border-border hover:bg-muted/50"
             )}
             style={{
                 animationDelay: `${index * 30}ms`,
                 animationFillMode: "both",
             }}
         >
-            <div className={cn("group flex items-center gap-1.5 p-2 transition-colors", isCategoryActive && "bg-gradient-to-r from-primary/10 to-transparent")}>
+            <div className={cn(
+                "relative flex min-w-0 flex-1 items-center gap-3 py-2 pl-3 pr-2 transition-colors",
+                category.status === 'delete' ? "bg-red-50/50 opacity-60 pointer-events-none" :
+                isCategoryActive ? "bg-primary/10" : "group-hover:bg-muted/50"
+            )}>
                 <Button
                     type="button"
                     size="icon"
@@ -92,15 +95,25 @@ export default function CategoryCard({
                             onClick={handleCategorySelect}
                             className="flex min-w-0 flex-1 items-center gap-2.5 overflow-hidden text-left"
                         >
-                            <div className={cn("flex h-8 w-8 shrink-0 items-center justify-center rounded-lg", isCategoryActive ? "bg-primary shadow-sm" : "bg-primary/10")}>
-                                <FolderKanban className={cn("h-4 w-4", isCategoryActive ? "text-primary-foreground" : "text-primary")} />
+                            <div className={cn(
+                                "flex h-8 w-8 shrink-0 items-center justify-center rounded-xl transition-colors",
+                                category.status === 'delete' ? "bg-red-100 text-red-500" :
+                                isCategoryActive ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground group-hover:bg-background group-hover:text-foreground"
+                            )}>
+                                <FolderKanban className="h-4 w-4" />
                             </div>
 
                             <div className="min-w-0 flex-1">
-                                <p className={cn("truncate text-sm font-semibold flex items-center gap-2", isCategoryActive ? "text-primary" : "text-foreground")}>
+                                <p className={cn("truncate text-sm font-semibold flex items-center gap-2", category.status === 'delete' ? "text-red-500" : isCategoryActive ? "text-primary" : "text-foreground")}>
                                     <span className="truncate">{category.name}</span>
                                     {category.id?.toString().startsWith("temp-") && (
                                         <span className="bg-green-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase tracking-wider shrink-0">NEW</span>
+                                    )}
+                                    {category.temp_id?.toString().startsWith("update-") && !category.id?.toString().startsWith("temp-") && (
+                                        <span className="bg-blue-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase tracking-wider shrink-0">UPDATE</span>
+                                    )}
+                                    {category.status === 'delete' && (
+                                        <span className="bg-red-500 text-white text-[9px] font-bold px-1.5 py-0.5 rounded shadow-sm uppercase tracking-wider shrink-0">DELETE</span>
                                     )}
                                 </p>
                                 <p className="text-[10px] text-muted-foreground">
@@ -109,12 +122,14 @@ export default function CategoryCard({
                             </div>
                         </button>
 
-                        <ActionMenu
-                            triggerClassName="h-7 w-7 shrink-0 rounded-lg opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
-                            onRename={() => setIsEditing(true)}
-                            onDelete={() => deleteCategory?.(category.id)}
-                            onCopy={copyCategoryToClipboard ? () => copyCategoryToClipboard(category.raw || category) : undefined}
-                        />
+                        {!category.status || category.status !== 'delete' ? (
+                            <ActionMenu
+                                triggerClassName="h-7 w-7 shrink-0 rounded-lg opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
+                                onRename={() => setIsEditing(true)}
+                                onDelete={() => deleteCategory?.(category.id)}
+                                onCopy={copyCategoryToClipboard ? () => copyCategoryToClipboard(category.raw || category) : undefined}
+                            />
+                        ) : null}
                     </>
                 )}
             </div>
@@ -147,16 +162,18 @@ export default function CategoryCard({
                                 />
                             </div>
                         ) : (
-                            <Button
-                                type="button"
-                                variant="ghost"
-                                size="sm"
-                                className="mt-2 w-full justify-start rounded-lg text-muted-foreground hover:text-foreground"
-                                onClick={() => setAddingSubCategory(true)}
-                            >
-                                <Plus className="mr-2 h-3.5 w-3.5" />
-                                Add Subcategory
-                            </Button>
+                            !category.status || category.status !== 'delete' ? (
+                                <Button
+                                    type="button"
+                                    variant="ghost"
+                                    size="sm"
+                                    className="mt-2 w-full justify-start rounded-lg text-muted-foreground hover:text-foreground"
+                                    onClick={() => setAddingSubCategory(true)}
+                                >
+                                    <Plus className="mr-2 h-3.5 w-3.5" />
+                                    Add Subcategory
+                                </Button>
+                            ) : null
                         )}
                     </div>
                 </div>

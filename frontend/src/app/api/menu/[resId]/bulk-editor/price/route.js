@@ -160,6 +160,14 @@ export async function POST(req, { params }) {
 
                             if (isUpdated) {
                                 updatedCount++;
+                                if (!preview) {
+                                    if (item.temp_id && String(item.temp_id).startsWith('temp-')) {
+                                        // It's a new item, leave temp_id as is so it triggers a create
+                                    } else {
+                                        const baseId = String(item.id).replace(/^update-/, '');
+                                        item.temp_id = `update-${baseId}`;
+                                    }
+                                }
                             }
                         }
                     );

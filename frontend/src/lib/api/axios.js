@@ -17,6 +17,11 @@ api.interceptors.request.use(
             config.headers["X-Zomato-Cookie"] = cookie;
         }
 
+        const swiggyAccount = CookieStorage.getSwiggyAccount();
+        if (swiggyAccount) {
+            config.headers["x-swiggy-account"] = swiggyAccount;
+        }
+
         return config;
     },
     (error) => Promise.reject(error)

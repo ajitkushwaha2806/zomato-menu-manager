@@ -11,16 +11,17 @@ import {
     closeImageSidebar,
     addImage,
     setImageUploadStatus,
+    setTicketImageUpdate,
 } from "@/store/slice/menuSlice";
 import { toast } from "sonner";
 import axios from "axios";
-import { uploadZomatoImage } from "@/services/zomatoImageService";
+import { uploadPlatformImage } from "@/services/imageService";
 
 export default function ImageSidebar() {
     const dispatch = useDispatch();
     const pathname = usePathname();
     const searchParams = useSearchParams();
-    const { isImageSidebarOpen, activeImageSearchItem, activeResId } = useSelector(
+    const { isImageSidebarOpen, activeImageSearchItem, activeResId, activePlatform } = useSelector(
         (state) => state.menu,
     );
 
@@ -128,40 +129,41 @@ export default function ImageSidebar() {
         dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "uploading" }));
 
         try {
-            const result = await uploadZomatoImage(activeResId, imageDoc.image_url);
+            // Bypass upload and just construct mediaArray using the URL directly
+            const mediaArray = [{
+                url: imageDoc.image_url,
+                mediaId: null,
+            }];
 
-            if (result.success) {
-                setUploadStatuses(prev => ({ ...prev, [imgId]: 'approved' }));
-                dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "approved" }));
+            setUploadStatuses(prev => ({ ...prev, [imgId]: 'approved' }));
+            dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "approved" }));
+            
+            if (activeImageSearchItem.isTicket) {
+                dispatch(setTicketImageUpdate({ ticketId: activeImageSearchItem.ticketId, imageUrl: imageDoc.image_url }));
+            } else {
                 dispatch(
                     addImage({
                         itemId: activeImageSearchItem.id,
-                        media: result.mediaArray,
+                        media: mediaArray,
                     }),
                 );
-                toast.success("Image approved & applied successfully!");
-                setTimeout(() => {
-                    setUploadStatuses(prev => { const newMap = { ...prev }; delete newMap[imgId]; return newMap; });
-                    dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: null }));
-                }, 3000);
-            } else {
-                setUploadStatuses(prev => ({ ...prev, [imgId]: 'rejected' }));
-                dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "rejected" }));
-                toast.error(result.message);
-                setTimeout(() => {
-                    setUploadStatuses(prev => { const newMap = { ...prev }; delete newMap[imgId]; return newMap; });
-                    dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: null }));
-                }, 4000);
             }
-        } catch (error) {
-            console.error("Failed to apply selected image:", error);
-            toast.error("Failed to upload image. Please try again.");
-            setUploadStatuses(prev => ({ ...prev, [imgId]: 'rejected' }));
-            dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "rejected" }));
+            toast.success("Image applied successfully!");
             setTimeout(() => {
                 setUploadStatuses(prev => { const newMap = { ...prev }; delete newMap[imgId]; return newMap; });
                 dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: null }));
-            }, 4000);
+            }, 500);
+
+        } catch (error) {
+            console.error("Image apply error:", error);
+            setUploadStatuses(prev => ({ ...prev, [imgId]: 'rejected' }));
+            dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "rejected" }));
+            toast.error(error.message || "Failed to apply image");
+            
+            setTimeout(() => {
+                setUploadStatuses(prev => { const newMap = { ...prev }; delete newMap[imgId]; return newMap; });
+                dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: null }));
+            }, 3000);
         }
     };
 

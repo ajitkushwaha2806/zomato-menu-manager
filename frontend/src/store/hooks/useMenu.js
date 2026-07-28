@@ -2,8 +2,9 @@ import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import {
     fetchMenuByResId,
-    setActiveResId as setGlobalResId,
-    setActiveView as setGlobalView,
+    setActiveResId as dispatchSetActiveResId,
+    setActivePlatform as dispatchSetActivePlatform,
+    setActiveView as dispatchSetActiveView,
     setActiveBulkMode as setGlobalBulkMode,
     setActiveCategory as setGlobalCategory,
     setActiveSubCategory as setGlobalSubCategory,
@@ -20,6 +21,7 @@ import {
     moveItem as dispatchMoveItem,
     saveMenuByResId as dispatchSaveMenuByResId,
     syncZomatoMenu as dispatchSyncZomatoMenu,
+    syncSwiggyMenu as dispatchSyncSwiggyMenu,
     addAddonGroup as dispatchAddAddonGroup,
     updateAddonGroup as dispatchUpdateAddonGroup,
     deleteAddonGroup as dispatchDeleteAddonGroup,
@@ -29,6 +31,9 @@ import {
     toggleItemAddon as dispatchToggleItemAddon,
     bulkToggleAddon as dispatchBulkToggleAddon,
     setGlobalSearchQuery as dispatchSetGlobalSearchQuery,
+    markMenuUpdatesDone as dispatchMarkMenuUpdatesDone,
+    queueAll as dispatchQueueAll,
+    queuePriceUpdates as dispatchQueuePriceUpdates
 } from '../slice/menuSlice';
 
 export const useMenu = () => {
@@ -39,6 +44,7 @@ export const useMenu = () => {
         addonsData,
         restaurantName,
         activeResId,
+        activePlatform,
         activeView,
         activeBulkMode,
         activeCategory,
@@ -47,20 +53,14 @@ export const useMenu = () => {
         isSaving,
         isSyncing,
         error,
-        globalSearchQuery
+        globalSearchQuery,
+        updated_menu
     } = useSelector((state) => state.menu);
 
     const getMenuByResId = useCallback((resId) => {
         dispatch(fetchMenuByResId(resId));
     }, [dispatch]);
 
-    const setActiveResId = useCallback((id) => {
-        if (typeof window !== 'undefined') {
-            localStorage.setItem('activeResId', id);
-        }
-        dispatch(setGlobalResId(id));
-    }, [dispatch]);
-    const setActiveView = useCallback((view) => dispatch(setGlobalView(view)), [dispatch]);
     const setActiveBulkMode = useCallback((mode) => dispatch(setGlobalBulkMode(mode)), [dispatch]);
     const setActiveCategory = useCallback((catId) => dispatch(setGlobalCategory(catId)), [dispatch]);
     const setActiveSubCategory = useCallback((subCatId) => dispatch(setGlobalSubCategory(subCatId)), [dispatch]);
@@ -142,6 +142,7 @@ export const useMenu = () => {
         addonsData,
         restaurantName,
         activeResId,
+        activePlatform,
         activeView,
         activeBulkMode,
         activeCategory,
@@ -150,10 +151,20 @@ export const useMenu = () => {
         isSaving,
         isSyncing,
         error,
+        updated_menu,
 
         // Core Layout Setters
-        setActiveResId,
-        setActiveView,
+        setActiveResId: useCallback((idOrObj) => {
+            if (typeof window !== 'undefined') {
+                const id = typeof idOrObj === 'object' ? idOrObj.id : idOrObj;
+                const platform = typeof idOrObj === 'object' ? idOrObj.platform : null;
+                localStorage.setItem('activeResId', id);
+                if (platform) localStorage.setItem('activePlatform', platform);
+            }
+            dispatch(dispatchSetActiveResId(idOrObj));
+        }, [dispatch]),
+        setActivePlatform: (platform) => dispatch(dispatchSetActivePlatform(platform)),
+        setActiveView: (view) => dispatch(dispatchSetActiveView(view)),
         setActiveBulkMode,
         setActiveCategory,
         setActiveSubCategory,
@@ -206,9 +217,14 @@ export const useMenu = () => {
         toggleItemAddon: (itemId, addonId) => dispatch(dispatchToggleItemAddon({ itemId, addonId })),
         bulkToggleAddon: (addonId, itemIds, isAttaching) => dispatch(dispatchBulkToggleAddon({ addonId, itemIds, isAttaching })),
 
-        // Data operations
         getMenuByResId,
         saveMenuByResId: () => dispatch(dispatchSaveMenuByResId()),
-        syncZomatoMenu: (resId) => dispatch(dispatchSyncZomatoMenu(resId))
+        syncZomatoMenu: (resId) => dispatch(dispatchSyncZomatoMenu(resId)),
+        syncSwiggyMenu: (resId) => dispatch(dispatchSyncSwiggyMenu(resId)),
+        
+        // Swiggy specific actions
+        markMenuUpdatesDone: () => dispatch(dispatchMarkMenuUpdatesDone()),
+        queueAll: () => dispatch(dispatchQueueAll()),
+        queuePriceUpdates: () => dispatch(dispatchQueuePriceUpdates())
     };
 };

@@ -9,7 +9,10 @@
     "build:next": "next build && node scripts/prepare-standalone.js",
     "build:electron:mac": "npm run build:next && electron-builder --mac --arm64 --x64",
     "build:electron:win": "npm run build:next && electron-builder --win",
-    "build:electron:all": "npm run build:next && electron-builder --mac --arm64 --x64 --win"
+    "build:electron:all": "npm run build:next && electron-builder --mac --arm64 --x64 --win",
+    "start:swiggy": "node ./src/lib/bullmq/worker/swiggy-worker.mjs",
+    "start:dashboard": "node ./bull-server/dashboard.js",
+    "dev": "concurrently -n \"NEXT,SWIGGY,DASHBOARD\" -c \"bgBlue.bold,bgGreen.bold,bgMagenta.bold\" \"npm run next:dev\" \"npm run start:swiggy\" \"npm run start:dashboard\""
   },
   "build": {
     "appId": "in.magicscale.menufy",
@@ -39,6 +42,8 @@
     "@aws-sdk/client-bedrock-runtime": "^3.1075.0",
     "@aws-sdk/client-s3": "^3.927.0",
     "@base-ui/react": "^1.6.0",
+    "@bull-board/api": "^8.3.0",
+    "@bull-board/express": "^8.3.0",
     "@google-cloud/vertexai": "^1.12.0",
     "@google/genai": "^1.29.0",
     "@huggingface/transformers": "^4.2.0",
@@ -63,6 +68,7 @@
     "@tailwindcss/postcss": "^4.3.1",
     "@tanstack/react-query": "^5.101.1",
     "axios": "^1.13.2",
+    "bullmq": "^5.81.2",
     "canvas": "^3.2.3",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.8.0",
@@ -77,6 +83,7 @@
     "get-port": "^5.1.1",
     "googleapis": "^173.0.0",
     "googlethis": "^1.8.0",
+    "ioredis": "^5.11.1",
     "lodash.merge": "^4.6.2",
     "lucide-react": "^0.553.0",
     "mongodb": "^7.0.0",

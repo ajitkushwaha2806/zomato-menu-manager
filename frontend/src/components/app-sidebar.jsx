@@ -15,6 +15,7 @@ import {
   Plus,
   AlertTriangle,
   ClipboardPaste,
+  Ticket,
 } from "lucide-react";
 
 import { useMenu } from "@/store/hooks/useMenu";
@@ -40,6 +41,7 @@ import { NavUser } from "@/components/nav-user";
 export function AppSidebar({ ...props }) {
   const {
     menuData,
+    activePlatform,
     activeView,
     setActiveView,
     activeBulkMode,
@@ -277,6 +279,17 @@ export function AppSidebar({ ...props }) {
                 <Cloud className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "EXPORT_IMAGES" ? "scale-110" : ""}`} /> 
                 <span className="group-data-[collapsible=icon]:hidden">Export Images</span>
             </button>
+            {activePlatform === "swiggy" && (
+                <button
+                    onClick={() => setActiveBulkMode("TICKETS")}
+                    title="Swiggy Tickets"
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "TICKETS" ? "bg-slate-800 text-white font-bold shadow-md scale-[1.01]" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 hover:scale-[1.01]"
+                        }`}
+                >
+                    <Ticket className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "TICKETS" ? "scale-110" : ""}`} /> 
+                    <span className="group-data-[collapsible=icon]:hidden">Swiggy Tickets</span>
+                </button>
+            )}
           </div>
         )}
       </SidebarContent>

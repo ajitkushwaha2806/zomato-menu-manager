@@ -2,10 +2,10 @@ import { useState, useRef } from "react";
 import { useSelector } from "react-redux";
 import useNotification from "@/store/hooks/useNotification";
 import { Loader2, CheckCircle2, XCircle, UploadCloud } from "lucide-react";
-import { uploadZomatoImage } from "@/services/zomatoImageService";
+import { uploadPlatformImage } from "@/services/imageService";
 
-export default function ZomatoImageDropzone({ itemId, children, onUploadSuccess, className, onClick, overlayText = "Drop Image" }) {
-    const { activeResId, imageUploadStatuses } = useSelector((state) => state.menu);
+export default function ZomatoImageDropzone({ itemId, itemName, children, onUploadSuccess, className, onClick, overlayText = "Drop Image" }) {
+    const { activeResId, activePlatform, imageUploadStatuses } = useSelector((state) => state.menu);
     const notification = useNotification();
     const fileInputRef = useRef(null);
 
@@ -22,7 +22,7 @@ export default function ZomatoImageDropzone({ itemId, children, onUploadSuccess,
         setLocalIsUploading(true);
         setLocalUploadStatus(null);
         
-        const result = await uploadZomatoImage(activeResId, fileToUpload);
+        const result = await uploadPlatformImage(activePlatform, activeResId, fileToUpload, itemName || "Unknown Item");
 
         setLocalIsUploading(false);
 

@@ -3,9 +3,12 @@ import { MenuService } from '@/services/menu';
 
 export const fetchMenuByResId = createAsyncThunk(
     'menu/fetchMenuByResId',
-    async (resId, { rejectWithValue }) => {
+    async (arg, { rejectWithValue, getState }) => {
         try {
-            const data = await MenuService.getMenu(resId);
+            const state = getState();
+            const resId = typeof arg === 'object' ? arg.resId : arg;
+            const platform = typeof arg === 'object' ? arg.platform : state.menu.activePlatform;
+            const data = await MenuService.getMenu(resId, platform);
             // Returns the menu payload array and the restaurant configuration information
             return data;
         } catch (error) {
@@ -26,6 +29,18 @@ export const syncZomatoMenu = createAsyncThunk(
     }
 );
 
+export const syncSwiggyMenu = createAsyncThunk(
+    'menu/syncSwiggyMenu',
+    async (resId, { rejectWithValue }) => {
+        try {
+            const data = await MenuService.syncSwiggyMenu(resId);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message || 'Failed to sync Swiggy menu');
+        }
+    }
+);
+
 export const saveMenuByResId = createAsyncThunk(
     'menu/saveMenuByResId',
     async (_, { getState, rejectWithValue }) => {
@@ -38,7 +53,7 @@ export const saveMenuByResId = createAsyncThunk(
                 menu: menu.menuData,
                 addons: menu.addonsData
             };
-            const data = await MenuService.saveMenu(menu.activeResId, payload);
+            const data = await MenuService.saveMenu(menu.activeResId, payload, menu.activePlatform);
             return data;
         } catch (error) {
             return rejectWithValue(error.message || 'Failed to save menu');
@@ -46,11 +61,62 @@ export const saveMenuByResId = createAsyncThunk(
     }
 );
 
+
+const createEmptyUpdatedMenu = () => ({
+    categories: [],
+    sub_categories: [],
+    items: [],
+});
+
+const isItemValid = (item) => {
+    return Boolean(
+        item.name?.trim() &&
+        item.base_price !== undefined && item.base_price !== null && item.base_price !== "" &&
+        item.description?.trim() &&
+        item.is_veg && item.is_veg !== "UNKNOWN"
+    );
+};
+
+const upsertUpdatedMenuEntry = (entries, entry, fullItem = null) => {
+    if (!Array.isArray(entries)) return;
+
+    const itemToValidate = fullItem || entry;
+    if ('price' in itemToValidate || 'description' in itemToValidate || 'is_veg' in itemToValidate) {
+        if (entry.action === 'create' && !isItemValid(itemToValidate)) {
+            const idx = entries.findIndex(i => i.id === entry.id);
+            if (idx >= 0) entries.splice(idx, 1);
+            return;
+        }
+    }
+
+    const entryWithStatus = { ...entry, status: "pending" };
+    const existingIndex = entries.findIndex((item) => item.id === entry.id);
+
+    if (existingIndex >= 0) {
+        entries[existingIndex] = {
+            ...entries[existingIndex],
+            ...entryWithStatus,
+        };
+        return;
+    }
+
+    if (entry.action === "create") {
+        entries.push({
+            ...(fullItem || {}),
+            ...entryWithStatus
+        });
+    } else {
+        entries.push(entryWithStatus);
+    }
+};
+
 const initialState = {
+    updated_menu: createEmptyUpdatedMenu(),
     menuData: null,         // Array of categories
     addonsData: [],         // Array of addons/modifier groups
     restaurantName: '',
     activeResId: null,
+    activePlatform: null,
     activeView: 'MENU',     // 'MENU' or 'BULK'
     activeBulkMode: 'PRICE', // 'PRICE', 'DESCRIPTION', 'IMAGE'
     activeCategory: null,   // Category ID
@@ -61,6 +127,7 @@ const initialState = {
     isSaving: false,
     isSyncing: false,
     imageUploadStatuses: {}, // { [itemId]: 'uploading' | 'approved' | 'rejected' }
+    ticketImageUpdates: {},
     error: null,
     globalSearchQuery: "",
 };
@@ -70,7 +137,17 @@ const menuSlice = createSlice({
     initialState,
     reducers: {
         setActiveResId: (state, action) => {
-            state.activeResId = action.payload;
+            if (typeof action.payload === 'object' && action.payload !== null) {
+                state.activeResId = action.payload.id;
+                if (action.payload.platform) {
+                    state.activePlatform = action.payload.platform;
+                }
+            } else {
+                state.activeResId = action.payload;
+            }
+        },
+        setActivePlatform: (state, action) => {
+            state.activePlatform = action.payload;
         },
         setActiveView: (state, action) => {
             state.activeView = action.payload;
@@ -102,10 +179,18 @@ const menuSlice = createSlice({
                 state.imageUploadStatuses[itemId] = status;
             }
         },
+        setTicketImageUpdate: (state, action) => {
+            const { ticketId, imageUrl } = action.payload;
+            state.ticketImageUpdates[ticketId] = imageUrl;
+        },
+        clearTicketImageUpdate: (state, action) => {
+            const ticketId = action.payload;
+            delete state.ticketImageUpdates[ticketId];
+        },
         setGlobalSearchQuery: (state, action) => {
             state.globalSearchQuery = action.payload;
         },
-        
+
         clearMenuState: () => initialState,
 
         // --- Category CRUD Reducers ---
@@ -118,10 +203,11 @@ const menuSlice = createSlice({
                 items: []
             };
             state.menuData.push(newCategory);
+            upsertUpdatedMenuEntry(state.updated_menu.categories, { id: newCategory.id, name: newCategory.name, action: "create" });
         },
         insertFullCategory: (state, action) => {
             if (!Array.isArray(state.menuData)) state.menuData = [];
-            
+
             // The payload is the fully formed category object with new temp- IDs generated
             // We just need to append it.
             state.menuData.push(action.payload);
@@ -130,17 +216,23 @@ const menuSlice = createSlice({
             const { categoryId, data } = action.payload;
             const category = state.menuData?.find(cat => cat.id === categoryId);
             if (category) {
-                Object.assign(category, data);
+                const updateTag = String(categoryId).startsWith('temp-') ? category.temp_id : `update-${categoryId}`;
+                Object.assign(category, { ...data, temp_id: updateTag });
+                const existingEntry = state.updated_menu.categories.find(entry => entry.id === categoryId);
+                upsertUpdatedMenuEntry(state.updated_menu.categories, { id: categoryId, ...data, action: existingEntry?.action || (String(categoryId).startsWith('temp-') ? "create" : "update") });
             }
         },
         deleteCategory: (state, action) => {
             const categoryId = action.payload;
             if (String(categoryId).startsWith('temp-')) {
                 state.menuData = state.menuData?.filter(cat => cat.id !== categoryId) || [];
+                state.updated_menu.categories = state.updated_menu.categories.filter(entry => entry.id !== categoryId);
             } else {
+                upsertUpdatedMenuEntry(state.updated_menu.categories, { id: categoryId, action: "delete" });
                 const category = state.menuData?.find(cat => cat.id === categoryId);
                 if (category) {
                     category.status = 'delete';
+                    category.temp_id = `delete-${categoryId}`;
                     category.sub_category?.forEach(sub => {
                         sub.status = 'delete';
                         sub.items?.forEach(item => {
@@ -162,11 +254,13 @@ const menuSlice = createSlice({
             const category = state.menuData?.find(cat => cat.id === categoryId);
             if (category) {
                 if (!category.sub_category) category.sub_category = [];
+                const newSubId = 'temp-' + crypto.randomUUID();
                 category.sub_category.push({
-                    id: 'temp-' + crypto.randomUUID(),
+                    id: newSubId,
                     name: name,
                     items: []
                 });
+                upsertUpdatedMenuEntry(state.updated_menu.sub_categories, { id: newSubId, categoryId, name, action: "create" });
             }
         },
         updateSubCategory: (state, action) => {
@@ -174,7 +268,10 @@ const menuSlice = createSlice({
             state.menuData?.forEach(cat => {
                 const sub = cat.sub_category?.find(s => s.id === subCategoryId);
                 if (sub) {
-                    Object.assign(sub, data);
+                    const updateTag = String(subCategoryId).startsWith('temp-') ? sub.temp_id : `update-${subCategoryId}`;
+                    Object.assign(sub, { ...data, temp_id: updateTag });
+                    const existingEntry = state.updated_menu.sub_categories.find(entry => entry.id === subCategoryId);
+                    upsertUpdatedMenuEntry(state.updated_menu.sub_categories, { id: subCategoryId, categoryId: cat.id, ...data, action: existingEntry?.action || (String(subCategoryId).startsWith('temp-') ? "create" : "update") });
                 }
             });
         },
@@ -184,10 +281,13 @@ const menuSlice = createSlice({
                 if (cat.sub_category) {
                     if (String(subCategoryId).startsWith('temp-')) {
                         cat.sub_category = cat.sub_category.filter(s => s.id !== subCategoryId);
+                        state.updated_menu.sub_categories = state.updated_menu.sub_categories.filter(entry => entry.id !== subCategoryId);
                     } else {
+                        upsertUpdatedMenuEntry(state.updated_menu.sub_categories, { id: subCategoryId, categoryId: cat.id, action: "delete" });
                         const sub = cat.sub_category.find(s => s.id === subCategoryId);
                         if (sub) {
                             sub.status = 'delete';
+                            sub.temp_id = `delete-${subCategoryId}`;
                             sub.items?.forEach(item => {
                                 item.status = 'delete';
                                 item.variants?.forEach(variant => variant.status = 'delete');
@@ -207,10 +307,29 @@ const menuSlice = createSlice({
                 const sub = cat.sub_category?.find(s => s.id === subCategoryId);
                 if (sub) {
                     if (!sub.items) sub.items = [];
-                    sub.items.push({
-                        ...item,
-                        id: item.id || ('temp-' + crypto.randomUUID())
-                    });
+                    const newItemId = item.id || ('temp-' + crypto.randomUUID());
+                    const newItem = { ...item, id: newItemId };
+                    sub.items.push(newItem);
+                    upsertUpdatedMenuEntry(state.updated_menu.items, { ...newItem, id: newItemId, categoryId: cat.id, categoryName: cat.name, subCategoryId, subCategoryName: sub.name, action: "create" });
+                    
+                    // Auto-queue parent category and subcategory if they are temp
+                    if (String(cat.id).startsWith('temp-')) {
+                        const existingCat = state.updated_menu.categories.find(entry => entry.id === cat.id);
+                        upsertUpdatedMenuEntry(state.updated_menu.categories, {
+                            id: cat.id,
+                            name: cat.name,
+                            action: existingCat?.action || "create"
+                        });
+                    }
+                    if (String(sub.id).startsWith('temp-')) {
+                        const existingSub = state.updated_menu.sub_categories.find(entry => entry.id === sub.id);
+                        upsertUpdatedMenuEntry(state.updated_menu.sub_categories, {
+                            id: sub.id,
+                            categoryId: cat.id,
+                            name: sub.name,
+                            action: existingSub?.action || "create"
+                        });
+                    }
                 }
             });
         },
@@ -220,7 +339,10 @@ const menuSlice = createSlice({
                 cat.sub_category?.forEach(sub => {
                     const itemIndex = sub.items?.findIndex(i => i.id === itemId);
                     if (itemIndex !== undefined && itemIndex !== -1) {
-                        sub.items[itemIndex] = { ...sub.items[itemIndex], ...updates };
+                        const updateTag = String(itemId).startsWith('temp-') ? sub.items[itemIndex].temp_id : `update-${itemId}`;
+                        sub.items[itemIndex] = { ...sub.items[itemIndex], ...updates, temp_id: updateTag };
+                        const existingEntry = state.updated_menu.items.find(entry => entry.id === itemId);
+                        upsertUpdatedMenuEntry(state.updated_menu.items, { ...updates, id: itemId, categoryId: cat.id, categoryName: cat.name, subCategoryId: sub.id, subCategoryName: sub.name, action: existingEntry?.action || (String(itemId).startsWith('temp-') ? "create" : "update") }, sub.items[itemIndex]);
                     }
                 });
             });
@@ -232,6 +354,22 @@ const menuSlice = createSlice({
                     const itemIndex = sub.items?.findIndex(i => i.id === itemId);
                     if (itemIndex !== undefined && itemIndex !== -1) {
                         sub.items[itemIndex].media = media;
+                        const mediaObj = Array.isArray(media) ? media[0] : media;
+                        const url = typeof mediaObj === 'string' ? mediaObj : (mediaObj?.url || mediaObj?.utl);
+                        const imageId = mediaObj?.imageId || mediaObj?.id || null;
+                        const existingEntry = state.updated_menu.items.find((entry) => entry.id === itemId);
+                        const updateTag = String(itemId).startsWith('temp-') ? sub.items[itemIndex].temp_id : `update-${itemId}`;
+                        sub.items[itemIndex].temp_id = updateTag;
+                        upsertUpdatedMenuEntry(state.updated_menu.items, {
+                            id: itemId,
+                            categoryId: cat.id,
+                            categoryName: cat.name,
+                            subCategoryId: sub.id,
+                            subCategoryName: sub.name,
+                            image_url: url,
+                            image_id: imageId,
+                            action: existingEntry?.action || "update",
+                        });
                     }
                 });
             });
@@ -243,7 +381,9 @@ const menuSlice = createSlice({
                     if (sub.items) {
                         if (String(itemId).startsWith('temp-')) {
                             sub.items = sub.items.filter(i => i.id !== itemId);
+                            state.updated_menu.items = state.updated_menu.items.filter(entry => entry.id !== itemId);
                         } else {
+                            upsertUpdatedMenuEntry(state.updated_menu.items, { id: itemId, categoryId: cat.id, categoryName: cat.name, subCategoryId: sub.id, subCategoryName: sub.name, action: "delete" });
                             const item = sub.items.find(i => i.id === itemId);
                             if (item) {
                                 item.status = 'delete';
@@ -376,20 +516,20 @@ const menuSlice = createSlice({
                 if (categoryIds.includes(cat.id) && cat.id !== targetId) {
                     if (cat.sub_category && cat.sub_category.length > 0) {
                         if (!targetCat.sub_category) targetCat.sub_category = [];
-                        
+
                         cat.sub_category.forEach(sub => {
-                            const existingSub = targetCat.sub_category.find(s => 
+                            const existingSub = targetCat.sub_category.find(s =>
                                 s.name?.toLowerCase().trim() === sub.name?.toLowerCase().trim() &&
                                 s.status !== 'delete' && s.status !== 'deleted'
                             );
-                            
+
                             if (existingSub) {
                                 // Subcategory with same name already exists in target category.
                                 // Merge items into the existing subcategory to prevent duplicate subcategories.
                                 if (sub.items && sub.items.length > 0) {
                                     if (!existingSub.items) existingSub.items = [];
                                     sub.items.forEach(item => {
-                                        const existingItem = existingSub.items.find(i => 
+                                        const existingItem = existingSub.items.find(i =>
                                             i.name?.toLowerCase().trim() === item.name?.toLowerCase().trim() &&
                                             i.status !== 'delete' && i.status !== 'deleted'
                                         );
@@ -435,9 +575,9 @@ const menuSlice = createSlice({
                         if (subCategoryIds.includes(sub.id) && sub.id !== targetId) {
                             if (sub.items && sub.items.length > 0) {
                                 if (!targetSub.items) targetSub.items = [];
-                                
+
                                 sub.items.forEach(item => {
-                                    const existingItem = targetSub.items.find(i => 
+                                    const existingItem = targetSub.items.find(i =>
                                         i.name?.toLowerCase().trim() === item.name?.toLowerCase().trim() &&
                                         i.status !== 'delete' && i.status !== 'deleted'
                                     );
@@ -461,7 +601,7 @@ const menuSlice = createSlice({
             if (!itemIds?.length || !targetSubCategoryId) return;
 
             const itemsToMove = [];
-            
+
             // 1. Remove from all sources
             state.menuData?.forEach(cat => {
                 cat.sub_category?.forEach(sub => {
@@ -535,9 +675,9 @@ const menuSlice = createSlice({
                                 }],
                                 items: []
                             };
-                            
+
                             state.menuData.push(newCategory);
-                            
+
                             // Remove the old subcategory
                             if (String(sub.id).startsWith('temp-')) {
                                 cat.sub_category.splice(i, 1);
@@ -626,6 +766,71 @@ const menuSlice = createSlice({
                 }
             }
         },
+
+        markMenuUpdatesDone: (state) => {
+            ["categories", "sub_categories", "items"].forEach(key => {
+                state.updated_menu[key].forEach(entry => {
+                    if (entry.status === "queued" || entry.status === "pending") {
+                        entry.status = "done";
+                    }
+                });
+            });
+        },
+        queueAll: (state) => {
+            state.menuData?.forEach(c => {
+                const existingEntry = state.updated_menu.categories.find(entry => entry.id === c.id);
+                upsertUpdatedMenuEntry(state.updated_menu.categories, {
+                    id: c.id,
+                    name: c.name,
+                    action: existingEntry?.action === "create" ? "create" : (String(c.id).startsWith('temp-') ? "create" : "update")
+                });
+
+                c.sub_category?.forEach(s => {
+                    const existingSub = state.updated_menu.sub_categories.find(entry => entry.id === s.id);
+                    upsertUpdatedMenuEntry(state.updated_menu.sub_categories, {
+                        id: s.id,
+                        categoryId: c.id,
+                        name: s.name,
+                        action: existingSub?.action === "create" ? "create" : (String(s.id).startsWith('temp-') ? "create" : "update")
+                    });
+
+                    s.items?.forEach(i => {
+                        const existingItem = state.updated_menu.items.find(entry => entry.id === i.id);
+                        upsertUpdatedMenuEntry(state.updated_menu.items, {
+                            id: i.id,
+                            categoryId: c.id,
+                            categoryName: c.name,
+                            subCategoryId: s.id,
+                            subCategoryName: s.name,
+                            ...i,
+                            action: existingItem?.action === "create" ? "create" : (String(i.id).startsWith('temp-') ? "create" : "update")
+                        });
+                    });
+                });
+            });
+        },
+        queuePriceUpdates: (state) => {
+            state.menuData?.forEach(c => {
+                c.sub_category?.forEach(s => {
+                    s.items?.forEach(i => {
+                        if (!i.id || String(i.id).startsWith('temp-')) return;
+                        const existingItem = state.updated_menu.items.find(e => e.id === i.id);
+                        const entry = {
+                            id: i.id,
+                            categoryId: c.id,
+                            categoryName: c.name,
+                            subCategoryId: s.id,
+                            subCategoryName: s.name,
+                            price: i.price,
+                            variants: i.variants || [],
+                            action: existingItem?.action === "create" ? "create" : "update",
+                        };
+                        upsertUpdatedMenuEntry(state.updated_menu.items, entry, i);
+                    });
+                });
+            });
+        },
+
         bulkToggleAddon: (state, action) => {
             const { addonId, itemIds, isAttaching } = action.payload;
             state.menuData?.forEach(cat => {
@@ -662,6 +867,7 @@ const menuSlice = createSlice({
                     : (payloadData?.menu || payloadData?.data || []);
 
                 state.menuData = newMenuData;
+                state.updated_menu = createEmptyUpdatedMenu();
                 state.addonsData = Array.isArray(payloadData?.addons) ? payloadData.addons : [];
                 state.restaurantName = payloadData?.restaurantName || payloadData?.name || '';
 
@@ -696,6 +902,7 @@ const menuSlice = createSlice({
             })
             .addCase(saveMenuByResId.fulfilled, (state) => {
                 state.isSaving = false;
+                state.updated_menu = createEmptyUpdatedMenu();
             })
             .addCase(saveMenuByResId.rejected, (state, action) => {
                 state.isSaving = false;
@@ -711,7 +918,7 @@ const menuSlice = createSlice({
                 const dbDoc = action.payload;
                 const fetchedMenu = dbDoc?.menu || [];
                 const fetchedAddons = dbDoc?.addons || [];
-                
+
                 state.menuData = Array.isArray(fetchedMenu) ? fetchedMenu : [];
                 state.addonsData = Array.isArray(fetchedAddons) ? fetchedAddons : [];
 
@@ -733,12 +940,46 @@ const menuSlice = createSlice({
             .addCase(syncZomatoMenu.rejected, (state, action) => {
                 state.isSyncing = false;
                 state.error = action.payload;
+            })
+            .addCase(syncSwiggyMenu.pending, (state) => {
+                state.isSyncing = true;
+                state.error = null;
+            })
+            .addCase(syncSwiggyMenu.fulfilled, (state, action) => {
+                state.isSyncing = false;
+
+                const dbDoc = action.payload;
+                const fetchedMenu = dbDoc?.menu || [];
+                const fetchedAddons = dbDoc?.addons || [];
+
+                state.menuData = Array.isArray(fetchedMenu) ? fetchedMenu : [];
+                state.addonsData = Array.isArray(fetchedAddons) ? fetchedAddons : [];
+
+                if (state.menuData.length > 0) {
+                    const categoryExists = state.activeCategory && state.menuData.find(c => c.id === state.activeCategory);
+                    if (!categoryExists) {
+                        state.activeCategory = state.menuData[0].id;
+                        if (state.menuData[0].sub_category?.length > 0) {
+                            state.activeSubCategory = state.menuData[0].sub_category[0].id;
+                        } else {
+                            state.activeSubCategory = null;
+                        }
+                    }
+                } else {
+                    state.activeCategory = null;
+                    state.activeSubCategory = null;
+                }
+            })
+            .addCase(syncSwiggyMenu.rejected, (state, action) => {
+                state.isSyncing = false;
+                state.error = action.payload;
             });
     },
 });
 
 export const {
     setActiveResId,
+    setActivePlatform,
     setActiveView,
     setActiveBulkMode,
     setActiveCategory,
@@ -748,7 +989,7 @@ export const {
     clearMenuState,
     setImageUploadStatus,
     setGlobalSearchQuery,
-    
+
     // Category actions
     addCategory,
     insertFullCategory,
@@ -772,7 +1013,7 @@ export const {
     bulkMoveItems,
     bulkMoveSubCategories,
     bulkMakeSubCategoriesAsCategories,
-    
+
     // Addon actions
     addAddonGroup,
     updateAddonGroup,
@@ -781,7 +1022,12 @@ export const {
     updateAddonOption,
     deleteAddonOption,
     toggleItemAddon,
-    bulkToggleAddon
+    bulkToggleAddon,
+    markMenuUpdatesDone,
+    queueAll,
+    queuePriceUpdates,
+    setTicketImageUpdate,
+    clearTicketImageUpdate
 } = menuSlice.actions;
 
 export default menuSlice.reducer;

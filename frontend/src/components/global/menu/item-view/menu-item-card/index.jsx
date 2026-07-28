@@ -135,6 +135,7 @@ export default function MenuItemRow({
     return (
         <div
             className={`group border rounded-xl p-3 transition-all mb-3 relative ${
+                item?.status === 'delete' ? "bg-red-50 border-red-300 pointer-events-none opacity-60" :
                 item?.id?.toString().startsWith("temp-") 
                     ? "bg-green-50/50 border-green-300 hover:border-green-500"
                     : isDuplicate
@@ -144,14 +145,25 @@ export default function MenuItemRow({
             onMouseEnter={() => setIsHovered(true)}
             onMouseLeave={() => setIsHovered(false)}
         >
-            {item?.id?.toString().startsWith("temp-") && (
+            {item?.id?.toString().startsWith("temp-") && item?.status !== 'delete' && (
                 <div className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm z-10 uppercase tracking-wider">
                     NEW
+                </div>
+            )}
+            {item?.temp_id?.toString().startsWith("update-") && !item?.id?.toString().startsWith("temp-") && item?.status !== 'delete' && (
+                <div className="absolute -top-2 -right-2 bg-blue-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm z-10 uppercase tracking-wider">
+                    UPDATE
+                </div>
+            )}
+            {item?.status === 'delete' && (
+                <div className="absolute -top-2 -right-2 bg-red-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm z-10 uppercase tracking-wider">
+                    DELETE
                 </div>
             )}
             <div className="flex gap-3">
                 <ZomatoImageDropzone
                     itemId={item?.id}
+                    itemName={item?.name}
                     className="shrink-0 rounded-lg overflow-hidden border transition-all duration-200 hover:ring-2 hover:ring-primary/50 group/img h-16 w-16 relative"
                     onUploadSuccess={(mediaArray) => {
                         updateField("media", mediaArray);

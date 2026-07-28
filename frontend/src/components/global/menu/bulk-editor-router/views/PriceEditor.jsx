@@ -12,7 +12,7 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
     const fileInputRef = useRef(null);
 
 
-    const { activeResId, getMenuByResId } = useMenu();
+    const { activeResId, activePlatform, getMenuByResId } = useMenu();
     const notification = useNotification();
 
     const [bulkUpdateOpen, setBulkUpdateOpen] = useState(false);
@@ -143,7 +143,7 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                 setIsPreviewMode(false);
                 setPreviewAllItems([]);
                 // Refresh data from server to show updated prices
-                getMenuByResId(activeResId);
+                getMenuByResId({ resId: activeResId, platform: activePlatform });
             }
         } catch (error) {
             console.error("Bulk update error:", error);

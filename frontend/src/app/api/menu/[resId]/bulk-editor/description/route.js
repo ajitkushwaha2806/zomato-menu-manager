@@ -35,7 +35,10 @@ export async function POST(req, { params }) {
             );
         }
 
-        const menu = await Menu.findOne({ resId });
+        const body = await req.json().catch(() => ({}));
+        const platform = body.platform || "zomato";
+        
+        const menu = await Menu.findOne({ resId, platform });
 
         if (!menu) {
             return NextResponse.json(
@@ -55,7 +58,8 @@ export async function POST(req, { params }) {
             : menu?.menu?.categories || [];
 
         categories.forEach((category) => {
-            category.sub_category?.forEach((subCategory) => {
+            const subCats = category.sub_category || category.sub_categories || [];
+            subCats.forEach((subCategory) => {
                 subCategory.items?.forEach((item) => {
                     if (
                         item?.id != null &&
@@ -111,12 +115,18 @@ export async function POST(req, { params }) {
         let updatedCount = 0;
 
         categories.forEach((category) => {
-            category.sub_category?.forEach((subCategory) => {
+            const subCats = category.sub_category || category.sub_categories || [];
+            subCats.forEach((subCategory) => {
                 subCategory.items?.forEach((item) => {
                     const description = descriptionMap.get(String(item.id));
 
                     if (description) {
                         item.description = description;
+                        if (item.temp_id && String(item.temp_id).startsWith('temp-')) {
+                            // leave as is
+                        } else {
+                            item.temp_id = `update-${String(item.id).replace(/^update-/, '')}`;
+                        }
                         updatedCount++;
                     }
                 });

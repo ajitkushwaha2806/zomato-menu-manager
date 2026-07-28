@@ -16,12 +16,28 @@ class CookieStorage {
         localStorage.removeItem(STORAGE_KEY);
     }
 
+    static getSwiggyAccount() {
+        if (typeof window === "undefined") return null;
+        return localStorage.getItem("swiggy_account");
+    }
+
+    static setSwiggyAccount(accountName) {
+        if (typeof window === "undefined") return;
+        localStorage.setItem("swiggy_account", accountName.trim());
+    }
+
+    static removeSwiggyAccount() {
+        if (typeof window === "undefined") return;
+        localStorage.removeItem("swiggy_account");
+    }
+
     static has() {
-        return !!this.get();
+        return !!this.get() && !!this.getSwiggyAccount();
     }
 
     static clear() {
         this.remove();
+        this.removeSwiggyAccount();
     }
 }
 

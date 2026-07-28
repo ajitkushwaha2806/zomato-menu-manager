@@ -19,11 +19,8 @@ export default function MenuItemList({
         if (!globalSearchQuery?.trim() || !menuData) return [];
         const items = [];
         menuData.forEach(cat => {
-            if (cat.status === 'delete' || cat.status === 'deleted') return;
             (cat.sub_category || []).forEach(sub => {
-                if (sub.status === 'delete' || sub.status === 'deleted') return;
                 (sub.items || []).forEach(item => {
-                    if (item.status === 'delete' || item.status === 'deleted') return;
                     items.push(item);
                 });
             });
@@ -76,7 +73,7 @@ export default function MenuItemList({
                             (item.description || "").toLowerCase().includes(lowerQ)
                         );
                     } else {
-                        visibleItems = activeSubCategoryData?.items?.filter(item => item.status !== 'delete' && item.status !== 'deleted') || [];
+                        visibleItems = activeSubCategoryData?.items || [];
                     }
 
                     if (visibleItems.length === 0) {

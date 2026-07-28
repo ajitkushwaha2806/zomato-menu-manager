@@ -15,9 +15,9 @@ export const MenuService = {
         }
     },
 
-    async getMenu(resId) {
+    async syncSwiggyMenu(resId) {
         try {
-            const { data } = await api.get(API_ENDPOINTS.MENU.GET_MENU(resId));
+            const { data } = await api.get(API_ENDPOINTS.MENU.SWIGGY_MENU_IMPORT(resId));
             return data?.data;
         } catch (err) {
             throw new Error(
@@ -28,9 +28,22 @@ export const MenuService = {
         }
     },
 
-    async saveMenu(resId, payload) {
+    async getMenu(resId, platform) {
         try {
-            const { data } = await api.put(API_ENDPOINTS.MENU.UPDATE_MENU(resId), payload);
+            const { data } = await api.get(API_ENDPOINTS.MENU.GET_MENU(resId, platform));
+            return data?.data;
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Something went wrong."
+            );
+        }
+    },
+
+    async saveMenu(resId, payload, platform) {
+        try {
+            const { data } = await api.put(API_ENDPOINTS.MENU.UPDATE_MENU(resId, platform), payload);
             return data;
         } catch (err) {
             throw new Error(

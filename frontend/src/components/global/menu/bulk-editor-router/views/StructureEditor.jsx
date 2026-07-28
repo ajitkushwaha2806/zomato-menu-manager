@@ -34,7 +34,7 @@ export default function StructureEditor({ menuData }) {
     // Filter out deleted items
     const activeCategories = useMemo(() => {
         if (!Array.isArray(menuData)) return [];
-        return menuData.filter(c => c.status !== 'delete' && c.status !== 'deleted');
+        return menuData;
     }, [menuData]);
 
     const toggleCategory = (id) => {
@@ -154,7 +154,7 @@ export default function StructureEditor({ menuData }) {
                     <div className="flex-1 overflow-y-auto p-4 space-y-2">
                         {activeCategories.map(cat => {
                             const isCatExpanded = expandedCategories.has(cat.id);
-                            const activeSubs = (cat.sub_category || []).filter(s => s.status !== 'delete' && s.status !== 'deleted');
+                            const activeSubs = (cat.sub_category || []);
                             const isCatSelected = selectedCategoryIds.has(cat.id);
 
                             return (
@@ -215,7 +215,7 @@ export default function StructureEditor({ menuData }) {
                                         <div className="border-t">
                                             {activeSubs.map(sub => {
                                                 const isSubExpanded = expandedSubCategories.has(sub.id);
-                                                const activeItems = (sub.items || []).filter(i => i.status !== 'delete' && i.status !== 'deleted');
+                                                const activeItems = (sub.items || []);
                                                 const isSubSelected = selectedSubCategoryIds.has(sub.id);
 
                                                 return (
@@ -319,7 +319,6 @@ export default function StructureEditor({ menuData }) {
                                             </div>
                                             <div className="pl-5 space-y-1">
                                                 {(cat.sub_category || [])
-                                                    .filter(s => s.status !== 'delete' && s.status !== 'deleted')
                                                     .map(sub => (
                                                     <div 
                                                         key={sub.id}

@@ -8,7 +8,10 @@ import {
   AlertCircle,
   RefreshCw,
   Search,
+  Copy,
 } from "lucide-react";
+
+import { toast } from "sonner";
 
 import {
   DropdownMenu,
@@ -28,8 +31,10 @@ import {
 
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import useRestaurant from "@/store/hooks/useRestaurant";
+import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
 import { useMenu } from "@/store/hooks/useMenu";
 
 function ProjectSkeleton() {
@@ -69,43 +74,81 @@ export function ProjectSwitcher() {
   const { isMobile } = useSidebar();
 
   const {
-    restaurants,
-    isLoading,
-    isError,
-    error,
-    refetch,
-    isFetching,
+    restaurants: zomatoRestaurants,
+    isLoading: isZomatoLoading,
+    isError: isZomatoError,
+    error: zomatoError,
+    refetch: refetchZomato,
+    isFetching: isZomatoFetching,
   } = useRestaurant();
 
-  const { activeResId, setActiveResId } = useMenu();
+  const {
+    restaurants: swiggyRestaurants,
+    isLoading: isSwiggyLoading,
+    isError: isSwiggyError,
+    error: swiggyError,
+    refetch: refetchSwiggy,
+    isFetching: isSwiggyFetching,
+  } = useSwiggyRestaurant();
+
+  const { activeResId, activePlatform, setActiveResId } = useMenu();
 
   const [searchQuery, setSearchQuery] = React.useState("");
+  const [activeTab, setActiveTab] = React.useState(activePlatform || "zomato");
+
+  React.useEffect(() => {
+    if (activePlatform) {
+        setActiveTab(activePlatform);
+    }
+  }, [activePlatform]);
   
-  const entities = restaurants?.entities ?? [];
+  const entities = React.useMemo(() => {
+    const zomatoEntities = (zomatoRestaurants?.entities || []).map(r => ({ ...r, platform: 'zomato' }));
+    const swiggyEntities = (swiggyRestaurants?.entities || []).map(r => ({ ...r, platform: 'swiggy' }));
+    return [...zomatoEntities, ...swiggyEntities];
+  }, [zomatoRestaurants, swiggyRestaurants]);
+
+  const isLoading = isZomatoLoading || isSwiggyLoading;
+  const isError = isZomatoError; // Primary error
+  const error = zomatoError;
+  const isFetching = isZomatoFetching || isSwiggyFetching;
+  const refetch = () => {
+      refetchZomato();
+      refetchSwiggy();
+  };
+
   const filteredEntities = React.useMemo(() => {
-    if (!searchQuery.trim()) return entities;
-    return entities.filter(r => 
+    const tabFiltered = entities.filter(r => r.platform === activeTab);
+    if (!searchQuery.trim()) return tabFiltered;
+    return tabFiltered.filter(r => 
       r.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
       r.subzone?.toLowerCase().includes(searchQuery.toLowerCase())
     );
-  }, [entities, searchQuery]);
+  }, [entities, searchQuery, activeTab]);
 
   const selected = React.useMemo(() => {
-    return entities.find((r) => r.id === activeResId) || null;
-  }, [entities, activeResId]);
+    return entities.find((r) => String(r.id) === String(activeResId) && r.platform === activePlatform) || null;
+  }, [entities, activeResId, activePlatform]);
 
   React.useEffect(() => {
-    if (!activeResId && entities.length) {
+    if (!isLoading && !activeResId && entities.length) {
       const savedResId = typeof window !== 'undefined' ? localStorage.getItem('activeResId') : null;
-      const matchedEntity = savedResId ? entities.find(e => String(e.id) === savedResId) : null;
-      
+      const savedPlatform = typeof window !== 'undefined' ? localStorage.getItem('activePlatform') : null;
+      let matchedEntity = null;
+      if (savedResId) {
+        if (savedPlatform) {
+            matchedEntity = entities.find(e => String(e.id) === savedResId && e.platform === savedPlatform);
+        } else {
+            matchedEntity = entities.find(e => String(e.id) === savedResId);
+        }
+      }
       if (matchedEntity) {
-        setActiveResId(matchedEntity.id);
+        setActiveResId({ id: matchedEntity.id, platform: matchedEntity.platform });
       } else {
-        setActiveResId(entities[0].id);
+        setActiveResId({ id: entities[0].id, platform: entities[0].platform });
       }
     }
-  }, [entities, activeResId, setActiveResId]);
+  }, [entities, activeResId, setActiveResId, isLoading]);
 
   if (isLoading) return <ProjectSkeleton />;
 
@@ -181,12 +224,36 @@ export function ProjectSwitcher() {
               <RestaurantImage restaurant={selected} />
 
               <div className="grid min-w-0 flex-1 text-left ml-0.5">
-                <span className="truncate text-sm font-semibold tracking-tight text-foreground">
+                <span className="truncate text-sm font-semibold tracking-tight text-foreground flex items-center gap-1.5">
                   {selected?.name || "Select Restaurant"}
+                  {selected?.platform && (
+                    <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider ${
+                      selected.platform === 'swiggy' 
+                        ? 'bg-orange-500/10 text-orange-600' 
+                        : 'bg-red-500/10 text-red-600'
+                    }`}>
+                      {selected.platform}
+                    </span>
+                  )}
                 </span>
-                <span className="truncate text-xs font-medium text-muted-foreground/80">
-                  {selected?.subzone || "No zone selected"}
-                </span>
+                <div className="flex items-center gap-1.5 mt-0.5">
+                  <span className="truncate text-xs font-medium text-muted-foreground/80">
+                    {selected?.subzone || "No zone selected"}
+                  </span>
+                  {selected?.id && (
+                    <span 
+                      className="text-[9px] bg-muted px-1.5 py-0.5 rounded border flex items-center gap-1 hover:bg-muted/80 cursor-pointer text-muted-foreground transition-all hover:text-foreground opacity-0 group-hover:opacity-100"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        navigator.clipboard.writeText(selected.id);
+                        toast.success("Restaurant ID copied to clipboard!");
+                      }}
+                      title="Copy Restaurant ID"
+                    >
+                      {selected.id} <Copy className="size-2.5" />
+                    </span>
+                  )}
+                </div>
               </div>
 
               <ChevronsUpDown className="size-4 shrink-0 opacity-50 transition-transform duration-200 group-data-[state=open]:rotate-180" />
@@ -213,18 +280,23 @@ export function ProjectSwitcher() {
             </DropdownMenuLabel>
 
             <div className="px-2 pb-2">
-                <div className="relative">
-                    <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-                    <input 
-                        type="text" 
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        placeholder="Search restaurant or zone..."
-                        className="w-full text-xs bg-muted/50 border-none rounded-md pl-7 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary/30"
-                        // Prevent the dropdown from closing when typing (radix ui default behavior can sometimes bubble up)
-                        onKeyDown={(e) => e.stopPropagation()}
-                    />
-                </div>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-2">
+                <TabsList className="w-full grid grid-cols-2">
+                  <TabsTrigger value="zomato" className="text-[11px] uppercase tracking-wider">Zomato</TabsTrigger>
+                  <TabsTrigger value="swiggy" className="text-[11px] uppercase tracking-wider">Swiggy</TabsTrigger>
+                </TabsList>
+              </Tabs>
+              <div className="relative">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                  <input 
+                      type="text" 
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      placeholder="Search restaurant or zone..."
+                      className="w-full text-xs bg-muted/50 border-none rounded-md pl-7 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                      onKeyDown={(e) => e.stopPropagation()}
+                  />
+              </div>
             </div>
 
             <DropdownMenuSeparator className="mx-1" />
@@ -235,8 +307,8 @@ export function ProjectSwitcher() {
 
                 return (
                   <DropdownMenuItem
-                    key={restaurant.id}
-                    onClick={() => setActiveResId(restaurant.id)}
+                    key={restaurant.id + '-' + restaurant.platform}
+                    onClick={() => setActiveResId({ id: restaurant.id, platform: restaurant.platform })}
                     className={`
                       flex items-center gap-3
                       cursor-pointer
@@ -245,18 +317,41 @@ export function ProjectSwitcher() {
                       py-2
                       transition-colors
                       focus:bg-accent
+                      group
                       ${active ? "bg-accent text-accent-foreground font-medium" : ""}
                     `}
                   >
                     <RestaurantImage restaurant={restaurant} />
 
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-medium">
+                      <p className="truncate text-sm font-medium flex items-center gap-1.5">
                         {restaurant.name}
+                        <span className={`px-1 rounded text-[9px] uppercase font-bold tracking-wider shrink-0 ${
+                          restaurant.platform === 'swiggy' 
+                            ? 'bg-orange-500/10 text-orange-600' 
+                            : 'bg-red-500/10 text-red-600'
+                        }`}>
+                          {restaurant.platform}
+                        </span>
                       </p>
-                      <p className="truncate text-xs text-muted-foreground/80 font-normal">
-                        {restaurant.subzone}
-                      </p>
+                      <div className="flex items-center gap-1.5 mt-0.5">
+                        <p className="truncate text-xs text-muted-foreground/80 font-normal">
+                          {restaurant.subzone}
+                        </p>
+                        {restaurant.id && (
+                          <span 
+                            className="text-[9px] bg-muted px-1.5 py-0.5 rounded border flex items-center gap-1 hover:bg-muted/80 cursor-pointer text-muted-foreground transition-all hover:text-foreground opacity-0 group-hover:opacity-100"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigator.clipboard.writeText(restaurant.id);
+                              toast.success("Restaurant ID copied to clipboard!");
+                            }}
+                            title="Copy Restaurant ID"
+                          >
+                            {restaurant.id} <Copy className="size-2.5" />
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     {active && (

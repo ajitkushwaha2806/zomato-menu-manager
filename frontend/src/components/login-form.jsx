@@ -2,16 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { ArrowRight, Trash2, User } from "lucide-react";
+import { ArrowRight, Trash2, User, Plus } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldGroup,
-} from "@/components/ui/field";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import CookieStorage from "@/services/cookie";
@@ -19,155 +14,331 @@ import useNotification from "@/store/hooks/useNotification";
 
 export function LoginForm({ className, ...props }) {
   const router = useRouter();
-  const [cookie, setCookie] = useState("");
-  const [accountName, setAccountName] = useState("");
-  const [savedAccounts, setSavedAccounts] = useState([]);
+  
+  // Zomato State
+  const [zomatoAccounts, setZomatoAccounts] = useState([]);
+  const [selectedZomatoName, setSelectedZomatoName] = useState("");
+  const [newZomatoName, setNewZomatoName] = useState("");
+  const [zomatoCookie, setZomatoCookie] = useState("");
+  const [showZomatoForm, setShowZomatoForm] = useState(false);
+
+  // Swiggy State
+  const [swiggyAccounts, setSwiggyAccounts] = useState([]);
+  const [selectedSwiggyName, setSelectedSwiggyName] = useState("");
+  const [newSwiggyName, setNewSwiggyName] = useState("");
+  const [swiggyUsername, setSwiggyUsername] = useState("");
+  const [swiggyPassword, setSwiggyPassword] = useState("");
+  const [showSwiggyForm, setShowSwiggyForm] = useState(false);
+
   const notify = useNotification();
+  const [isLoading, setIsLoading] = useState(false);
+
+  const fetchAccounts = async () => {
+    try {
+      const [zomRes, swigRes] = await Promise.all([
+        fetch("/api/accounts"),
+        fetch("/api/swiggy-accounts")
+      ]);
+      
+      const zomData = await zomRes.json();
+      const swigData = await swigRes.json();
+      
+      if (zomData.success) setZomatoAccounts(zomData.accounts);
+      if (swigData.success) setSwiggyAccounts(swigData.accounts);
+    } catch (e) {
+      console.error("Failed to fetch accounts:", e);
+    }
+  };
 
   useEffect(() => {
-    const savedCookie = CookieStorage.get();
-    if (savedCookie) {
+    // If both are already set, redirect
+    if (CookieStorage.has()) {
       router.replace("/");
     }
-
-    try {
-      const stored = localStorage.getItem("zomato_saved_accounts");
-      if (stored) {
-        setSavedAccounts(JSON.parse(stored));
-      }
-    } catch (e) { }
+    fetchAccounts();
   }, [router]);
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    const value = cookie.trim();
-    if (!value) return;
+  const removeZomato = async (e, name) => {
+    e.stopPropagation();
+    try {
+      await fetch(`/api/accounts?name=${encodeURIComponent(name)}`, { method: "DELETE" });
+      setZomatoAccounts(prev => prev.filter(a => a.name !== name));
+      if (selectedZomatoName === name) setSelectedZomatoName("");
+    } catch (e) {
+      console.error("Failed to remove zomato account:", e);
+    }
+  };
 
-    if (accountName.trim()) {
-      const existing = savedAccounts.filter(a => a.name !== accountName.trim());
-      const updated = [{ name: accountName.trim(), cookie: value }, ...existing];
-      setSavedAccounts(updated);
-      localStorage.setItem("zomato_saved_accounts", JSON.stringify(updated));
+  const removeSwiggy = async (e, name) => {
+    e.stopPropagation();
+    try {
+      await fetch(`/api/swiggy-accounts?name=${encodeURIComponent(name)}`, { method: "DELETE" });
+      setSwiggyAccounts(prev => prev.filter(a => a.name !== name));
+      if (selectedSwiggyName === name) setSelectedSwiggyName("");
+    } catch (e) {
+      console.error("Failed to remove swiggy account:", e);
+    }
+  };
+
+  const [savingZomato, setSavingZomato] = useState(false);
+  const handleSaveZomato = async () => {
+    if (!newZomatoName || !zomatoCookie) return notify.error("Please provide Zomato name and cookie.");
+    setSavingZomato(true);
+    try {
+      const res = await fetch("/api/accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: newZomatoName.trim(), cookie: zomatoCookie.trim() })
+      });
+      if (!res.ok) throw new Error("Failed to save Zomato account");
+      notify.success("Zomato account saved!");
+      await fetchAccounts();
+      setSelectedZomatoName(newZomatoName.trim());
+      setShowZomatoForm(false);
+      setNewZomatoName("");
+      setZomatoCookie("");
+    } catch (e) {
+      notify.error(e.message || "Failed to save Zomato account.");
+    } finally {
+      setSavingZomato(false);
+    }
+  };
+
+  const [savingSwiggy, setSavingSwiggy] = useState(false);
+  const handleSaveSwiggy = async () => {
+    if (!newSwiggyName || !swiggyUsername || !swiggyPassword) return notify.error("Please provide Swiggy credentials.");
+    setSavingSwiggy(true);
+    try {
+      const res = await fetch("/api/swiggy-accounts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ 
+          name: newSwiggyName.trim(), 
+          username: swiggyUsername.trim(), 
+          password: swiggyPassword.trim() 
+        })
+      });
+      if (!res.ok) throw new Error("Failed to save Swiggy account");
+      notify.success("Swiggy account saved!");
+      await fetchAccounts();
+      setSelectedSwiggyName(newSwiggyName.trim());
+      setShowSwiggyForm(false);
+      setNewSwiggyName("");
+      setSwiggyUsername("");
+      setSwiggyPassword("");
+    } catch (e) {
+      notify.error(e.message || "Failed to save Swiggy account.");
+    } finally {
+      setSavingSwiggy(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    
+    if (showZomatoForm || showSwiggyForm) {
+      return notify.error("Please save your new accounts first.");
     }
 
-    CookieStorage.set(value);
-    notify.success("Logged In Successfully ...!", { duration: 10000 });
-    router.replace("/");
+    if (!selectedZomatoName) return notify.error("Please select a Zomato account.");
+    if (!selectedSwiggyName) return notify.error("Please select a Swiggy account.");
+
+    setIsLoading(true);
+
+    try {
+      const existingZ = zomatoAccounts.find(a => a.name === selectedZomatoName);
+      if (!existingZ) throw new Error("Selected Zomato account not found.");
+
+      CookieStorage.set(existingZ.cookie);
+      CookieStorage.setSwiggyAccount(selectedSwiggyName);
+      
+      notify.success("Logged In Successfully ...!", { duration: 5000 });
+      router.replace("/");
+    } catch (e) {
+      console.error("Login failed:", e);
+      notify.error("Login failed, check console.");
+      setIsLoading(false);
+    }
   };
 
-  const removeAccount = (e, name) => {
-    e.stopPropagation();
-    const updated = savedAccounts.filter(a => a.name !== name);
-    setSavedAccounts(updated);
-    localStorage.setItem("zomato_saved_accounts", JSON.stringify(updated));
-  };
+  const isFormValid = !showZomatoForm && !showSwiggyForm && selectedZomatoName && selectedSwiggyName;
 
   return (
-    <div
-      className={cn(
-        "relative flex w-full overflow-hidden bg-gradient-to-br from-background via-muted/30 to-background p-10",
-        className
-      )}
-      {...props}
-    >
-      <Card className="relative w-full overflow-hidden rounded-3xl border-white/20 bg-background/80">
-        <CardContent className="space-y-8 pt-6">
-          <form onSubmit={handleSubmit} className="space-y-8">
+    <div className={cn("relative flex w-full max-w-6xl mx-auto flex-col gap-6 p-6 md:p-10", className)} {...props}>
+      <div className="text-center mb-4">
+        <h1 className="text-3xl font-bold tracking-tight">Connect Your Accounts</h1>
+        <p className="text-muted-foreground mt-2">Select or add your Zomato and Swiggy accounts to continue.</p>
+      </div>
 
-            {savedAccounts.length > 0 && (
-              <div className="space-y-3 mb-6 bg-muted/20 p-4 rounded-2xl border border-white/10">
-                <h3 className="text-xs font-bold text-muted-foreground uppercase tracking-wider flex items-center gap-2">
-                  <User className="w-3.5 h-3.5" />
-                  Saved Accounts
-                </h3>
-                <div className="flex flex-wrap gap-2">
-                  {savedAccounts.map(acc => (
-                    <div
-                      key={acc.name}
-                      onClick={() => {
-                        setAccountName(acc.name);
-                        setCookie(acc.cookie);
-                      }}
-                      className="group flex items-center gap-2 bg-background hover:bg-muted/80 border rounded-full pl-4 pr-1 py-1.5 cursor-pointer transition-colors shadow-sm"
-                    >
-                      <span className="text-sm font-medium">{acc.name}</span>
-                      <Button
-                        type="button"
-                        variant="ghost"
-                        size="icon"
-                        className="h-6 w-6 rounded-full hover:bg-destructive hover:text-destructive-foreground text-muted-foreground transition-colors ml-1"
-                        onClick={(e) => removeAccount(e, acc.name)}
-                        title="Remove account"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
+      <form onSubmit={handleSubmit} className="flex flex-col gap-8">
+        <div className="grid md:grid-cols-2 gap-6">
+          {/* ZOMATO SECTION */}
+          <Card className="relative overflow-hidden rounded-3xl border-red-500/20 bg-background/80 shadow-md">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-red-500" />
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span className="text-red-600 font-bold uppercase">Zomato</span>
+                {!showZomatoForm && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setShowZomatoForm(true)} className="h-8 text-xs">
+                    <Plus className="w-4 h-4 mr-1" /> Add New
+                  </Button>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!showZomatoForm ? (
+                <div className="space-y-3">
+                  {zomatoAccounts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">No Zomato accounts found.</p>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {zomatoAccounts.map(acc => (
+                        <div
+                          key={acc.name}
+                          onClick={() => setSelectedZomatoName(acc.name)}
+                          className={cn(
+                            "group flex items-center justify-between border rounded-xl px-4 py-3 cursor-pointer transition-all",
+                            selectedZomatoName === acc.name ? "border-red-500 bg-red-500/5 ring-1 ring-red-500" : "hover:bg-muted/50"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <User className={cn("w-4 h-4", selectedZomatoName === acc.name ? "text-red-500" : "text-muted-foreground")} />
+                            <span className="text-sm font-medium">{acc.name}</span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                            onClick={(e) => removeZomato(e, acc.name)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  )}
+                  {zomatoAccounts.length === 0 && (
+                    <Button type="button" variant="outline" className="w-full mt-2" onClick={() => setShowZomatoForm(true)}>
+                      Add Zomato Account
+                    </Button>
+                  )}
                 </div>
-              </div>
-            )}
-
-            <FieldGroup>
-              <Field>
-                <div className="mb-6">
-                  <Input
-                    type="text"
-                    placeholder="Account Name (optional)"
-                    value={accountName}
-                    onChange={(e) => setAccountName(e.target.value)}
-                    className="h-12 rounded-xl bg-muted/40 font-medium px-4"
-                  />
-                  <FieldDescription className="mt-2 text-xs opacity-70 px-1">
-                    Give this session a name to easily switch to it later.
-                  </FieldDescription>
+              ) : (
+                <div className="space-y-4 animate-in fade-in zoom-in-95">
+                  <div>
+                    <label className="text-xs font-semibold mb-1 block">Account Name</label>
+                    <Input placeholder="e.g. Primary Zomato" value={newZomatoName} onChange={e => setNewZomatoName(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold mb-1 block">Cookie Header</label>
+                    <Textarea rows={4} placeholder="Paste cookie here..." value={zomatoCookie} onChange={e => setZomatoCookie(e.target.value)} className="resize-none font-mono text-xs" />
+                  </div>
+                  <div className="flex justify-end gap-2 mt-4">
+                    {zomatoAccounts.length > 0 && (
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setShowZomatoForm(false)}>Cancel</Button>
+                    )}
+                    <Button type="button" size="sm" onClick={handleSaveZomato} disabled={savingZomato}>
+                      {savingZomato ? "Saving..." : "Save Account"}
+                    </Button>
+                  </div>
                 </div>
-              </Field>
+              )}
+            </CardContent>
+          </Card>
 
-              <Field>
-                <Textarea
-                  rows={12}
-                  value={cookie}
-                  onChange={(e) => setCookie(e.target.value)}
-                  placeholder="Paste your Cookie header..."
-                  className="
-                    min-h-[220px]
-                    max-h-[350px]
-                    overflow-y-auto
-                    resize-none
-                    rounded-2xl
-                    border
-                    bg-muted/40
-                    p-5
-                    font-mono
-                    text-xs
-                    leading-6
-                    shadow-inner
-                    break-all
-                  "
-                />
+          {/* SWIGGY SECTION */}
+          <Card className="relative overflow-hidden rounded-3xl border-orange-500/20 bg-background/80 shadow-md">
+            <div className="absolute top-0 left-0 w-full h-1.5 bg-orange-500" />
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center justify-between">
+                <span className="text-orange-600 font-bold uppercase">Swiggy</span>
+                {!showSwiggyForm && (
+                  <Button type="button" variant="ghost" size="sm" onClick={() => setShowSwiggyForm(true)} className="h-8 text-xs">
+                    <Plus className="w-4 h-4 mr-1" /> Add New
+                  </Button>
+                )}
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {!showSwiggyForm ? (
+                <div className="space-y-3">
+                  {swiggyAccounts.length === 0 ? (
+                    <p className="text-sm text-muted-foreground text-center py-4">No Swiggy accounts found.</p>
+                  ) : (
+                    <div className="flex flex-col gap-2">
+                      {swiggyAccounts.map(acc => (
+                        <div
+                          key={acc.name}
+                          onClick={() => setSelectedSwiggyName(acc.name)}
+                          className={cn(
+                            "group flex items-center justify-between border rounded-xl px-4 py-3 cursor-pointer transition-all",
+                            selectedSwiggyName === acc.name ? "border-orange-500 bg-orange-500/5 ring-1 ring-orange-500" : "hover:bg-muted/50"
+                          )}
+                        >
+                          <div className="flex items-center gap-3">
+                            <User className={cn("w-4 h-4", selectedSwiggyName === acc.name ? "text-orange-500" : "text-muted-foreground")} />
+                            <span className="text-sm font-medium">{acc.name}</span>
+                          </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                            onClick={(e) => removeSwiggy(e, acc.name)}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  {swiggyAccounts.length === 0 && (
+                    <Button type="button" variant="outline" className="w-full mt-2" onClick={() => setShowSwiggyForm(true)}>
+                      Add Swiggy Account
+                    </Button>
+                  )}
+                </div>
+              ) : (
+                <div className="space-y-4 animate-in fade-in zoom-in-95">
+                  <div>
+                    <label className="text-xs font-semibold mb-1 block">Account Name</label>
+                    <Input placeholder="e.g. Primary Swiggy" value={newSwiggyName} onChange={e => setNewSwiggyName(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold mb-1 block">Username</label>
+                    <Input placeholder="Swiggy Username" value={swiggyUsername} onChange={e => setSwiggyUsername(e.target.value)} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-semibold mb-1 block">Password</label>
+                    <Input type="password" placeholder="Swiggy Password" value={swiggyPassword} onChange={e => setSwiggyPassword(e.target.value)} />
+                  </div>
+                  <div className="flex justify-end gap-2 mt-4">
+                    {swiggyAccounts.length > 0 && (
+                      <Button type="button" variant="ghost" size="sm" onClick={() => setShowSwiggyForm(false)}>Cancel</Button>
+                    )}
+                    <Button type="button" size="sm" onClick={handleSaveSwiggy} disabled={savingSwiggy}>
+                      {savingSwiggy ? "Saving..." : "Save Account"}
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </div>
 
-                <FieldDescription className="mt-3 text-sm opacity-80 px-1">
-                  Copy the entire{" "}
-                  <span className="rounded bg-muted/60 px-2 py-1 font-mono text-primary">
-                    Cookie
-                  </span>{" "}
-                  request header from your browser's Developer Tools and paste
-                  it here.
-                </FieldDescription>
-              </Field>
-            </FieldGroup>
-
-            <Button
-              type="submit"
-              size="lg"
-              className="group h-14 w-full rounded-2xl text-base font-semibold shadow-lg bg-primary hover:bg-primary/90 text-primary-foreground"
-            >
-              Connect Session
-              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-            </Button>
-          </form>
-        </CardContent>
-      </Card>
+        <div className="flex justify-center mt-2">
+          <Button
+            type="submit"
+            size="lg"
+            disabled={!isFormValid || isLoading}
+            className="group h-14 w-full md:w-96 rounded-full text-base font-semibold shadow-xl bg-primary hover:bg-primary/90 text-primary-foreground transition-all"
+          >
+            {isLoading ? "Connecting..." : "Connect Session"}
+            <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+          </Button>
+        </div>
+      </form>
     </div>
   );
 }

@@ -6,7 +6,7 @@ import ZomatoImageDropzone from "../../shared/ZomatoImageDropzone";
 import useNotification from "@/store/hooks/useNotification";
 import { Button } from "@/components/ui/button";
 import api from "@/lib/api/axios";
-import { uploadZomatoImage } from "@/services/zomatoImageService";
+import { uploadPlatformImage } from "@/services/imageService";
 
 const ImageCard = ({ item, onClick, onDrop, isActive }) => {
     const imgUrl = item?.media?.[0]?.thumbUrl || item?.media?.[0]?.url || item.image_url || (typeof item.image === 'string' ? item.image : item.image?.url);
@@ -15,6 +15,7 @@ const ImageCard = ({ item, onClick, onDrop, isActive }) => {
     return (
         <ZomatoImageDropzone
             itemId={item?.id}
+            itemName={item?.name}
             onClick={() => onClick(item)}
             onUploadSuccess={(mediaArray) => onDrop(item.id, mediaArray)}
             overlayText="Drop Image"
@@ -110,7 +111,7 @@ const ImageCard = ({ item, onClick, onDrop, isActive }) => {
 export default function ImageEditor({ allItems, updateItem }) {
     const dispatch = useDispatch();
     const notification = useNotification();
-    const { isImageSidebarOpen, activeItem, activeResId } = useSelector((state) => state.menu);
+    const { isImageSidebarOpen, activeItem, activeResId, activePlatform } = useSelector((state) => state.menu);
     const notify = useNotification();
 
     const [isAutoApplying, setIsAutoApplying] = useState(false);
@@ -224,14 +225,17 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 }
                             });
 
-                            const uploadRes = await uploadZomatoImage(activeResId, imageUrl);
+                            let uploadRes = { success: false };
+                            if (activePlatform !== "swiggy") {
+                                uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
+                            }
 
                             if (uploadRes.success && uploadRes.mediaArray) {
                                 finalMedia = uploadRes.mediaArray;
                                 break;
                             }
 
-                            // Upload failed — use source URL directly as fallback
+                            // Upload failed or Swiggy — use source URL directly as fallback
                             finalMedia = [{
                                 tempReferenceId: `temp-auto-${crypto.randomUUID()}`,
                                 url: imageUrl,
@@ -359,14 +363,17 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 }
                             });
 
-                            const uploadRes = await uploadZomatoImage(activeResId, imageUrl);
+                            let uploadRes = { success: false };
+                            if (activePlatform !== "swiggy") {
+                                uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
+                            }
 
                             if (uploadRes.success && uploadRes.mediaArray) {
                                 finalMedia = uploadRes.mediaArray;
                                 break;
                             }
 
-                            // Upload failed — use source URL directly as fallback
+                            // Upload failed or Swiggy — use source URL directly as fallback
                             finalMedia = [{
                                 tempReferenceId: `temp-db-${crypto.randomUUID()}`,
                                 url: imageUrl,

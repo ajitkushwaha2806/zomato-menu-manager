@@ -5,7 +5,8 @@ export const API_ENDPOINTS = {
     },
     MENU: {
         ZOMATO_MENU_IMPORT: (resId) => `/api/menu/${resId}/zomato/import`,
-        GET_MENU: (resId) => `/api/menu/${resId}`,
-        UPDATE_MENU: (resId) => `/api/menu/${resId}`,
+        SWIGGY_MENU_IMPORT: (resId) => `/api/menu/${resId}/swiggy/import`,
+        GET_MENU: (resId, platform) => `/api/menu/${resId}${platform ? `?platform=${platform}` : ''}`,
+        UPDATE_MENU: (resId, platform) => `/api/menu/${resId}${platform ? `?platform=${platform}` : ''}`,
     },
 };
