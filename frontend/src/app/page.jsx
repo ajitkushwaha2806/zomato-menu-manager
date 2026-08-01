@@ -44,7 +44,7 @@ const MenuPage = () => {
     }
 
     return (
-        <div className="flex flex-col h-full bg-white overflow-hidden relative">
+        <div className="flex flex-col h-[calc(100vh-3rem)] bg-white overflow-hidden relative">
             <MenuEditorHeader onSave={handleSaveMenu} isSaving={isSaving} />
             <div className="flex-1 flex overflow-hidden">
                 {activeView === "BULK" ? (

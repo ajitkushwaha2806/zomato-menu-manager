@@ -9,6 +9,7 @@ import AddonsBuilder from "./views/AddonsBuilder";
 import ExportImagesEditor from "./views/ExportImagesEditor";
 import HoldItemsEditor from "./views/HoldItemsEditor";
 import SwiggyTicketsViewer from "./views/tickets/SwiggyTicketsViewer";
+import ExportCsvEditor from "./views/ExportCsvEditor";
 
 export default function BulkEditorRouter({
     activeBulkMode,
@@ -67,6 +68,8 @@ export default function BulkEditorRouter({
             return <HoldItemsEditor allItems={allItems} updateItem={updateItem} deleteItem={deleteItem} categories={filteredMenuData} />;
         case "EXPORT_IMAGES":
             return <ExportImagesEditor allItems={allItems} />;
+        case "EXPORT_CSV":
+            return <ExportCsvEditor allItems={allItems} />;
         case "TICKETS":
             return <SwiggyTicketsViewer resId={activeResId} />;
         default:

@@ -52,5 +52,31 @@ export const MenuService = {
                 "Failed to save menu."
             );
         }
+    },
+
+    async getFailedJobs() {
+        try {
+            const { data } = await api.get(API_ENDPOINTS.MENU.GET_FAILED_JOBS());
+            return data?.data || [];
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to fetch jobs."
+            );
+        }
+    },
+
+    async resumeJob(jobId) {
+        try {
+            const { data } = await api.post(API_ENDPOINTS.MENU.RESUME_JOB(jobId));
+            return data;
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to resume job."
+            );
+        }
     }
 };

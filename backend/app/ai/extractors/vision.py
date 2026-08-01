@@ -3,7 +3,7 @@ from app.utils.concurrency import run_concurrently
 from app.ai.schemas.menu_transcription import MenuTranscription
 from app.ai.chains.menu_transcription import MenuTranscriptionChain
 
-class OpenAIVisionExtractor:
+class VisionExtractor:
 
     def __init__(self):
         self.chain = MenuTranscriptionChain()

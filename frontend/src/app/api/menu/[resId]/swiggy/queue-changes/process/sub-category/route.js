@@ -224,7 +224,7 @@ export async function POST(req, { params }) {
 
         const freshSync = await MenuSync.findById(syncId);
         const freshSubCategories = freshSync?.updated_menu?.sub_categories || [];
-        const pendingSubCategories = freshSubCategories.filter((sub) => sub.status !== "completed" && sub.status !== "failed");
+        const pendingSubCategories = freshSubCategories.filter((sub) => ["create", "update", "delete"].includes(sub.action) && sub.status !== "completed" && sub.status !== "failed");
 
         if (
             pendingSubCategories.length === 0

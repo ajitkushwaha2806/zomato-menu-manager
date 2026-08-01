@@ -66,7 +66,26 @@ export const POST = async (req, { params }) => {
                     const titleLower = item.name?.toLowerCase() || "";
                     
                     if (titleLower.includes("pizza") && !titleLower.includes("inch")) {
-                        item.name = `${item.name} - [6 INCH]`;
+                        let sizeToAppend = "6 INCH";
+                        if (item.variants && item.variants.length > 0) {
+                            let minSize = null;
+                            item.variants.forEach(v => {
+                                (v.options || []).forEach(opt => {
+                                    const optName = (opt.option_name || "").toLowerCase();
+                                    const match = optName.match(/(\d+)\s*(?:inch|inches|'')/i);
+                                    if (match) {
+                                        const size = parseInt(match[1]);
+                                        if (minSize === null || size < minSize) {
+                                            minSize = size;
+                                        }
+                                    }
+                                });
+                            });
+                            if (minSize !== null) {
+                                sizeToAppend = `${minSize} INCH`;
+                            }
+                        }
+                        item.name = `${item.name} - [${sizeToAppend}]`;
                     }
                     
                     if (titleLower.includes("chaap") && !(item.description || "").toLowerCase().includes("mock meat")) {

@@ -78,7 +78,26 @@ export default function DescriptionEditor({ allItems, updateItem }) {
 
                 if (matchesPizza) {
                     if (!itemNameLower.includes("inch")) {
-                        newName = `${newName} [6 inch]`.trim();
+                        let sizeToAppend = "6 inch";
+                        if (item.variants && item.variants.length > 0) {
+                            let minSize = null;
+                            item.variants.forEach(v => {
+                                (v.options || []).forEach(opt => {
+                                    const optName = (opt.option_name || opt.name || "").toLowerCase();
+                                    const match = optName.match(/(\d+)\s*(?:inch|inches|'')/i);
+                                    if (match) {
+                                        const size = parseInt(match[1]);
+                                        if (minSize === null || size < minSize) {
+                                            minSize = size;
+                                        }
+                                    }
+                                });
+                            });
+                            if (minSize !== null) {
+                                sizeToAppend = `${minSize} inch`;
+                            }
+                        }
+                        newName = `${newName} [${sizeToAppend}]`.trim();
                         updated = true;
                     }
                 }

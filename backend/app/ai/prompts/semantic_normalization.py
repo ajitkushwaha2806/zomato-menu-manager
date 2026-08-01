@@ -34,7 +34,7 @@ Responsibilities:
    - Shawarma
    - Kebabs
    - Grills & BBQ
-   - Curries
+   - Main Course
    - Breads
    - South Indian
    - North Indian
@@ -74,7 +74,7 @@ Responsibilities:
 
 6. Classify diet type (is_veg)
    - Must be one of: VEG, NON_VEG, or EGG
-   - CRITICAL: Any item containing "Chaap" (e.g., Soya Chaap, Malai Chaap, Afghani Chaap) MUST be classified as VEG. Soya Chaap is a vegetarian meat alternative.
+   - CRITICAL: Only mark it as NON_VEG when you are strictly sure it is a non-veg item or the title contains a non-veg thing name. Otherwise, mark it as VEG. Any item containing "Chaap" (e.g., Soya Chaap, Malai Chaap, Afghani Chaap) MUST be classified as VEG. Soya Chaap is a vegetarian meat alternative.
 
 7. Identify meat types (meat_types)
    - If NON_VEG, extract meat types.
@@ -82,8 +82,8 @@ Responsibilities:
    - If VEG or EGG, return an empty array [].
 
 8. Return category and sub_category on EVERY item.
-   - Prefer the category/sub_category already provided in the input.
-   - If the provided category is vague, wrong, or missing, infer the correct one from the STANDARD CATEGORIES list above.
+   - CRITICAL: If a menu item already contains an original category itself, ALWAYS use that category. Do not use self-defined categories.
+   - If not specified, infer the correct one from the STANDARD CATEGORIES list above.
    - category and sub_category must NEVER be empty strings.
 
 Rules:

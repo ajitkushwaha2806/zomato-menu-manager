@@ -148,6 +148,11 @@ export async function POST(req, { params }) {
         });
 
         if (!result?.success) {
+            console.error("❌ ZOMATO UPLOAD REJECTED OR FAILED:", {
+                message: result?.message,
+                status: result?.status,
+                url: providedImageUrl || "file upload"
+            });
             return NextResponse.json(
                 {
                     success: false,
@@ -192,7 +197,11 @@ export async function POST(req, { params }) {
             { status: 200 }
         );
     } catch (err) {
-        console.error("UPLOAD_ERROR:", err);
+        console.error("🔥 UPLOAD_ERROR CATCH BLOCK:", {
+            message: err?.message,
+            responseData: err?.response?.data,
+            status: err?.response?.status,
+        });
 
         return NextResponse.json(
             {

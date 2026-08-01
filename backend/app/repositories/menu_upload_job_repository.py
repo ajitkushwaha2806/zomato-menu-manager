@@ -98,3 +98,12 @@ class MenuUploadJobRepository:
             {"job_id": job_id},
             {"$set": {f"chain_outputs.{step_name}": output_data}}
         )
+
+    def get_failed_jobs(self) -> list[MenuUploadJob]:
+        from app.models.enums import JobStatus
+        cursor = self.collection.find({"status": JobStatus.FAILED.value}).sort("created_at", -1)
+        jobs = []
+        for document in cursor:
+            document.pop("_id", None)
+            jobs.append(MenuUploadJob(**document))
+        return jobs

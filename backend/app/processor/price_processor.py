@@ -2,19 +2,21 @@ import logging
 import tempfile
 from app.services.storage.s3 import S3StorageService
 from app.repositories.menu_upload_job_repository import MenuUploadJobRepository
-from app.ai.graph.workflow import build_workflow
+from app.repositories.menu_repository import MenuRepository
+from app.ai.graph.price_workflow import build_price_workflow
 
 logger = logging.getLogger(__name__)
 
-class MenuProcessor:
+class PriceProcessor:
     def __init__(
         self,
         repository: MenuUploadJobRepository,
+        menu_repository: MenuRepository,
         storage: S3StorageService,
     ):
         self.repository = repository
         self.storage = storage
-        self.graph = build_workflow(repository, storage)
+        self.graph = build_price_workflow(repository, menu_repository, storage)
 
     def process(self, job_id: str):
         job = self.repository.get_by_job_id(job_id)
@@ -42,9 +44,18 @@ class MenuProcessor:
                     "upload_type": job.upload_type,
                     "downloaded_files": [],
                     "transcriptions": initial_transcriptions,
-                    "parsed_menus": [],
+                    "extracted_prices": [],
+                    "proposed_changes": [],
                     "errors": []
                 }
+                
+                from app.models.enums import JobStatus
+                self.repository.update_progress(
+                    job_id=job_id,
+                    status=JobStatus.PROCESSING.value,
+                    progress=5,
+                    step="Initializing workflow..."
+                )
                 
                 self.graph.invoke(
                     initial_state,
@@ -53,30 +64,6 @@ class MenuProcessor:
 
         except Exception as e:
             logger.error("Job %s failed: %s", job_id, str(e), exc_info=True)
-            self.repository.mark_failed(
-                job_id=job_id,
-                error=str(e),
-            )
-            raise
-
-    def resume(self, job_id: str):
-        job = self.repository.get_by_job_id(job_id)
-
-        if not job:
-            raise ValueError(f"Job {job_id} not found.")
-
-        try:
-            logger.info(f"Resuming job {job_id} from human review...")
-            
-            # Since LangGraph automatically picks up from the last checkpoint
-            # using the thread_id, we just pass None as the input state
-            self.graph.invoke(
-                None,
-                config={"configurable": {"thread_id": job_id}}
-            )
-
-        except Exception as e:
-            logger.error("Job %s resume failed: %s", job_id, str(e), exc_info=True)
             self.repository.mark_failed(
                 job_id=job_id,
                 error=str(e),

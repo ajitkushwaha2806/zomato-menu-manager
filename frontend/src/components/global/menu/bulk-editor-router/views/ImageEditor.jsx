@@ -1,10 +1,14 @@
 import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ImageIcon, Loader2, CheckCircle2, XCircle, Sparkles, Trash2, Play, Database, Search, AlertCircle } from "lucide-react";
+import { ImageIcon, Loader2, CheckCircle2, XCircle, Sparkles, Trash2, Play, Database, Search, AlertCircle, Copy } from "lucide-react";
 import { openImageSidebar } from "@/store/slice/menuSlice";
 import ZomatoImageDropzone from "../../shared/ZomatoImageDropzone";
 import useNotification from "@/store/hooks/useNotification";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import api from "@/lib/api/axios";
 import { uploadPlatformImage } from "@/services/imageService";
 
@@ -119,6 +123,10 @@ export default function ImageEditor({ allItems, updateItem }) {
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const removeConfirmTimer = useRef(null);
 
+    const [isCrossResModalOpen, setIsCrossResModalOpen] = useState(false);
+    const [targetResId, setTargetResId] = useState("");
+    const [targetPlatform, setTargetPlatform] = useState("zomato");
+
     const handleRemoveAllImages = () => {
         if (!removeConfirm) {
             setRemoveConfirm(true);
@@ -225,25 +233,37 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 }
                             });
 
-                            let uploadRes = { success: false };
                             if (activePlatform !== "swiggy") {
-                                uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
-                            }
-
-                            if (uploadRes.success && uploadRes.mediaArray) {
-                                finalMedia = uploadRes.mediaArray;
+                                // Upload to Zomato to ensure proper tracking and approval
+                                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
+                                if (uploadRes.success && uploadRes.mediaArray) {
+                                    finalMedia = uploadRes.mediaArray.map(m => ({
+                                        ...m,
+                                        entityId: item.originalId || item.id
+                                    }));
+                                    break;
+                                }
+                            } else {
+                                // Swiggy — use source URL directly
+                                finalMedia = [{
+                                    tempReferenceId: `temp-auto-${crypto.randomUUID()}`,
+                                    url: imageUrl,
+                                    thumbUrl: photo.thumb_url || photo.thumbUrl || imageUrl,
+                                    mediaType: "PHOTO",
+                                    mediaId: imageUrl.split('/').pop() || "image.jpg",
+                                    order: 1,
+                                    usageType: "FOODSHOT",
+                                    entityType: "CATALOGUE",
+                                    entityId: item.originalId || item.id,
+                                    fileDirectory: "",
+                                    source: "MS_MENU_TOOL",
+                                    fileName: imageUrl.split('/').pop() || "image.jpg",
+                                    usageTypeEnum: "USAGE_TYPE_FOODSHOT",
+                                    isNewlyUploaded: true,
+                                    isUploading: false,
+                                }];
                                 break;
                             }
-
-                            // Upload failed or Swiggy — use source URL directly as fallback
-                            finalMedia = [{
-                                tempReferenceId: `temp-auto-${crypto.randomUUID()}`,
-                                url: imageUrl,
-                                thumbUrl: photo.thumb_url || photo.thumbUrl || imageUrl,
-                                isNewlyUploaded: true,
-                                isUploading: false,
-                            }];
-                            break;
 
                         }
 
@@ -269,6 +289,9 @@ export default function ImageEditor({ allItems, updateItem }) {
                 
                 completedCount += chunk.length;
                 setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: completedCount });
+                
+                // Rate limit: wait 3 seconds between chunks
+                await new Promise(r => setTimeout(r, 2000));
             }
             
             setIsAutoApplying(false);
@@ -363,25 +386,38 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 }
                             });
 
-                            let uploadRes = { success: false };
                             if (activePlatform !== "swiggy") {
-                                uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
+                                // Upload to Zomato to ensure proper tracking and approval
+                                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
+                                if (uploadRes.success && uploadRes.mediaArray) {
+                                    finalMedia = uploadRes.mediaArray.map(m => ({
+                                        ...m,
+                                        entityId: item.originalId || item.id
+                                    }));
+                                    break;
+                                }
+                            } else {
+                                // Swiggy fallback
+                                finalMedia = [{
+                                    tempReferenceId: `temp-db-${crypto.randomUUID()}`,
+                                    url: imageUrl,
+                                    thumbUrl: photo.thumb_url || photo.thumbUrl || imageUrl,
+                                    mediaType: "PHOTO",
+                                    mediaId: photo.mediaId || imageUrl.split('/').pop() || "image.jpg",
+                                    order: 1,
+                                    usageType: "FOODSHOT",
+                                    entityType: "CATALOGUE",
+                                    entityId: item.originalId || item.id,
+                                    fileDirectory: photo.fileDirectory || "",
+                                    source: "MS_MENU_TOOL",
+                                    fileName: photo.fileName || imageUrl.split('/').pop() || "image.jpg",
+                                    usageTypeEnum: "USAGE_TYPE_FOODSHOT",
+                                    isNewlyUploaded: true,
+                                    isUploading: false,
+                                }];
                             }
-
-                            if (uploadRes.success && uploadRes.mediaArray) {
-                                finalMedia = uploadRes.mediaArray;
-                                break;
-                            }
-
-                            // Upload failed or Swiggy — use source URL directly as fallback
-                            finalMedia = [{
-                                tempReferenceId: `temp-db-${crypto.randomUUID()}`,
-                                url: imageUrl,
-                                thumbUrl: photo.thumb_url || photo.thumbUrl || imageUrl,
-                                isNewlyUploaded: true,
-                                isUploading: false,
-                            }];
-                            break;
+                            
+                            if (finalMedia.length > 0) break;
                         }
 
                         return { itemId: item.id, media: finalMedia };
@@ -405,6 +441,9 @@ export default function ImageEditor({ allItems, updateItem }) {
                 
                 completedCount += chunk.length;
                 setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: completedCount });
+                
+                // Rate limit: wait 3 seconds between chunks
+                await new Promise(r => setTimeout(r, 3000));
             }
             
             setIsAutoApplying(false);
@@ -413,6 +452,158 @@ export default function ImageEditor({ allItems, updateItem }) {
         } catch (err) {
             console.error(err);
             notify.error("Failed during DB auto apply.");
+            setIsAutoApplying(false);
+        }
+    };
+
+    const handleCrossResApply = async () => {
+        if (!targetResId.trim()) {
+            notify.error("Please enter a valid Restaurant ID.");
+            return;
+        }
+
+        const itemsWithoutMedia = allItems.filter(item => {
+            const hasMedia = item.media && item.media.length > 0;
+            return !hasMedia;
+        });
+
+        if (itemsWithoutMedia.length === 0) {
+            notify.success("All items already have images!");
+            setIsCrossResModalOpen(false);
+            return;
+        }
+
+        setIsCrossResModalOpen(false);
+        setIsAutoApplying(true);
+        setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: 0 });
+
+        try {
+            // 1. Fetch the target restaurant's menu
+            const res = await api.get(`/api/menu/${targetResId.trim()}`, {
+                params: { platform: targetPlatform }
+            });
+
+            if (!res.data?.success || !res.data?.data?.menu) {
+                notify.error("Failed to load target restaurant menu.");
+                setIsAutoApplying(false);
+                return;
+            }
+
+            const targetMenu = res.data.data.menu;
+
+            // 2. Flatten target menu to get a map of lowercase item names to their media arrays
+            const targetMediaMap = {};
+            targetMenu.forEach(cat => {
+                cat.sub_category?.forEach(subcat => {
+                    subcat.items?.forEach(item => {
+                        const name = item.name?.trim().toLowerCase();
+                        if (name && item.media && item.media.length > 0) {
+                            targetMediaMap[name] = item.media;
+                        } else if (name && item.image_url) {
+                            targetMediaMap[name] = [{ url: item.image_url, thumbUrl: item.image_url }];
+                        }
+                    });
+                });
+            });
+
+            // 3. Match items and update
+            let completedCount = 0;
+            const chunkSize = 2; // Process 2 at a time
+
+            for (let i = 0; i < itemsWithoutMedia.length; i += chunkSize) {
+                const chunk = itemsWithoutMedia.slice(i, i + chunkSize);
+                
+                const fetchPromises = chunk.map(async (item) => {
+                    try {
+                        const nameKey = item.name?.trim().toLowerCase();
+                        const sourceMediaArray = targetMediaMap[nameKey];
+
+                        if (!sourceMediaArray || sourceMediaArray.length === 0) {
+                            return { itemId: item.id, media: [] };
+                        }
+
+                        const sourceImageUrl = sourceMediaArray[0].url || sourceMediaArray[0].thumbUrl || sourceMediaArray[0].image_url;
+
+                        if (!sourceImageUrl) {
+                            return { itemId: item.id, media: [] };
+                        }
+
+                        // Show temporary uploading state
+                        updateItem({
+                            itemId: item.id,
+                            updates: {
+                                media: [{
+                                    tempReferenceId: `temp-cross-${crypto.randomUUID()}`,
+                                    url: '',
+                                    isUploading: true,
+                                    uploadText: `Copying from ${targetPlatform}...`
+                                }]
+                            }
+                        });
+
+                        let finalMedia = [];
+
+                        if (activePlatform !== "swiggy") {
+                            // Upload to Zomato to ensure proper tracking and approval
+                            const uploadRes = await uploadPlatformImage(activePlatform, activeResId, sourceImageUrl, item.name);
+                            if (uploadRes.success && uploadRes.mediaArray) {
+                                finalMedia = uploadRes.mediaArray.map(m => ({
+                                    ...m,
+                                    entityId: item.originalId || item.id
+                                }));
+                            }
+                        } else {
+                            // Swiggy fallback
+                            finalMedia = [{
+                                tempReferenceId: `temp-cross-${crypto.randomUUID()}`,
+                                url: sourceImageUrl,
+                                thumbUrl: sourceMediaArray[0].thumbUrl || sourceImageUrl,
+                                mediaType: "PHOTO",
+                                mediaId: sourceMediaArray[0].mediaId || sourceImageUrl.split('/').pop() || "image.jpg",
+                                order: 1,
+                                usageType: "FOODSHOT",
+                                entityType: "CATALOGUE",
+                                entityId: item.originalId || item.id,
+                                fileDirectory: sourceMediaArray[0].fileDirectory || "",
+                                source: "MS_MENU_TOOL",
+                                fileName: sourceMediaArray[0].fileName || sourceImageUrl.split('/').pop() || "image.jpg",
+                                usageTypeEnum: "USAGE_TYPE_FOODSHOT",
+                                isNewlyUploaded: true,
+                                isUploading: false,
+                            }];
+                        }
+
+                        return { itemId: item.id, media: finalMedia };
+                    } catch (e) {
+                        console.error(`Failed to apply cross-res image for ${item.name}`, e);
+                        return { itemId: item.id, media: [] };
+                    }
+                });
+
+                const results = await Promise.all(fetchPromises);
+                
+                results.forEach(result => {
+                    const { itemId, media } = result;
+                    if (media && media.length > 0) {
+                        updateItem({ itemId, updates: { media } });
+                    } else {
+                        updateItem({ itemId, updates: { media: [] } });
+                    }
+                });
+                
+                completedCount += chunk.length;
+                setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: completedCount });
+                
+                // Rate limit: wait 3 seconds between chunks
+                await new Promise(r => setTimeout(r, 3000));
+            }
+
+            setIsAutoApplying(false);
+            notify.success(`Successfully applied images from restaurant ${targetResId}!`);
+
+        } catch (err) {
+            console.error(err);
+            notify.error("An error occurred while copying images.");
             setIsAutoApplying(false);
         }
     };
@@ -486,6 +677,15 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 <Database className="mr-2 h-4 w-4 text-emerald-500" />
                                 <span>Auto-fill from DB</span>
                             </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={() => setIsCrossResModalOpen(true)}
+                                disabled={isAutoApplying}
+                                className="h-9 rounded-lg px-4 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition-colors relative overflow-hidden shrink-0"
+                            >
+                                <Copy className="mr-2 h-4 w-4 text-amber-500" />
+                                <span>Copy from Rest.</span>
+                            </Button>
                         </div>
                         
                         {/* Progress Bar under the header */}
@@ -515,6 +715,47 @@ export default function ImageEditor({ allItems, updateItem }) {
                     </div>
                 </div>
             </div>
+
+            {/* Cross-Restaurant Modal */}
+            <Dialog open={isCrossResModalOpen} onOpenChange={setIsCrossResModalOpen}>
+                <DialogContent className="sm:max-w-[425px]">
+                    <DialogHeader>
+                        <DialogTitle>Copy Images from Restaurant</DialogTitle>
+                        <DialogDescription>
+                            Enter the Restaurant ID and platform to fetch images and match them by item name.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid gap-2">
+                            <Label htmlFor="resId">Restaurant ID</Label>
+                            <Input
+                                id="resId"
+                                value={targetResId}
+                                onChange={(e) => setTargetResId(e.target.value)}
+                                placeholder="e.g. 18464619"
+                            />
+                        </div>
+                        <div className="grid gap-2">
+                            <Label htmlFor="platform">Platform</Label>
+                            <Select value={targetPlatform} onValueChange={setTargetPlatform}>
+                                <SelectTrigger>
+                                    <SelectValue placeholder="Select platform" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="zomato">Zomato</SelectItem>
+                                    <SelectItem value="swiggy">Swiggy</SelectItem>
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <Button variant="outline" onClick={() => setIsCrossResModalOpen(false)}>Cancel</Button>
+                        <Button onClick={handleCrossResApply} className="bg-amber-600 hover:bg-amber-700 text-white">
+                            Fetch and Apply
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </div>
     );
 }

@@ -694,7 +694,7 @@ You will be provided a list of menu items. Each item has an 'id' and 'name'.
 
 Your tasks are:
 
-1. Determine 'is_veg': must be exactly one of "VEG", "NON_VEG", or "EGG".
+1. Determine 'is_veg': must be exactly one of "VEG", "NON_VEG", or "EGG". **CRITICAL:** Only mark it as "NON_VEG" when you are strictly sure it is a non-veg item or the title contains a non-veg thing name. Otherwise, mark it as "VEG".
 2. Determine 'meatTypes':
    - If NON_VEG, list the meat types (e.g. ["chicken", "mutton", "fish", "prawns", "beef", "pork"]).
    - If VEG or EGG, this MUST be an empty array [].
@@ -783,8 +783,9 @@ STRICT RULES:
 3. **CRITICAL:** Do NOT over-categorize. Do NOT create too many unnecessary small subcategories or categories. Keep the menu hierarchy clean and compact.
 4. **CRITICAL:** Do NOT create duplicate categories or subcategories. If categories or subcategories are similar or matching in meaning (e.g., "Veg Starters" and "Vegetarian Starters"), MERGE them into a single category.
 5. If the original category is too broad, infer a better structure, but prefer broader grouping over fragmentation.
-6. You MUST include EVERY item from the input. DO NOT skip any item.
-7. You MUST preserve the exact 'id' integer provided for each item
+6. **CRITICAL:** If a menu item already contains an original category itself, ALWAYS use that category. Do not use self-defined categories. If not specified, pick from the provided ones.
+7. You MUST include EVERY item from the input. DO NOT skip any item.
+8. You MUST preserve the exact 'id' integer provided for each item
 //In case of momos i strictly want variants only based on pcs or half full not on based on fry , steam , tandoori 
 
 You MUST output exactly one JSON object wrapped in \`\`\`json ... \`\`\`

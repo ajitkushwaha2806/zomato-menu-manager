@@ -26,6 +26,11 @@ def route_after_extraction(state: MenuProcessingState):
         return "human_review"
     return "parse"
 
+def route_from_start(state: MenuProcessingState):
+    if state.get("upload_type") == "text":
+        return "parse"
+    return "download"
+
 def build_workflow(repository, storage):
     workflow = StateGraph(MenuProcessingState)
     
@@ -36,7 +41,14 @@ def build_workflow(repository, storage):
     workflow.add_node("merge", MergeNode(repository))
     workflow.add_node("normalize", SemanticNormalizationNode(repository))
     
-    workflow.add_edge(START, "download")
+    workflow.add_conditional_edges(
+        START,
+        route_from_start,
+        {
+            "parse": "parse",
+            "download": "download"
+        }
+    )
     workflow.add_edge("download", "extract")
     
     workflow.add_conditional_edges(

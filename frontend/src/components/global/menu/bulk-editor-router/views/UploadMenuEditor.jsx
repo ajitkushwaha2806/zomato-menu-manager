@@ -16,6 +16,8 @@ export default function UploadMenuEditor() {
     const notification = useNotification();
     
     // UI States
+    const [inputType, setInputType] = useState("file"); // 'file' or 'text'
+    const [rawText, setRawText] = useState("");
     const [imagesToUpload, setImagesToUpload] = useState([]); // Array of { id, file, url }
     const [isProcessingLocalFiles, setIsProcessingLocalFiles] = useState(false);
     const [isUploading, setIsUploading] = useState(false);
@@ -131,7 +133,8 @@ export default function UploadMenuEditor() {
     };
 
     const handleUpload = async () => {
-        if (!imagesToUpload.length) return;
+        if (inputType === "file" && !imagesToUpload.length) return;
+        if (inputType === "text" && !rawText.trim()) return;
         if (!activeResId) {
             notification.error("Restaurant ID is missing.", { duration: 5000 });
             return;
@@ -144,23 +147,29 @@ export default function UploadMenuEditor() {
             const formData = new FormData();
             formData.append("restaurant_id", activeResId);
             formData.append("platform", activePlatform || "zomato");
-            imagesToUpload.forEach(img => formData.append("files", img.file));
+            
+            if (inputType === "file") {
+                imagesToUpload.forEach(img => formData.append("files", img.file));
+            } else {
+                formData.append("raw_text", rawText);
+            }
 
             const { data } = await axios.post(`/api/backend/menu/upload`, formData, {
                 headers: { "Content-Type": "multipart/form-data" }
             });
 
             if (data.success && data.data?.job_id) {
-                notification.success("Files uploaded. Processing started in background.", { duration: 5000 });
+                notification.success("Menu uploaded. Processing started in background.", { duration: 5000 });
                 setJobId(data.data.job_id);
                 setUploadStatus("processing");
                 setImagesToUpload([]); // Clear preview
+                setRawText("");
             } else {
                 throw new Error(data.message || "Upload failed");
             }
         } catch (error) {
             console.error("Upload error:", error);
-            notification.error(error?.response?.data?.message || error.message || "Failed to queue files", { duration: 5000 });
+            notification.error(error?.response?.data?.message || error.message || "Failed to queue menu", { duration: 5000 });
             setUploadStatus("error");
         } finally {
             setIsUploading(false);
@@ -171,11 +180,29 @@ export default function UploadMenuEditor() {
 
     return (
         <div className="flex-1 overflow-auto bg-gray-50/50 p-6 flex flex-col relative">
-            <div className="mb-6">
-                <h2 className="text-xl font-bold text-gray-800">Upload Physical Menu</h2>
-                <p className="text-sm text-gray-500 mt-1">
-                    Upload PDF or Images of your physical menu. Preview and cull the pages before sending them to the AI parser.
-                </p>
+            <div className="mb-6 flex justify-between items-start">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-800">Upload Menu Data</h2>
+                    <p className="text-sm text-gray-500 mt-1">
+                        Upload PDF/Images or directly paste raw text of your physical menu to let our AI parse it.
+                    </p>
+                </div>
+                {!uploadStatus && (
+                    <div className="flex bg-gray-200/50 p-1 rounded-lg border border-gray-200">
+                        <button 
+                            onClick={() => setInputType("file")}
+                            className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${inputType === "file" ? "bg-white text-gray-800 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                        >
+                            Files
+                        </button>
+                        <button 
+                            onClick={() => setInputType("text")}
+                            className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${inputType === "text" ? "bg-white text-gray-800 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                        >
+                            Text
+                        </button>
+                    </div>
+                )}
             </div>
 
             {/* If we are actively processing the UI is locked to show progress */}
@@ -240,70 +267,94 @@ export default function UploadMenuEditor() {
                 </div>
             ) : (
                 <div className="flex flex-col flex-1 mx-auto w-full gap-6">
-                    {/* Drag and Drop Zone */}
-                    <div 
-                        onDragOver={(e) => e.preventDefault()}
-                        onDrop={handleDrop}
-                        className={`w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer relative transition-colors ${isProcessingLocalFiles ? "border-gray-200 bg-gray-50 opacity-75" : "border-gray-300 bg-white hover:bg-gray-50"}`}
-                    >
-                        <input 
-                            type="file" 
-                            multiple 
-                            accept=".pdf, image/*" 
-                            onChange={handleFileChange}
-                            disabled={isProcessingLocalFiles || isUploading}
-                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                        />
-                        {isProcessingLocalFiles ? (
-                            <>
-                                <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
-                                <p className="text-sm font-semibold text-gray-700">Converting PDF to Images...</p>
-                            </>
-                        ) : (
-                            <>
-                                <FileUp className="w-8 h-8 text-gray-400 mb-2" />
-                                <p className="text-sm font-semibold text-gray-700">Drag and drop PDF or Images</p>
-                            </>
-                        )}
-                    </div>
+                    {inputType === "file" ? (
+                        <>
+                            {/* Drag and Drop Zone */}
+                            <div 
+                                onDragOver={(e) => e.preventDefault()}
+                                onDrop={handleDrop}
+                                className={`w-full h-32 border-2 border-dashed rounded-xl flex flex-col items-center justify-center cursor-pointer relative transition-colors ${isProcessingLocalFiles ? "border-gray-200 bg-gray-50 opacity-75" : "border-gray-300 bg-white hover:bg-gray-50"}`}
+                            >
+                                <input 
+                                    type="file" 
+                                    multiple 
+                                    accept=".pdf, image/*" 
+                                    onChange={handleFileChange}
+                                    disabled={isProcessingLocalFiles || isUploading}
+                                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                                />
+                                {isProcessingLocalFiles ? (
+                                    <>
+                                        <Loader2 className="w-8 h-8 text-primary animate-spin mb-2" />
+                                        <p className="text-sm font-semibold text-gray-700">Converting PDF to Images...</p>
+                                    </>
+                                ) : (
+                                    <>
+                                        <FileUp className="w-8 h-8 text-gray-400 mb-2" />
+                                        <p className="text-sm font-semibold text-gray-700">Drag and drop PDF or Images</p>
+                                    </>
+                                )}
+                            </div>
 
-                    {/* Preview Grid */}
-                    {imagesToUpload.length > 0 && (
-                        <div className="w-full bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1">
-                            <div className="flex items-center justify-between mb-4">
-                                <div>
-                                    <h3 className="text-base font-bold text-gray-800">Pages to Process ({imagesToUpload.length})</h3>
-                                    <p className="text-xs text-gray-500">Remove any unnecessary pages (e.g. covers, blank pages) before processing.</p>
+                            {/* Preview Grid */}
+                            {imagesToUpload.length > 0 && (
+                                <div className="w-full bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex flex-col flex-1">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div>
+                                            <h3 className="text-base font-bold text-gray-800">Pages to Process ({imagesToUpload.length})</h3>
+                                            <p className="text-xs text-gray-500">Remove any unnecessary pages (e.g. covers, blank pages) before processing.</p>
+                                        </div>
+                                        <button
+                                            onClick={handleUpload}
+                                            disabled={isUploading}
+                                            className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm"
+                                        >
+                                            {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                                            {isUploading ? "Queueing..." : "Process Menu Pages"}
+                                        </button>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto pr-2 pb-2">
+                                        {imagesToUpload.map((img, index) => (
+                                            <div key={img.id} className="group relative rounded-xl overflow-hidden border border-gray-200 shadow-sm aspect-[3/4] bg-gray-100 flex items-center justify-center">
+                                                {/* eslint-disable-next-line @next/next/no-img-element */}
+                                                <img src={img.url} alt={`Page ${index + 1}`} className="w-full h-full object-cover" />
+                                                
+                                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-end p-2">
+                                                    <button 
+                                                        onClick={() => handleRemoveImage(img.id)}
+                                                        className="bg-white text-red-600 p-1.5 rounded-full hover:bg-red-50 transition-colors shadow-sm"
+                                                    >
+                                                        <X className="w-4 h-4" />
+                                                    </button>
+                                                </div>
+                                                <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
+                                                    <p className="text-white text-xs font-semibold truncate">Page {index + 1}</p>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
                                 </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="flex flex-col flex-1 h-full gap-4">
+                            <textarea 
+                                className="flex-1 w-full p-4 border border-gray-300 rounded-xl resize-none focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white text-sm"
+                                placeholder="Paste your raw menu text here... Example:&#10;&#10;1. Margherita Pizza - $12&#10;2. Pepperoni Pizza - $15"
+                                value={rawText}
+                                onChange={(e) => setRawText(e.target.value)}
+                                disabled={isUploading}
+                            />
+                            <div className="flex justify-end">
                                 <button
                                     onClick={handleUpload}
-                                    disabled={isUploading}
+                                    disabled={isUploading || !rawText.trim()}
                                     className="bg-primary text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-primary/90 disabled:opacity-50 transition-colors shadow-sm"
                                 >
                                     {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
-                                    {isUploading ? "Queueing..." : "Process Menu Pages"}
+                                    {isUploading ? "Processing..." : "Process Text Menu"}
                                 </button>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 overflow-y-auto pr-2 pb-2">
-                                {imagesToUpload.map((img, index) => (
-                                    <div key={img.id} className="group relative rounded-xl overflow-hidden border border-gray-200 shadow-sm aspect-[3/4] bg-gray-100 flex items-center justify-center">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img src={img.url} alt={`Page ${index + 1}`} className="w-full h-full object-cover" />
-                                        
-                                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-start justify-end p-2">
-                                            <button 
-                                                onClick={() => handleRemoveImage(img.id)}
-                                                className="bg-white text-red-600 p-1.5 rounded-full hover:bg-red-50 transition-colors shadow-sm"
-                                            >
-                                                <X className="w-4 h-4" />
-                                            </button>
-                                        </div>
-                                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-2">
-                                            <p className="text-white text-xs font-semibold truncate">Page {index + 1}</p>
-                                        </div>
-                                    </div>
-                                ))}
                             </div>
                         </div>
                     )}

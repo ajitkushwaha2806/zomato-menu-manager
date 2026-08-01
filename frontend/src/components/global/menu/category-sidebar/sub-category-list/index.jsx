@@ -7,7 +7,8 @@ import InlineInput from "@/components/ui/inline-input";
 import ActionMenu from "../action-menu";
 
 export default function SubCategoryList({
-    category,
+    categoryId,
+    subcategories = [],
     activeSubCategory,
     setActiveSubCategory,
     setActiveCategory,
@@ -16,9 +17,6 @@ export default function SubCategoryList({
 }) {
     const [editingId, setEditingId] = useState(null);
 
-    if (!category) return null;
-
-    const subcategories = category.subcategories ?? [];
     if (subcategories.length === 0) return null;
 
     return (
@@ -59,7 +57,7 @@ export default function SubCategoryList({
                                 <button
                                     type="button"
                                     onClick={() => {
-                                        setActiveCategory?.(category.id);
+                                        setActiveCategory?.(categoryId);
                                         setActiveSubCategory?.(sub.id);
                                     }}
                                     className="flex min-w-0 flex-1 items-center gap-3 text-left"
@@ -98,9 +96,8 @@ export default function SubCategoryList({
                                 {!sub.status || sub.status !== 'delete' ? (
                                     <ActionMenu
                                         triggerClassName={cn(
-                                            "h-8 w-8 rounded-lg transition-all duration-200",
-                                            isActive ? "opacity-100" : "translate-x-2 opacity-0 group-hover:translate-x-0 group-hover:opacity-100",
-                                            "hover:bg-background"
+                                            "h-7 w-7 opacity-0 transition-opacity",
+                                            isActive ? "opacity-100" : "group-hover:opacity-100 data-[state=open]:opacity-100"
                                         )}
                                         onRename={() => setEditingId(sub.id)}
                                         onDelete={() => deleteSubCategory?.(sub.id)}

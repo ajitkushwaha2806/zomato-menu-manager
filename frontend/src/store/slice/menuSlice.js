@@ -821,11 +821,16 @@ const menuSlice = createSlice({
                             categoryName: c.name,
                             subCategoryId: s.id,
                             subCategoryName: s.name,
-                            price: i.price,
+                            price: i.base_price || i.price,
+                            base_price: i.base_price || i.price,
                             variants: i.variants || [],
                             action: existingItem?.action === "create" ? "create" : "update",
                         };
                         upsertUpdatedMenuEntry(state.updated_menu.items, entry, i);
+                        
+                        if (!i.temp_id && (!existingItem || existingItem.action !== "create")) {
+                            i.temp_id = `update-${i.id}`;
+                        }
                     });
                 });
             });

@@ -260,7 +260,7 @@ export async function POST(req, { params }) {
 
         // Fetch the freshed document to check if all categories are completed
         const freshSync = await MenuSync.findById(syncId);
-        const pendingCategories = freshSync?.updated_menu?.categories?.filter((cat) => cat.status !== "completed" && cat.status !== "failed") || [];
+        const pendingCategories = freshSync?.updated_menu?.categories?.filter((cat) => ["create", "update", "delete"].includes(cat.action) && cat.status !== "completed" && cat.status !== "failed") || [];
 
         if (pendingCategories.length === 0) {
             console.log(

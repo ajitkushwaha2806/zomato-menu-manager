@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from "react";
-import { Upload, X, Plus, Trash2, Calculator, Loader2, CheckCircle2, CheckSquare, Square, ChevronDown, ChevronRight, AlertTriangle } from "lucide-react";
+import { Upload, X, Plus, Trash2, Calculator, Loader2, CheckCircle2, CheckSquare, Square, ChevronDown, ChevronRight, AlertTriangle, Copy, Clipboard } from "lucide-react";
 import api from "@/lib/api/axios";
 import { useMenu } from "@/store/hooks/useMenu";
 import useNotification from "@/store/hooks/useNotification";
@@ -9,10 +9,17 @@ import { Button } from "@/components/ui/button";
 export default function PriceEditor({ allItems, updateItem, menuData }) {
     const [referenceFile, setReferenceFile] = useState(null);
     const [referenceFileType, setReferenceFileType] = useState(null);
+    const [fileObj, setFileObj] = useState(null);
     const fileInputRef = useRef(null);
 
+    const [aiJobId, setAiJobId] = useState(null);
+    const [aiJobStatus, setAiJobStatus] = useState(null);
+    const [aiJobProgress, setAiJobProgress] = useState(null);
+    const [isAiPreview, setIsAiPreview] = useState(false);
+    const [isStartingExtraction, setIsStartingExtraction] = useState(false);
 
-    const { activeResId, activePlatform, getMenuByResId } = useMenu();
+
+    const { activeResId, activePlatform, getMenuByResId, queuePriceUpdates } = useMenu();
     const notification = useNotification();
 
     const [bulkUpdateOpen, setBulkUpdateOpen] = useState(false);
@@ -26,6 +33,7 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
     const [isSubmittingBulk, setIsSubmittingBulk] = useState(false);
     const [previewAllItems, setPreviewAllItems] = useState([]);
     const [isPreviewMode, setIsPreviewMode] = useState(false);
+    const [copiedVariants, setCopiedVariants] = useState(null);
 
     const toggleExpand = (catId) => {
         const newExpanded = new Set(expandedCategories);
@@ -159,10 +167,27 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
         const globalSaveBtn = document.getElementById("global-save-btn");
         if (!globalSaveBtn) return;
 
-        const interceptSave = (e) => {
+        const interceptSave = async (e) => {
             e.preventDefault();
             e.stopPropagation();
-            submitBulkUpdate(false);
+            if (isAiPreview && aiJobId) {
+                try {
+                    const { data } = await api.post(`/api/backend/menu/price-update/${aiJobId}/apply`);
+                    notification.success(data.message || "Prices updated!", { duration: 5000 });
+                    setIsPreviewMode(false);
+                    setIsAiPreview(false);
+                    setPreviewAllItems([]);
+                    setAiJobId(null);
+                    localStorage.removeItem(`zomato_ai_job_id_${activeResId}`);
+                    setAiJobStatus(null);
+                    setAiJobProgress(null);
+                    getMenuByResId({ resId: activeResId, platform: activePlatform });
+                } catch (err) {
+                    notification.error(err?.response?.data?.detail || "Failed to apply AI changes", { duration: 5000 });
+                }
+            } else {
+                submitBulkUpdate(false);
+            }
         };
 
         // Use capture phase to intercept before the normal onClick fires
@@ -178,11 +203,76 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
             globalSaveBtn.removeEventListener("click", interceptSave, { capture: true });
             globalSaveBtn.className = originalClasses;
         };
-    }, [isPreviewMode, previewAllItems, roundMode, targetSelection, bulkMode, bulkAction, bulkValue, selectedItems]);
+    }, [isPreviewMode, isAiPreview, aiJobId, previewAllItems, roundMode, targetSelection, bulkMode, bulkAction, bulkValue, selectedItems]);
+
+    // Polling for AI Job
+    useEffect(() => {
+        if (!aiJobId || isAiPreview) return;
+        let interval = setInterval(async () => {
+            try {
+                const { data } = await api.get(`/api/backend/menu/price-update/${aiJobId}`);
+                if (data.data) {
+                    setAiJobStatus(data.data.status);
+                    if (data.data.progress !== undefined) {
+                        setAiJobProgress({
+                            value: data.data.progress || 0,
+                            step: data.data.step || "Processing..."
+                        });
+                    }
+                    
+                    if (data.data.status === "failed") {
+                        notification.error("AI Price Extraction failed.", { duration: 5000 });
+                        setAiJobId(null);
+                        localStorage.removeItem(`zomato_ai_job_id_${activeResId}`);
+                        setAiJobProgress(null);
+                        clearInterval(interval);
+                    } else if (data.data.status === "pending_approval") {
+                        clearInterval(interval);
+                        // Construct previewAllItems from proposed_changes
+                        const changes = data.data.proposed_changes || [];
+                        if (changes.length === 0) {
+                            notification.info("No price changes found in the document.", { duration: 5000 });
+                            setAiJobId(null);
+                            localStorage.removeItem(`zomato_ai_job_id_${activeResId}`);
+                            return;
+                        }
+                        
+                        // Deep clone allItems
+                        const newPreviewItems = JSON.parse(JSON.stringify(allItems));
+                        changes.forEach(change => {
+                            const item = newPreviewItems.find(i => i.id === change.item_id);
+                            if (item) {
+                                if (change.variant_name) {
+                                    item.variants?.forEach(v => {
+                                        v.options?.forEach(o => {
+                                            if (o.name === change.variant_name || o.option_name === change.variant_name) {
+                                                o.price = Number(change.new_price);
+                                            }
+                                        });
+                                    });
+                                } else {
+                                    item.base_price = Number(change.new_price);
+                                }
+                            }
+                        });
+                        setPreviewAllItems(newPreviewItems);
+                        setIsAiPreview(true);
+                        setIsPreviewMode(true);
+                        notification.success(`Found ${changes.length} price updates! Review and save.`, { duration: 5000 });
+                    }
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        }, 3000);
+        
+        return () => clearInterval(interval);
+    }, [aiJobId, isAiPreview, allItems]);
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
+            setFileObj(file);
             const url = URL.createObjectURL(file);
             setReferenceFile(url);
             setReferenceFileType(file.type);
@@ -192,8 +282,51 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
     const removeFile = () => {
         setReferenceFile(null);
         setReferenceFileType(null);
+        setFileObj(null);
+        setAiJobId(null);
+        localStorage.removeItem(`zomato_ai_job_id_${activeResId}`);
+        setAiJobStatus(null);
+        setAiJobProgress(null);
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
+
+    const startAiExtraction = async () => {
+        if (!fileObj || isStartingExtraction) return;
+        setIsStartingExtraction(true);
+        try {
+            const formData = new FormData();
+            formData.append("restaurant_id", activeResId);
+            formData.append("platform", activePlatform);
+            formData.append("files", fileObj);
+            formData.append("existing_menu", JSON.stringify(menuData || []));
+
+            const { data } = await api.post("/api/backend/menu/price-update/upload", formData, {
+                headers: { "Content-Type": "multipart/form-data" }
+            });
+            
+            if (data.success && data.data?.job_id) {
+                const newJobId = data.data.job_id;
+                setAiJobId(newJobId);
+                setAiJobStatus("queued");
+                localStorage.setItem(`zomato_ai_job_id_${activeResId}`, newJobId);
+                notification.success("Started AI price extraction...", { duration: 3000 });
+            }
+        } catch (err) {
+            notification.error("Failed to start AI extraction.", { duration: 5000 });
+        } finally {
+            setIsStartingExtraction(false);
+        }
+    };
+
+    // Recover job ID on mount
+    useEffect(() => {
+        if (activeResId && !aiJobId) {
+            const savedJobId = localStorage.getItem(`zomato_ai_job_id_${activeResId}`);
+            if (savedJobId) {
+                setAiJobId(savedJobId);
+            }
+        }
+    }, [activeResId, aiJobId]);
 
     const handleKeyDown = (e) => {
         if (e.key === "Enter") {
@@ -207,6 +340,26 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
         }
     };
 
+    const handleVariantPricePaste = (e, item, gIdx, oIdx) => {
+        const pastedText = e.clipboardData.getData("Text");
+        const prices = pastedText.split(/[\s,\t]+/).map(p => Number(p)).filter(p => !isNaN(p));
+        
+        if (prices.length > 1) {
+            e.preventDefault();
+            const newVariants = [...item.variants];
+            newVariants[gIdx] = { ...newVariants[gIdx], options: [...newVariants[gIdx].options] };
+            
+            for (let i = 0; i < prices.length && oIdx + i < newVariants[gIdx].options.length; i++) {
+                newVariants[gIdx].options[oIdx + i] = {
+                    ...newVariants[gIdx].options[oIdx + i],
+                    price: prices[i]
+                };
+            }
+            
+            updateItem({ itemId: item.id, updates: { variants: newVariants } });
+        }
+    };
+
     const addVariantGroup = (itemId, itemVariants) => {
         if (itemVariants && itemVariants.length >= 1) {
             notification.error("Only a single variant property is allowed.", { duration: 5000 });
@@ -214,13 +367,40 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
         }
 
         const newGroup = {
-            property_name: "New Group",
+            property_name: "Portion",
             property_id: `temp-${crypto.randomUUID()}`,
             options: [
-                { option_name: "Default Option", price: 0, is_default: true, option_id: `temp-${crypto.randomUUID()}` }
+                { option_name: "Half", price: 0, is_default: true, option_id: `temp-${crypto.randomUUID()}` },
+                { option_name: "Full", price: 0, is_default: false, option_id: `temp-${crypto.randomUUID()}` }
             ]
         };
         updateItem({ itemId, updates: { variants: [...(itemVariants || []), newGroup] } });
+    };
+
+    const copyVariants = (itemVariants) => {
+        if (!itemVariants || itemVariants.length === 0) return;
+        setCopiedVariants(itemVariants);
+        notification.success("Variants copied! You can paste them on other items.", { duration: 3000 });
+    };
+
+    const pasteVariants = (itemId, currentVariants) => {
+        if (!copiedVariants) return;
+        if (currentVariants && currentVariants.length >= 1) {
+            notification.error("Remove existing variants before pasting.", { duration: 5000 });
+            return;
+        }
+
+        const clonedVariants = copiedVariants.map(group => ({
+            ...group,
+            property_id: `temp-${crypto.randomUUID()}`,
+            options: group.options.map(opt => ({
+                ...opt,
+                option_id: `temp-${crypto.randomUUID()}`
+            }))
+        }));
+        
+        updateItem({ itemId, updates: { variants: [...(currentVariants || []), ...clonedVariants] } });
+        notification.success("Variants pasted successfully!", { duration: 3000 });
     };
 
     const addVariantOption = (itemId, itemVariants, gIdx) => {
@@ -269,7 +449,41 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                 {referenceFile && (
                     <div className="flex-1 flex flex-col min-h-0">
                         <div className="p-3 border-b bg-white flex justify-between items-center shrink-0 shadow-sm z-10">
-                            <span className="text-sm font-bold text-gray-700">Reference Menu</span>
+                            <div className="flex items-center gap-3">
+                                <span className="text-sm font-bold text-gray-700">Reference Menu</span>
+                                {aiJobId ? (
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-2 text-xs font-semibold px-2 py-1 bg-blue-50 text-blue-700 rounded-md border border-blue-200">
+                                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                            {aiJobStatus === 'processing' ? 'Extracting Prices...' : 'Waiting in Queue...'}
+                                        </div>
+                                        {aiJobProgress && (
+                                            <div className="flex items-center gap-2">
+                                                <span className="text-xs text-gray-500 font-medium">{aiJobProgress.step}</span>
+                                                <div className="w-24 bg-gray-200 rounded-full h-1.5 overflow-hidden flex">
+                                                    <div className="bg-blue-600 h-full transition-all duration-300" style={{ width: `${aiJobProgress.value}%` }} />
+                                                </div>
+                                                <span className="text-xs font-bold text-gray-700">{aiJobProgress.value}%</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                ) : (
+                                    <button 
+                                        onClick={startAiExtraction}
+                                        disabled={isPreviewMode || isStartingExtraction}
+                                        className="text-xs font-semibold text-white bg-indigo-600 hover:bg-indigo-700 px-3 py-1.5 rounded-md shadow-sm transition-colors flex items-center gap-1.5 disabled:opacity-50"
+                                    >
+                                        {isStartingExtraction ? (
+                                            <>
+                                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                                                Starting...
+                                            </>
+                                        ) : (
+                                            "Extract Prices with AI"
+                                        )}
+                                    </button>
+                                )}
+                            </div>
                             <button onClick={removeFile} className="p-1.5 hover:bg-gray-100 rounded-md text-gray-500 transition-colors">
                                 <X size={16} />
                             </button>
@@ -285,7 +499,7 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                 )}
             </div>
 
-            <div className={`flex-1 overflow-y-auto p-4 ${referenceFile ? '' : 'w-full'}`}>
+            <div className={`flex-1 min-w-0 min-h-0 overflow-y-auto p-4 ${referenceFile ? '' : 'w-full'}`}>
                 <div className="space-y-4">
                     <div className="flex justify-between items-end border-b pb-2">
                         <h2 className="text-lg font-bold text-gray-800">{isPreviewMode ? "Preview Price Changes" : "Price Editor"}</h2>
@@ -299,8 +513,11 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                                             <p className="text-xs text-gray-500">Review your price changes below. Click <span className="font-semibold text-gray-700">Save Changes</span> in the top right when you are ready.</p>
                                         </div>
                                     </div>
-                                    <button
-                                        onClick={() => setIsPreviewMode(false)}
+                                        <button
+                                        onClick={() => {
+                                            setIsPreviewMode(false);
+                                            setIsAiPreview(false);
+                                        }}
                                         className="text-sm font-semibold text-gray-600 hover:text-gray-900 px-4 py-1.5 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors bg-white shadow-sm"
                                     >
                                         Cancel Preview
@@ -314,6 +531,17 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                                     >
                                         <Calculator size={16} /> Bulk Update Prices
                                     </button>
+                                    {/* {activePlatform === 'SWIGGY' && ( */}
+                                        <button
+                                            onClick={() => {
+                                                queuePriceUpdates();
+                                                notification.success("Swiggy price updates queued successfully!", { duration: 3000 });
+                                            }}
+                                            className="flex items-center gap-2 text-sm bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-semibold shadow-sm transition-colors"
+                                        >
+                                            <CheckSquare size={16} /> Queue Prices
+                                        </button>
+                                    {/* )} */}
                                     {!referenceFile && (
                                         <div>
                                             <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*,application/pdf" className="hidden" />
@@ -380,19 +608,40 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                                         </td>
                                         <td className="p-3 align-top space-y-3">
                                             {(!item.variants || item.variants.length === 0) ? (
-                                                <div className="flex items-center gap-3">
+                                                <div className="flex items-center gap-2">
                                                     <span className="text-gray-400 text-xs italic">No variants</span>
                                                     {!isPreviewMode && (
-                                                        <button
-                                                            onClick={() => addVariantGroup(item.id, item.variants)}
-                                                            className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded hover:bg-primary/20 flex items-center gap-1 transition-colors"
-                                                        >
-                                                            <Plus size={10} strokeWidth={3} /> Add Variant
-                                                        </button>
+                                                        <>
+                                                            <button
+                                                                onClick={() => addVariantGroup(item.id, item.variants)}
+                                                                className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded hover:bg-primary/20 flex items-center gap-1 transition-colors"
+                                                            >
+                                                                <Plus size={10} strokeWidth={3} /> Add Variant
+                                                            </button>
+                                                            {copiedVariants && (
+                                                                <button
+                                                                    onClick={() => pasteVariants(item.id, item.variants)}
+                                                                    className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-2 py-1 rounded hover:bg-emerald-100 flex items-center gap-1 transition-colors"
+                                                                    title="Paste Variants"
+                                                                >
+                                                                    <Clipboard size={10} strokeWidth={3} /> Paste
+                                                                </button>
+                                                            )}
+                                                        </>
                                                     )}
                                                 </div>
                                             ) : (
                                                 <div className="space-y-3">
+                                                    {!isPreviewMode && (
+                                                        <div className="flex justify-end -mb-2">
+                                                            <button
+                                                                onClick={() => copyVariants(item.variants)}
+                                                                className="text-[10px] font-bold text-gray-500 hover:text-blue-600 flex items-center gap-1 transition-colors"
+                                                            >
+                                                                <Copy size={10} strokeWidth={3} /> Copy Variants
+                                                            </button>
+                                                        </div>
+                                                    )}
                                                     {item.variants.map((group, gIdx) => (
                                                         <div key={gIdx} className="space-y-1.5 p-2 bg-gray-50/50 border border-gray-100 rounded-md shadow-sm">
                                                             <div className="flex items-center justify-between gap-2">
@@ -464,6 +713,7 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                                                                                         updateItem({ itemId: item.id, updates: { variants: newVariants } });
                                                                                     }}
                                                                                     onKeyDown={handleKeyDown}
+                                                                                    onPaste={(e) => handleVariantPricePaste(e, item, gIdx, oIdx)}
                                                                                     className="price-input-field w-16 px-1 py-1.5 outline-none bg-white font-semibold text-center focus:bg-primary/5"
                                                                                     placeholder="0"
                                                                                 />

@@ -4,8 +4,10 @@ import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, RefreshCcw, CheckCircle2, Clock, AlertCircle, FileJson, ChevronDown, ChevronUp } from "lucide-react";
 import api from "@/lib/api/axios";
+import useNotification from "@/store/hooks/useNotification";
 
 const StatusBadge = ({ status }) => {
+// ... existing code for StatusBadge ...
     switch (status) {
         case "completed":
             return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold"><CheckCircle2 className="w-3 h-3" /> Completed</span>;
@@ -91,7 +93,7 @@ const SyncItem = ({ label, items, type }) => {
     );
 };
 
-const JobCard = ({ job }) => {
+const JobCard = ({ job, onRetry, isRetrying }) => {
     const [expanded, setExpanded] = useState(false);
     
     const categories = job.updated_menu?.categories || [];
@@ -118,8 +120,21 @@ const JobCard = ({ job }) => {
                     </p>
                     <p className="text-xs text-gray-500 font-mono mt-0.5">ID: {job._id}</p>
                 </div>
-                <div className="text-gray-400">
-                    {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                <div className="flex items-center gap-3">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onRetry(job);
+                        }}
+                        disabled={isRetrying}
+                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors disabled:opacity-50"
+                    >
+                        <RefreshCcw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
+                        Retry
+                    </button>
+                    <div className="text-gray-400">
+                        {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
+                    </div>
                 </div>
             </div>
 
@@ -159,6 +174,8 @@ const JobCard = ({ job }) => {
 export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
     const [jobs, setJobs] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [retryingId, setRetryingId] = useState(null);
+    const notify = useNotification();
 
     const fetchHistory = async () => {
         try {
@@ -171,6 +188,25 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
             console.error("Failed to fetch sync history", error);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleRetry = async (job) => {
+        try {
+            setRetryingId(job._id);
+            const payload = { updated_menu: job.updated_menu || { categories: [], sub_categories: [], items: [] } };
+            const res = await api.post(`/api/menu/${resId}/swiggy/queue-changes`, payload);
+            if (res.data?.success) {
+                notify.success("Menu changes queued for retry successfully!");
+                fetchHistory(); // refresh the list
+            } else {
+                notify.error(res.data?.message || "Failed to retry sync job.");
+            }
+        } catch (error) {
+            console.error("Failed to retry job", error);
+            notify.error("Failed to retry sync job.");
+        } finally {
+            setRetryingId(null);
         }
     };
 
@@ -243,7 +279,12 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
                             ) : (
                                 <div>
                                     {jobs.map((job) => (
-                                        <JobCard key={job._id} job={job} />
+                                        <JobCard 
+                                            key={job._id} 
+                                            job={job} 
+                                            onRetry={handleRetry}
+                                            isRetrying={retryingId === job._id}
+                                        />
                                     ))}
                                 </div>
                             )}

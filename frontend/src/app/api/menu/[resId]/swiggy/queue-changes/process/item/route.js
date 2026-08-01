@@ -311,7 +311,7 @@ export async function POST(req, { params }) {
 
         const freshSync = await MenuSync.findById(syncId);
         const freshItems = freshSync?.updated_menu?.items || [];
-        const pendingItems = freshItems.filter((itm) => itm.status !== "completed" && itm.status !== "failed");
+        const pendingItems = freshItems.filter((itm) => ["create", "update", "delete"].includes(itm.action) && itm.status !== "completed" && itm.status !== "failed");
 
         if (pendingItems.length === 0) {
             console.log(`All items completed for sync ${syncId}`);

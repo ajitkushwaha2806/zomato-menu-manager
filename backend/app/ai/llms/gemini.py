@@ -12,10 +12,11 @@ class GeminiProvider(BaseLLMProvider):
     def get_chat_model(
         self,
         temperature: float = 0,
+        model_name: str | None = None,
     ) -> ChatGoogleGenerativeAI:
         return ChatGoogleGenerativeAI(
-            model=self.model,
-            google_api_key=self.api_key,
+            model=model_name or self.model,
+            api_key=self.api_key,
             temperature=temperature,
         )
 
@@ -24,9 +25,8 @@ class GeminiProvider(BaseLLMProvider):
         schema: Type[BaseModel],
         temperature: float = 0,
     ):
-        return (
-            self.get_chat_model(
-                temperature=temperature,
-            )
-            .with_structured_output(schema)
-        )
+        primary = self.get_chat_model(temperature=temperature).with_structured_output(schema)
+        fallback_1 = self.get_chat_model(temperature=temperature, model_name="gemini-flash-latest").with_structured_output(schema)
+        fallback_2 = self.get_chat_model(temperature=temperature, model_name="gemini-2.5-flash").with_structured_output(schema)
+        
+        return primary.with_fallbacks([fallback_1, fallback_2])

@@ -12,6 +12,9 @@ class ParseNode:
         self.parser_chain = MenuParserChain()
 
     def _parse(self, t):
+        if isinstance(t, dict):
+            from app.ai.schemas.menu_transcription import MenuTranscription
+            t = MenuTranscription(**t)
         return self.parser_chain.invoke(t)
 
     def __call__(self, state: MenuProcessingState):

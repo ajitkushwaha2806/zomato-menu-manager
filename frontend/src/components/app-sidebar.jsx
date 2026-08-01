@@ -16,6 +16,7 @@ import {
   AlertTriangle,
   ClipboardPaste,
   Ticket,
+  Table,
 } from "lucide-react";
 
 import { useMenu } from "@/store/hooks/useMenu";
@@ -279,6 +280,15 @@ export function AppSidebar({ ...props }) {
                 <Cloud className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "EXPORT_IMAGES" ? "scale-110" : ""}`} /> 
                 <span className="group-data-[collapsible=icon]:hidden">Export Images</span>
             </button>
+            <button
+                onClick={() => setActiveBulkMode("EXPORT_CSV")}
+                title="Export Menu CSV"
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "EXPORT_CSV" ? "bg-slate-800 text-white font-bold shadow-md scale-[1.01]" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 hover:scale-[1.01]"
+                    }`}
+            >
+                <Table className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "EXPORT_CSV" ? "scale-110" : ""}`} /> 
+                <span className="group-data-[collapsible=icon]:hidden">Export Menu CSV</span>
+            </button>
             {activePlatform === "swiggy" && (
                 <button
                     onClick={() => setActiveBulkMode("TICKETS")}
@@ -290,6 +300,16 @@ export function AppSidebar({ ...props }) {
                     <span className="group-data-[collapsible=icon]:hidden">Swiggy Tickets</span>
                 </button>
             )}
+            
+            <div className="h-px bg-border/50 my-2 group-data-[collapsible=icon]:hidden"></div>
+            <a
+                href="/jobs"
+                title="Jobs Dashboard"
+                className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 text-red-600 hover:bg-red-50 hover:text-red-700 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+            >
+                <AlertTriangle className="w-4 h-4 shrink-0 transition-transform text-red-500" />
+                <span className="group-data-[collapsible=icon]:hidden">Jobs Dashboard</span>
+            </a>
           </div>
         )}
       </SidebarContent>

@@ -8,5 +8,7 @@ export const API_ENDPOINTS = {
         SWIGGY_MENU_IMPORT: (resId) => `/api/menu/${resId}/swiggy/import`,
         GET_MENU: (resId, platform) => `/api/menu/${resId}${platform ? `?platform=${platform}` : ''}`,
         UPDATE_MENU: (resId, platform) => `/api/menu/${resId}${platform ? `?platform=${platform}` : ''}`,
+        GET_FAILED_JOBS: () => `/api/backend/menu/failed-jobs`,
+        RESUME_JOB: (jobId) => `/api/backend/menu/upload/${jobId}/resume`,
     },
 };

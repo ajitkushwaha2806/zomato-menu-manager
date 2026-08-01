@@ -266,7 +266,7 @@ export function ProjectSwitcher() {
             sideOffset={8}
             className="w-[320px] rounded-xl p-1 shadow-lg"
           >
-            <DropdownMenuLabel className="px-3 py-2.5">
+            <DropdownMenuLabel className="px-3 py-2.5"> 
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">

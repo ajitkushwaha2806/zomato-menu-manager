@@ -138,10 +138,12 @@ export default function CategoryCard({
                 <div className="overflow-hidden">
                     <div className="border-t border-border/50 bg-white/40 px-2.5 py-2.5">
                         <SubCategoryList
-                            category={category}
+                            categoryId={category.id}
+                            subcategories={category.subcategories}
                             activeSubCategory={activeSubCategory}
                             setActiveSubCategory={setActiveSubCategory}
                             setActiveCategory={setActiveCategory}
+                            addSubCategory={addSubCategory}
                             updateSubCategory={updateSubCategory}
                             deleteSubCategory={deleteSubCategory}
                         />

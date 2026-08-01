@@ -129,11 +129,35 @@ export default function ImageSidebar() {
         dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "uploading" }));
 
         try {
-            // Bypass upload and just construct mediaArray using the URL directly
-            const mediaArray = [{
-                url: imageDoc.image_url,
-                mediaId: null,
-            }];
+            let mediaArray = [];
+            if (activePlatform !== "swiggy") {
+                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageDoc.image_url, activeImageSearchItem.name);
+                if (!uploadRes.success || !uploadRes.mediaArray) {
+                    throw new Error(uploadRes.message || "Failed to verify/upload image to Zomato");
+                }
+                mediaArray = uploadRes.mediaArray.map(m => ({
+                    ...m,
+                    entityId: activeImageSearchItem.originalId || activeImageSearchItem.id
+                }));
+            } else {
+                mediaArray = [{
+                    tempReferenceId: `temp-manual-${crypto.randomUUID()}`,
+                    url: imageDoc.image_url,
+                    thumbUrl: imageDoc.image_url,
+                    mediaType: "PHOTO",
+                    mediaId: imageDoc.image_url.split('/').pop() || "image.jpg",
+                    order: 1,
+                    usageType: "FOODSHOT",
+                    entityType: "CATALOGUE",
+                    entityId: activeImageSearchItem.originalId || activeImageSearchItem.id,
+                    fileDirectory: "",
+                    source: "MS_MENU_TOOL",
+                    fileName: imageDoc.image_url.split('/').pop() || "image.jpg",
+                    usageTypeEnum: "USAGE_TYPE_FOODSHOT",
+                    isNewlyUploaded: true,
+                    isUploading: false,
+                }];
+            }
 
             setUploadStatuses(prev => ({ ...prev, [imgId]: 'approved' }));
             dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "approved" }));
