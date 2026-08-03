@@ -22,7 +22,6 @@ export const variantGroups = (
                     {
                         option_name,
                         price = 0,
-                        is_veg: variantFoodType = is_veg,
                         inStock = true,
                         default: isDefault = false,
                     },
@@ -38,7 +37,7 @@ export const variantGroups = (
                         ),
 
                         in_stock: inStock ? 1 : 0,
-                        is_veg: variantFoodType,
+                        ...(is_veg !== "NONE" ? { is_veg: is_veg } : {}),
                         default: isDefault || index === 0 ? 1 : 0,
                     },
                 })
@@ -306,13 +305,44 @@ export function buildItemUpdatePayload(source, updates = {}) {
             source.item?.price ??
             0;
 
-        allowedUpdates.item_vo.variant_groups_vo =
-            variantGroups(
+        // Swiggy's variant_groups_vo contains the original variants with IDs.
+        // updates.variants is from our DB and doesn't have Swiggy IDs.
+        // We construct a new variant_groups_vo that retains the IDs from source.
+        const updatedVariantGroups = JSON.parse(JSON.stringify(source.variant_groups_vo || []));
+
+        if (updatedVariantGroups.length === 0 && updates.variants.length > 0) {
+            allowedUpdates.item_vo.variant_groups_vo = variantGroups(
                 updates.variants,
                 itemPrice,
-                updates.is_veg ??
-                source.item?.is_veg
+                updates.is_veg ?? source.item?.is_veg
             );
+        } else {
+            updatedVariantGroups.forEach((group) => {
+                const groupName = group.variant_group?.name || group.name;
+                const matchedGroup = updates.variants.find((vg) => vg.property_name === groupName);
+
+                if (matchedGroup && Array.isArray(matchedGroup.options)) {
+                    group.variants_vo?.forEach((opt) => {
+                        const optName = opt.variant?.name;
+                        const matchedOpt = matchedGroup.options.find((o) => o.option_name === optName);
+
+                        if (opt.variant.is_veg === "NONE") {
+                            delete opt.variant.is_veg;
+                        }
+                        if (matchedOpt) {
+                            opt.variant.price = Math.max(0, Number(matchedOpt.price) - Number(itemPrice));
+                            if (matchedOpt.inStock !== undefined) {
+                                opt.variant.in_stock = matchedOpt.inStock ? 1 : 0;
+                            }
+                            if (matchedOpt.is_default !== undefined) {
+                                opt.variant.default = (matchedOpt.is_default || matchedOpt.default) ? 1 : 0;
+                            }
+                        }
+                    });
+                }
+            });
+            allowedUpdates.item_vo.variant_groups_vo = updatedVariantGroups;
+        }
     }
 
     if (updates.addon_groups_vo !== undefined) {

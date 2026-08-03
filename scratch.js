@@ -16,7 +16,15 @@ const source = {
 
 const allowedUpdates = {
     item_vo: {
-        variant_groups_vo: []
+        variant_groups_vo: [
+            {
+                variant_group: { name: "Size" },
+                variants_vo: [
+                    { variant: { name: "S", price: 0 } },
+                    { variant: { name: "L", price: 20 } }
+                ]
+            }
+        ]
     }
 };
 

@@ -8,7 +8,21 @@ export async function POST(request, { params }) {
         const body = await request.json();
 
         const itemId = body.item_id || body.id;
-        const updates = body.updated_items || body;
+        let updates = body.updated_items || body;
+
+        // Sanitize incoming updates payload to completely strip is_veg: "NONE" from variants
+        if (updates.variants && Array.isArray(updates.variants)) {
+            updates.variants = updates.variants.map(vg => ({
+                ...vg,
+                options: (vg.options || []).map(opt => {
+                    const newOpt = { ...opt };
+                    if (newOpt.is_veg === "NONE") {
+                        delete newOpt.is_veg;
+                    }
+                    return newOpt;
+                })
+            }));
+        }
 
         if (!itemId) {
             throw new Error("item_id or id is required");

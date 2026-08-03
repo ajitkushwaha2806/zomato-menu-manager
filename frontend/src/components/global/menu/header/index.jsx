@@ -21,14 +21,14 @@ import useRestaurant from "@/store/hooks/useRestaurant";
 import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
 import SyncHistoryPanel from "./sync-history-panel";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
+    AlertDialog,
+    AlertDialogAction,
+    AlertDialogCancel,
+    AlertDialogContent,
+    AlertDialogDescription,
+    AlertDialogFooter,
+    AlertDialogHeader,
+    AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
 export function MenuEditorHeader({
@@ -37,7 +37,7 @@ export function MenuEditorHeader({
 }) {
     const { menuData, isLoading, error, syncZomatoMenu, syncSwiggyMenu, isSyncing, activeResId: resId, updateItem, setActiveCategory, setActiveSubCategory, setActiveView, globalSearchQuery, setGlobalSearchQuery, updated_menu, markMenuUpdatesDone, getMenuByResId } = useMenu();
     const notification = useNotification();
-    
+
     const { restaurants: zomatoRestaurants } = useRestaurant();
     const { restaurants: swiggyRestaurants } = useSwiggyRestaurant();
     const [activeSyncProgress, setActiveSyncProgress] = useState(null);
@@ -83,7 +83,7 @@ export function MenuEditorHeader({
 
     const hasUnsavedChanges = React.useMemo(() => {
         let unsaved = false;
-        
+
         const isTemp = (id) => typeof id === 'string' && id.startsWith('temp-');
 
         menuArray.forEach(cat => {
@@ -130,21 +130,21 @@ export function MenuEditorHeader({
             notify.error("Restaurant ID is missing");
             return;
         }
-        
+
         let invalidItems = [];
         let itemsMissingDescription = [];
-        
+
         menuArray.forEach(cat => {
             if (cat.status === 'delete' || cat.status === 'deleted') return;
             (cat.sub_category || []).forEach(sub => {
                 if (sub.status === 'delete' || sub.status === 'deleted') return;
                 (sub.items || []).forEach(item => {
                     if (item.status === 'delete' || item.status === 'deleted') return;
-                    
+
                     if (!item.base_price || item.base_price === 0) {
                         invalidItems.push(item.name);
                     }
-                    
+
                     // Description is mandatory for NEW items on Swiggy
                     if (isSwiggy && String(item.id).startsWith("temp-") && (!item.description || item.description.trim() === "")) {
                         itemsMissingDescription.push(item.name);
@@ -158,7 +158,7 @@ export function MenuEditorHeader({
             notify.error(`Cannot trigger menu: The following items are missing a price (₹0): ${names}. Please update them before triggering.`, { duration: 6000 });
             return;
         }
-        
+
         if (itemsMissingDescription.length > 0) {
             const names = itemsMissingDescription.join(", ");
             notify.error(`Cannot trigger menu: Description is mandatory for new Swiggy items. Missing on: ${names}.`, { duration: 6000 });
@@ -167,23 +167,23 @@ export function MenuEditorHeader({
 
         try {
             setIsTriggering(true);
-            
+
             let url = `/api/menu/${resId}/zomato/update-menu`;
             let payload = {};
 
             if (isSwiggy) {
-                url = `/api/menu/${resId}/swiggy/queue-changes`; 
-                
+                url = `/api/menu/${resId}/swiggy/queue-changes`;
+
                 let final_updated_menu = updated_menu;
-                const isUpdatedMenuEmpty = !updated_menu || 
-                                           (!updated_menu.categories?.length && 
-                                            !updated_menu.sub_categories?.length && 
-                                            !updated_menu.items?.length);
+                const isUpdatedMenuEmpty = !updated_menu ||
+                    (!updated_menu.categories?.length &&
+                        !updated_menu.sub_categories?.length &&
+                        !updated_menu.items?.length);
 
                 if (isUpdatedMenuEmpty && hasUnsavedChanges) {
                     const generated = { categories: [], sub_categories: [], items: [] };
                     const isTemp = (id) => typeof id === 'string' && id.startsWith('temp-');
-                    
+
                     menuArray.forEach(c => {
                         const catHasUnsaved = c.temp_id || isTemp(c.id);
                         if (catHasUnsaved) {
@@ -217,15 +217,15 @@ export function MenuEditorHeader({
                     });
                     final_updated_menu = generated;
                 }
-                
+
                 payload = { updated_menu: final_updated_menu || { categories: [], sub_categories: [], items: [] } };
             }
-            
+
             const res = await api.post(url, payload);
-            
+
             if (isSwiggy) {
                 markMenuUpdatesDone();
-                
+
                 const syncId = res.data?.syncId;
                 if (syncId) {
                     // Poll until the sync job finishes
@@ -239,11 +239,11 @@ export function MenuEditorHeader({
                                     const subs = currentSync.updated_menu?.sub_categories || [];
                                     const items = currentSync.updated_menu?.items || [];
                                     const allTasks = [...cats, ...subs, ...items];
-                                    
+
                                     const total = allTasks.length;
                                     const completed = allTasks.filter(t => t.status === 'completed').length;
                                     const failed = allTasks.filter(t => t.status === 'failed').length;
-                                    
+
                                     setActiveSyncProgress({
                                         total,
                                         completed,
@@ -253,13 +253,13 @@ export function MenuEditorHeader({
 
                                     if (currentSync.status === 'completed' || currentSync.status === 'failed') {
                                         clearInterval(pollInterval);
-                                        
+
                                         if (currentSync.status === 'completed') {
                                             notification.success("Background menu sync completed successfully!");
                                         } else {
                                             notification.error("Background menu sync finished with some failures.", { duration: 5000 });
                                         }
-                                        
+
                                         // Clear the progress bar after 6 seconds
                                         setTimeout(() => setActiveSyncProgress(null), 6000);
                                     }
@@ -269,7 +269,7 @@ export function MenuEditorHeader({
                             console.error("Polling error", e);
                         }
                     }, 2000);
-                    
+
                     // Cleanup interval after 5 minutes just in case
                     setTimeout(() => {
                         clearInterval(pollInterval);
@@ -279,7 +279,7 @@ export function MenuEditorHeader({
                     setTimeout(() => getMenuByResId(resId), 800);
                 }
             }
-            
+
             if (isSwiggy) {
                 notification.success("Menu queued to Swiggy — syncing in background!");
             } else {
@@ -309,32 +309,32 @@ export function MenuEditorHeader({
                             </div>
                         ) : (
                             <div className="flex items-center gap-2.5 text-[11px] font-medium">
-                            <div className="flex items-center gap-1.5 bg-muted/40 px-2 py-1.5 rounded-md border border-border/40 transition-colors hover:bg-muted/80 whitespace-nowrap">
-                                <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
-                                <span className="text-muted-foreground">Total:</span>
-                                <span className="text-foreground font-bold">{stats.total}</span>
+                                <div className="flex items-center gap-1.5 bg-muted/40 px-2 py-1.5 rounded-md border border-border/40 transition-colors hover:bg-muted/80 whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]"></span>
+                                    <span className="text-muted-foreground">Total:</span>
+                                    <span className="text-foreground font-bold">{stats.total}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 bg-emerald-50/50 px-2 py-1.5 rounded-md border border-emerald-100 transition-colors hover:bg-emerald-50 whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
+                                    <span className="text-emerald-700/70">Media:</span>
+                                    <span className="text-emerald-950 font-bold">{stats.withMedia}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 bg-orange-50/50 px-2 py-1.5 rounded-md border border-orange-100 transition-colors hover:bg-orange-50 whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"></span>
+                                    <span className="text-orange-700/70">No Media:</span>
+                                    <span className="text-orange-950 font-bold">{stats.withoutMedia}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 bg-red-50/50 px-2 py-1.5 rounded-md border border-red-100 transition-colors hover:bg-red-50 whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>
+                                    <span className="text-red-700/70">Hold:</span>
+                                    <span className="text-red-950 font-bold">{stats.onHold}</span>
+                                </div>
+                                <div className="flex items-center gap-1.5 bg-purple-50/50 px-2 py-1.5 rounded-md border border-purple-100 transition-colors hover:bg-purple-50 whitespace-nowrap">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]"></span>
+                                    <span className="text-purple-700/70">Hold+Media:</span>
+                                    <span className="text-purple-950 font-bold">{stats.onHoldWithMedia}</span>
+                                </div>
                             </div>
-                            <div className="flex items-center gap-1.5 bg-emerald-50/50 px-2 py-1.5 rounded-md border border-emerald-100 transition-colors hover:bg-emerald-50 whitespace-nowrap">
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"></span>
-                                <span className="text-emerald-700/70">Media:</span>
-                                <span className="text-emerald-950 font-bold">{stats.withMedia}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 bg-orange-50/50 px-2 py-1.5 rounded-md border border-orange-100 transition-colors hover:bg-orange-50 whitespace-nowrap">
-                                <span className="w-1.5 h-1.5 rounded-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]"></span>
-                                <span className="text-orange-700/70">No Media:</span>
-                                <span className="text-orange-950 font-bold">{stats.withoutMedia}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 bg-red-50/50 px-2 py-1.5 rounded-md border border-red-100 transition-colors hover:bg-red-50 whitespace-nowrap">
-                                <span className="w-1.5 h-1.5 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.6)]"></span>
-                                <span className="text-red-700/70">Hold:</span>
-                                <span className="text-red-950 font-bold">{stats.onHold}</span>
-                            </div>
-                            <div className="flex items-center gap-1.5 bg-purple-50/50 px-2 py-1.5 rounded-md border border-purple-100 transition-colors hover:bg-purple-50 whitespace-nowrap">
-                                <span className="w-1.5 h-1.5 rounded-full bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.6)]"></span>
-                                <span className="text-purple-700/70">Hold+Media:</span>
-                                <span className="text-purple-950 font-bold">{stats.onHoldWithMedia}</span>
-                            </div>
-                        </div>
                         )}
                     </div>
 
@@ -344,20 +344,20 @@ export function MenuEditorHeader({
                             <Skeleton className="w-full h-8 rounded-md bg-muted/60" />
                         ) : (
                             <div className="relative">
-                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
-                            <input 
-                                type="text"
-                                placeholder="Search all items..."
-                                value={globalSearchQuery}
-                                onChange={(e) => {
-                                    setGlobalSearchQuery(e.target.value);
-                                    if (e.target.value.trim() !== "") {
-                                        setActiveView("MENU");
-                                    }
-                                }}
-                                className="w-full pl-9 pr-4 py-1.5 bg-gray-100 border-none rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
-                            />
-                        </div>
+                                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-gray-400 h-4 w-4" />
+                                <input
+                                    type="text"
+                                    placeholder="Search all items..."
+                                    value={globalSearchQuery}
+                                    onChange={(e) => {
+                                        setGlobalSearchQuery(e.target.value);
+                                        if (e.target.value.trim() !== "") {
+                                            setActiveView("MENU");
+                                        }
+                                    }}
+                                    className="w-full pl-9 pr-4 py-1.5 bg-gray-100 border-none rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 transition-all"
+                                />
+                            </div>
                         )}
                     </div>
 
@@ -392,74 +392,74 @@ export function MenuEditorHeader({
                                     Sync Menu
                                 </Button>
 
-                        <Button
-                            id="global-save-btn"
-                            onClick={onSave}
-                            disabled={isSaving || isLoading}
-                            className="h-10 rounded-lg px-6 shadow-md"
-                        >
-                            {isSaving ? (
-                                <>
-                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    Saving...
-                                </>
-                            ) : (
-                                <>
-                                    <Save className="mr-2 h-4 w-4" />
-                                    Save Changes
-                                </>
-                            )}
-                        </Button>
+                                <Button
+                                    id="global-save-btn"
+                                    onClick={onSave}
+                                    disabled={isSaving || isLoading}
+                                    className="h-10 rounded-lg px-6 shadow-md"
+                                >
+                                    {isSaving ? (
+                                        <>
+                                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            Saving...
+                                        </>
+                                    ) : (
+                                        <>
+                                            <Save className="mr-2 h-4 w-4" />
+                                            Save Changes
+                                        </>
+                                    )}
+                                </Button>
 
-                        <Button
-                            onClick={handleTriggerMenu}
-                            disabled={isTriggering || (activeSyncProgress && (activeSyncProgress.status === 'pending' || activeSyncProgress.status === 'processing'))}
-                            className="h-10 rounded-lg px-5 bg-green-600 hover:bg-green-700 text-white shadow-md transition-colors relative"
-                        >
-                            {isTriggering ? (
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            ) : (
-                                <Sparkles className="mr-2 h-4 w-4" />
-                            )}
-                            Trigger Menu
-                            {hasUnsavedChanges && (
-                                <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white"></span>
-                            )}
-                        </Button>
+                                <Button
+                                    onClick={handleTriggerMenu}
+                                    disabled={isTriggering || (activeSyncProgress && (activeSyncProgress.status === 'pending' || activeSyncProgress.status === 'processing'))}
+                                    className="h-10 rounded-lg px-5 bg-green-600 hover:bg-green-700 text-white shadow-md transition-colors relative"
+                                >
+                                    {isTriggering ? (
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    ) : (
+                                        <Sparkles className="mr-2 h-4 w-4" />
+                                    )}
+                                    Trigger Menu
+                                    {hasUnsavedChanges && (
+                                        <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white"></span>
+                                    )}
+                                </Button>
 
-                        {activeSyncProgress && (
-                            <div className="flex flex-col justify-center gap-1.5 w-40 text-xs font-medium bg-muted/40 px-3 py-1.5 rounded-lg border border-border shadow-sm relative overflow-hidden">
-                                {activeSyncProgress.status === 'completed' && (
-                                    <div className="absolute inset-0 bg-green-100/50 flex items-center justify-center text-green-700 font-bold backdrop-blur-[1px] z-10 transition-opacity">
-                                        Completed!
+                                {activeSyncProgress && (
+                                    <div className="flex flex-col justify-center gap-1.5 w-40 text-xs font-medium bg-muted/40 px-3 py-1.5 rounded-lg border border-border shadow-sm relative overflow-hidden">
+                                        {activeSyncProgress.status === 'completed' && (
+                                            <div className="absolute inset-0 bg-green-100/50 flex items-center justify-center text-green-700 font-bold backdrop-blur-[1px] z-10 transition-opacity">
+                                                Completed!
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between items-center text-muted-foreground z-0">
+                                            <span className="flex items-center gap-1.5">
+                                                <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                                                Syncing
+                                            </span>
+                                            <span className="font-mono">{activeSyncProgress.completed + activeSyncProgress.failed}/{activeSyncProgress.total}</span>
+                                        </div>
+                                        <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden z-0 shadow-inner">
+                                            <div
+                                                className={`h-1.5 rounded-full ${activeSyncProgress.failed > 0 ? 'bg-orange-500' : 'bg-green-500'} transition-all duration-300 ease-out`}
+                                                style={{ width: `${activeSyncProgress.total > 0 ? ((activeSyncProgress.completed + activeSyncProgress.failed) / activeSyncProgress.total) * 100 : 0}%` }}
+                                            ></div>
+                                        </div>
                                     </div>
                                 )}
-                                <div className="flex justify-between items-center text-muted-foreground z-0">
-                                    <span className="flex items-center gap-1.5">
-                                        <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                                        Syncing
-                                    </span>
-                                    <span className="font-mono">{activeSyncProgress.completed + activeSyncProgress.failed}/{activeSyncProgress.total}</span>
-                                </div>
-                                <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden z-0 shadow-inner">
-                                    <div 
-                                        className={`h-1.5 rounded-full ${activeSyncProgress.failed > 0 ? 'bg-orange-500' : 'bg-green-500'} transition-all duration-300 ease-out`}
-                                        style={{ width: `${activeSyncProgress.total > 0 ? ((activeSyncProgress.completed + activeSyncProgress.failed) / activeSyncProgress.total) * 100 : 0}%` }}
-                                    ></div>
-                                </div>
-                            </div>
-                        )}
 
-                        {isSwiggy && (
-                            <Button
-                                variant="outline"
-                                onClick={() => setIsSyncHistoryOpen(true)}
-                                className="h-10 rounded-lg px-4 border-gray-200 shadow-sm hover:bg-gray-50"
-                                title="View Sync Queue History"
-                            >
-                                <History className="h-4 w-4" />
-                            </Button>
-                        )}
+                                {isSwiggy && (
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => setIsSyncHistoryOpen(true)}
+                                        className="h-10 rounded-lg px-4 border-gray-200 shadow-sm hover:bg-gray-50"
+                                        title="View Sync Queue History"
+                                    >
+                                        <History className="h-4 w-4" />
+                                    </Button>
+                                )}
                             </>
                         )}
                     </div>
@@ -467,10 +467,10 @@ export function MenuEditorHeader({
 
             </header>
 
-            <SyncHistoryPanel 
-                isOpen={isSyncHistoryOpen} 
-                onClose={() => setIsSyncHistoryOpen(false)} 
-                resId={resId} 
+            <SyncHistoryPanel
+                isOpen={isSyncHistoryOpen}
+                onClose={() => setIsSyncHistoryOpen(false)}
+                resId={resId}
             />
 
             <AlertDialog open={isSyncModalOpen} onOpenChange={setSyncModalOpen}>
@@ -485,8 +485,8 @@ export function MenuEditorHeader({
                         <AlertDialogCancel onClick={() => setSyncModalOpen(false)}>
                             Cancel
                         </AlertDialogCancel>
-                        <AlertDialogAction 
-                            className="bg-red-600 hover:bg-red-700 text-white" 
+                        <AlertDialogAction
+                            className="bg-red-600 hover:bg-red-700 text-white"
                             onClick={() => {
                                 setSyncModalOpen(false);
                                 handleSync();

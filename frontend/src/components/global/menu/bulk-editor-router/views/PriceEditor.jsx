@@ -124,7 +124,8 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                 roundMode,
                 targetSelection,
                 selectedItems,
-                preview
+                preview,
+                platform: activePlatform
             });
             
             if (!data.success) {

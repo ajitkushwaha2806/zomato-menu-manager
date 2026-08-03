@@ -18,7 +18,7 @@ export async function POST(req, { params }) {
         await dbConnect();
 
         const { resId } = await params;
-        const { value, roundTo9 = false, roundMode = "none", targetSelection = "all", selectedItems = [], preview = false } = await req.json();
+        const { value, roundTo9 = false, roundMode = "none", targetSelection = "all", selectedItems = [], preview = false, platform } = await req.json();
         
         let actualRoundMode = roundMode;
         if (roundMode === "none" && roundTo9) {
@@ -49,7 +49,12 @@ export async function POST(req, { params }) {
             );
         }
 
-        const menu = await Menu.findOne({ resId });
+        const query = { resId };
+        if (platform) {
+            query.platform = platform;
+        }
+
+        const menu = await Menu.findOne(query);
 
         if (!menu) {
             return NextResponse.json(

@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { Sparkles, Loader2, Zap } from "lucide-react";
+import { Sparkles, Loader2, Zap, CheckSquare } from "lucide-react";
 import api from "@/lib/api/axios";
 import { useMenu } from "@/store/hooks/useMenu";
 import useNotification from "@/store/hooks/useNotification";
 
 export default function DescriptionEditor({ allItems, updateItem }) {
-    const { activeResId, activePlatform, getMenuByResId } = useMenu();
+    const { activeResId, activePlatform, getMenuByResId, queueDescriptionUpdates } = useMenu();
     const notification = useNotification();
     const [isGenerating, setIsGenerating] = useState(false);
 
@@ -162,6 +162,17 @@ export default function DescriptionEditor({ allItems, updateItem }) {
                             {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
                             {isGenerating ? "Generating..." : "Generate descriptions (AI)"}
                         </button>
+                        {/* {activePlatform === 'swiggy' && ( */}
+                            <button
+                                onClick={() => {
+                                    queueDescriptionUpdates();
+                                    notification.success("Swiggy description updates queued successfully!", { duration: 3000 });
+                                }}
+                                className="flex items-center gap-2 text-sm bg-blue-50 text-blue-600 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-100 font-semibold shadow-sm transition-colors"
+                            >
+                                <CheckSquare size={16} /> Queue Descriptions
+                            </button>
+                        {/* )} */}
                     </div>
                 </div>
 

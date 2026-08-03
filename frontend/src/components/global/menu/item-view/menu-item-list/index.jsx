@@ -3,8 +3,11 @@ import React, { useMemo } from "react";
 import { Button } from "@/components/ui/button";
 import {
     UtensilsCrossed,
+    ArrowLeftRight
 } from "lucide-react";
 import MenuItemRow from "../menu-item-card";
+import TransferPriceModal from "../../header/transfer-price-modal";
+import { useState } from "react";
 import { useMenu } from "@/store/hooks/useMenu";
 
 export default function MenuItemList({
@@ -14,6 +17,7 @@ export default function MenuItemList({
     deleteItem,
 }) {
     const { globalSearchQuery, menuData } = useMenu();
+    const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
     const itemsToSearch = useMemo(() => {
         if (!globalSearchQuery?.trim() || !menuData) return [];
@@ -116,14 +120,28 @@ export default function MenuItemList({
             </div>
 
             {activeSubCategoryData && !globalSearchQuery?.trim() && (
-                <Button
-                    onClick={handleAddItem}
-                    className="absolute bottom-6 right-6 h-12 rounded-full px-6 shadow-xl shadow-primary/20 gap-2 z-10"
-                >
-                    <UtensilsCrossed className="h-4 w-4" />
-                    Add Item
-                </Button>
+                <div className="absolute bottom-6 right-6 flex items-center gap-4 z-10">
+                    <Button
+                        onClick={() => setIsTransferModalOpen(true)}
+                        className="h-12 rounded-full px-6 shadow-xl shadow-blue-500/20 bg-blue-600 hover:bg-blue-700 text-white gap-2"
+                    >
+                        <ArrowLeftRight className="h-4 w-4" />
+                        Transfer Price
+                    </Button>
+                    <Button
+                        onClick={handleAddItem}
+                        className="h-12 rounded-full px-6 shadow-xl shadow-primary/20 gap-2"
+                    >
+                        <UtensilsCrossed className="h-4 w-4" />
+                        Add Item
+                    </Button>
+                </div>
             )}
+            
+            <TransferPriceModal
+                isOpen={isTransferModalOpen}
+                onClose={() => setIsTransferModalOpen(false)}
+            />
         </div>
     );
 }

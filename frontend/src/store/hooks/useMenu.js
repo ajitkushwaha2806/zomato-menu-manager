@@ -33,7 +33,8 @@ import {
     setGlobalSearchQuery as dispatchSetGlobalSearchQuery,
     markMenuUpdatesDone as dispatchMarkMenuUpdatesDone,
     queueAll as dispatchQueueAll,
-    queuePriceUpdates as dispatchQueuePriceUpdates
+    queuePriceUpdates as dispatchQueuePriceUpdates,
+    queueDescriptionUpdates as dispatchQueueDescriptionUpdates
 } from '../slice/menuSlice';
 
 export const useMenu = () => {
@@ -225,6 +226,7 @@ export const useMenu = () => {
         // Swiggy specific actions
         markMenuUpdatesDone: () => dispatch(dispatchMarkMenuUpdatesDone()),
         queueAll: () => dispatch(dispatchQueueAll()),
-        queuePriceUpdates: () => dispatch(dispatchQueuePriceUpdates())
+        queuePriceUpdates: () => dispatch(dispatchQueuePriceUpdates()),
+        queueDescriptionUpdates: () => dispatch(dispatchQueueDescriptionUpdates())
     };
 };

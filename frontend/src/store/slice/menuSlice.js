@@ -89,7 +89,24 @@ const upsertUpdatedMenuEntry = (entries, entry, fullItem = null) => {
         }
     }
 
-    const entryWithStatus = { ...entry, status: "pending" };
+    let entryWithStatus = { ...entry, status: "pending" };
+    
+    // Clean variants: remove is_veg="NONE" from options
+    if (entryWithStatus.variants) {
+        entryWithStatus.variants = entryWithStatus.variants.map(vg => ({
+            ...vg,
+            options: (vg.options || []).map(opt => {
+                const newOpt = { ...opt };
+                if (newOpt.is_veg === "NONE") {
+                    delete newOpt.is_veg;
+                } else if (fullItem && fullItem.is_veg) {
+                     newOpt.is_veg = fullItem.is_veg;
+                }
+                return newOpt;
+            })
+        }));
+    }
+
     const existingIndex = entries.findIndex((item) => item.id === entry.id);
 
     if (existingIndex >= 0) {
@@ -796,6 +813,15 @@ const menuSlice = createSlice({
 
                     s.items?.forEach(i => {
                         const existingItem = state.updated_menu.items.find(entry => entry.id === i.id);
+                        const cleanedVariants = (i.variants || []).map(vg => ({
+                            ...vg,
+                            options: (vg.options || []).map(opt => {
+                                const newOpt = { ...opt };
+                                delete newOpt.is_veg;
+                                return newOpt;
+                            })
+                        }));
+                        
                         upsertUpdatedMenuEntry(state.updated_menu.items, {
                             id: i.id,
                             categoryId: c.id,
@@ -803,6 +829,7 @@ const menuSlice = createSlice({
                             subCategoryId: s.id,
                             subCategoryName: s.name,
                             ...i,
+                            variants: cleanedVariants,
                             action: existingItem?.action === "create" ? "create" : (String(i.id).startsWith('temp-') ? "create" : "update")
                         });
                     });
@@ -815,6 +842,15 @@ const menuSlice = createSlice({
                     s.items?.forEach(i => {
                         if (!i.id || String(i.id).startsWith('temp-')) return;
                         const existingItem = state.updated_menu.items.find(e => e.id === i.id);
+                        const cleanedVariants = (i.variants || []).map(vg => ({
+                            ...vg,
+                            options: (vg.options || []).map(opt => {
+                                const newOpt = { ...opt };
+                                delete newOpt.is_veg;
+                                return newOpt;
+                            })
+                        }));
+
                         const entry = {
                             id: i.id,
                             categoryId: c.id,
@@ -823,7 +859,31 @@ const menuSlice = createSlice({
                             subCategoryName: s.name,
                             price: i.base_price || i.price,
                             base_price: i.base_price || i.price,
-                            variants: i.variants || [],
+                            variants: cleanedVariants,
+                            action: existingItem?.action === "create" ? "create" : "update",
+                        };
+                        upsertUpdatedMenuEntry(state.updated_menu.items, entry, i);
+                        
+                        if (!i.temp_id && (!existingItem || existingItem.action !== "create")) {
+                            i.temp_id = `update-${i.id}`;
+                        }
+                    });
+                });
+            });
+        },
+        queueDescriptionUpdates: (state) => {
+            state.menuData?.forEach(c => {
+                c.sub_category?.forEach(s => {
+                    s.items?.forEach(i => {
+                        if (!i.id || String(i.id).startsWith('temp-')) return;
+                        const existingItem = state.updated_menu.items.find(e => e.id === i.id);
+                        const entry = {
+                            id: i.id,
+                            categoryId: c.id,
+                            categoryName: c.name,
+                            subCategoryId: s.id,
+                            subCategoryName: s.name,
+                            description: i.description || "",
                             action: existingItem?.action === "create" ? "create" : "update",
                         };
                         upsertUpdatedMenuEntry(state.updated_menu.items, entry, i);
@@ -1031,6 +1091,7 @@ export const {
     markMenuUpdatesDone,
     queueAll,
     queuePriceUpdates,
+    queueDescriptionUpdates,
     setTicketImageUpdate,
     clearTicketImageUpdate
 } = menuSlice.actions;
