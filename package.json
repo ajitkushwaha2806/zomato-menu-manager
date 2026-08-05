@@ -9,7 +9,7 @@
     "dev:frontend": "cd frontend && npm run next:dev",
     "dev:swiggy-worker": "cd frontend && npm run start:swiggy",
     "dev:dashboard": "cd frontend && npm run start:dashboard",
-    "dev:backend": "cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 1001",
+    "dev:backend": "cd backend && uv run uvicorn app.main:app --reload --host 0.0.0.0 --port 2001",
     "dev:bg-worker": "cd backend && uv run python -m app.workers.menu_worker"
   },
   "devDependencies": {

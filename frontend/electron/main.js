@@ -20,11 +20,11 @@ async function createWindow() {
 
   if (isDev) {
     // In development, Next.js is started by "npm run dev:electron" which runs "next dev"
-    mainWindow.loadURL('http://localhost:1000');
+    mainWindow.loadURL('http://localhost:2000');
     // mainWindow.webContents.openDevTools();
   } else {
     // In production, we need to start the Next.js standalone server
-    const port = await getPort({ port: 1000 });
+    const port = await getPort({ port: 2000 });
     const serverPath = path.join(__dirname, '..', '.next', 'standalone', 'server.js');
     
     const fs = require('fs');

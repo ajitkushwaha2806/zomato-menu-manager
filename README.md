@@ -31,7 +31,7 @@ The `.env` files are **not committed** to git (they contain secrets). Create the
 
 #### `frontend/.env`
 ```env
-NEXT_PUBLIC_BASE_URL=http://localhost:1000
+NEXT_PUBLIC_BASE_URL=http://localhost:2000
 ZOMATO_API_BASE_URL=https://www.zomato.com
 ZOMATO_API_BASE_URL_V2=https://api.zomato.com
 MONGODB_URI=<your MongoDB connection string>
@@ -97,8 +97,8 @@ This starts **3 services in parallel**:
 
 | Service | URL | Label |
 |---------|-----|-------|
-| Next.js frontend | http://localhost:1000 | `[NEXT]` |
-| FastAPI backend | http://localhost:1001 | `[API]` |
+| Next.js frontend | http://localhost:2000 | `[NEXT]` |
+| FastAPI backend | http://localhost:2001 | `[API]` |
 | Python background worker | — | `[WORKER]` |
 
 Press `Ctrl+C` to stop everything.

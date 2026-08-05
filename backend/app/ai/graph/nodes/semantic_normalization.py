@@ -41,9 +41,39 @@ class SemanticNormalizationNode:
             )
             
         logger.info(f"Running Semantic Normalization on {len(normalization_items)} items")
-        response = self.chain.invoke(normalization_items)
         
-        response_dict = response.model_dump(mode="json")
+        import time
+        batch_size = 25
+        all_categories = []
+        
+        for i in range(0, len(normalization_items), batch_size):
+            batch = normalization_items[i:i + batch_size]
+            logger.info(f"Processing batch {i//batch_size + 1}/{(len(normalization_items) + batch_size - 1)//batch_size} with {len(batch)} items")
+            
+            max_retries = 3
+            for attempt in range(max_retries):
+                try:
+                    response = self.chain.invoke(batch)
+                    batch_response_dict = response.model_dump(mode="json")
+                    break
+                except Exception as e:
+                    error_msg = str(e).lower()
+                    if "429" in error_msg or "rate limit" in error_msg:
+                        if attempt < max_retries - 1:
+                            logger.warning(f"Rate limit hit on batch {i//batch_size + 1}. Waiting 15 seconds before retry {attempt + 1}/{max_retries}...")
+                            time.sleep(15)
+                        else:
+                            logger.error(f"Failed to process batch {i//batch_size + 1} after {max_retries} attempts due to rate limit.")
+                            raise e
+                    else:
+                        raise e
+            
+            all_categories.extend(batch_response_dict.get("category", []))
+            
+            if i + batch_size < len(normalization_items):
+                time.sleep(10)  # Wait 10 seconds between batches to avoid rate limits
+                
+        response_dict = {"category": all_categories}
         
         # Merge back original item details
         original_items_map = {str(item.get("id")): item for item in items}
@@ -143,7 +173,15 @@ class SemanticNormalizationNode:
                 new_item.pop("price", None)
                 new_item.pop("min_price", None)
                 new_item.pop("max_price", None)
-                prepared.append(new_item)
+                
+                # Check for intra-upload duplicates
+                new_name = str(new_item.get("name", "")).strip().lower()
+                existing_prepared = next(
+                    (p for p in prepared if str(p.get("name", "")).strip().lower() == new_name),
+                    None
+                )
+                if not existing_prepared:
+                    prepared.append(new_item)
             return prepared
 
         prepared_categories = []
@@ -207,7 +245,27 @@ class SemanticNormalizationNode:
                     if existing_sub:
                         if "items" not in existing_sub:
                             existing_sub["items"] = []
-                        existing_sub["items"].extend(new_sub.get("items", []))
+                            
+                        for new_item in new_sub.get("items", []):
+                            new_name = str(new_item.get("name", "")).strip().lower()
+                            existing_item = next(
+                                (item for item in existing_sub["items"] 
+                                 if str(item.get("name", "")).strip().lower() == new_name
+                                 and str(item.get("status", "")) not in ["delete", "deleted"]),
+                                None
+                            )
+                            if existing_item:
+                                # Update existing item fields
+                                if new_item.get("base_price") is not None:
+                                    existing_item["base_price"] = new_item["base_price"]
+                                if new_item.get("description"):
+                                    existing_item["description"] = new_item["description"]
+                                if new_item.get("variants"):
+                                    existing_item["variants"] = new_item["variants"]
+                                if new_item.get("meatTypes"):
+                                    existing_item["meatTypes"] = new_item["meatTypes"]
+                            else:
+                                existing_sub["items"].append(new_item)
                     else:
                         existing_cat["sub_category"].append(new_sub)
             else:

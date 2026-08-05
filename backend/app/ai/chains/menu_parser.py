@@ -10,7 +10,7 @@ class MenuParserChain:
     def __init__(self):
         self.llm = (
             LLMFactory
-            .openai()
+            .gemini()
             .get_structured_chat_model(
                 ParsedMenu
             )

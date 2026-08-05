@@ -17,8 +17,8 @@ createBullBoard({
 const app = express();
 app.use("/admin/queues", serverAdapter.getRouter());
 
-app.listen(1002, () => {
+app.listen(2002, () => {
     console.log(
-        "📊 Bull Board dashboard running at http://localhost:1002/admin/queues"
+        "📊 Bull Board dashboard running at http://localhost:2002/admin/queues"
     );
 });

@@ -4,8 +4,8 @@
   "private": true,
   "main": "electron/main.js",
   "scripts": {
-    "next:dev": "next dev --webpack --port 1000",
-    "dev:electron": "concurrently \"npm run next:dev\" \"wait-on http://localhost:1000 && electron .\"",
+    "next:dev": "next dev --webpack --port 2000",
+    "dev:electron": "concurrently \"npm run next:dev\" \"wait-on http://localhost:2000 && electron .\"",
     "build:next": "next build && node scripts/prepare-standalone.js",
     "build:electron:mac": "npm run build:next && electron-builder --mac --arm64 --x64",
     "build:electron:win": "npm run build:next && electron-builder --win",
