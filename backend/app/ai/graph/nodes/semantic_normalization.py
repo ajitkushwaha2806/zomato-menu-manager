@@ -109,7 +109,7 @@ class SemanticNormalizationNode:
             match = re.search(r'\d+(?:\.\d+)?', str(val).replace(',', ''))
             return float(match.group()) if match else 0.0
 
-        def prepare_items(items_list):
+        def prepare_items(items_list, seen_names):
             prepared = []
             for item in items_list:
                 raw_price = item.get("base_price") if item.get("base_price") is not None else item.get("price")
@@ -174,17 +174,15 @@ class SemanticNormalizationNode:
                 new_item.pop("min_price", None)
                 new_item.pop("max_price", None)
                 
-                # Check for intra-upload duplicates
+                # Check for global intra-upload duplicates
                 new_name = str(new_item.get("name", "")).strip().lower()
-                existing_prepared = next(
-                    (p for p in prepared if str(p.get("name", "")).strip().lower() == new_name),
-                    None
-                )
-                if not existing_prepared:
+                if new_name not in seen_names:
+                    seen_names.add(new_name)
                     prepared.append(new_item)
             return prepared
 
         prepared_categories = []
+        global_seen_names = set()
         for cat in response_dict.get("category", []):
             sub_categories = cat.get("sub_category", [])
             
@@ -207,7 +205,7 @@ class SemanticNormalizationNode:
                 mapped_sub = {
                     **sub,
                     "id": f"temp-{uuid.uuid4()}",
-                    "items": prepare_items(sub.get("items", []))
+                    "items": prepare_items(sub.get("items", []), global_seen_names)
                 }
                 mapped_cat["sub_category"].append(mapped_sub)
                 

@@ -88,7 +88,7 @@ Responsibilities:
 
 Rules:
 - Never invent menu items.
-- Never remove menu items.
+- Remove duplicate items if the exact same item appears multiple times across categories. Keep only one instance in the best matching category.
 - Never change ids.
 - Never create duplicate ids.
 - Preserve restaurant meaning.

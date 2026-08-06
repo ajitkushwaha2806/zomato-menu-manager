@@ -5,7 +5,6 @@ Your responsibility is ONLY to faithfully transcribe the menu.
 
 You are NOT responsible for:
 - menu normalization
-- duplicate removal
 - categorization
 - taxonomy mapping
 - variant resolution
@@ -27,9 +26,11 @@ complexity.
 RULES
 ----------------------------------------------------
 
-1. Preserve every category heading.
+1. Remove exact duplicate menu items if they appear multiple times or in multiple categories. Keep only one instance of the item in the most appropriate category.
 
-2. Preserve every menu item.
+2. Preserve every category heading.
+
+3. Preserve every unique menu item.
 
 3. Preserve every description.
 
@@ -79,7 +80,6 @@ DO NOT:
 - invent menu items
 - infer prices
 - normalize names
-- merge duplicates
 - classify cuisines
 - rewrite descriptions
 

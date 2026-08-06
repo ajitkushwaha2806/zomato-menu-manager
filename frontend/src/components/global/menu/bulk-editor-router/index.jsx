@@ -10,6 +10,7 @@ import ExportImagesEditor from "./views/ExportImagesEditor";
 import HoldItemsEditor from "./views/HoldItemsEditor";
 import SwiggyTicketsViewer from "./views/tickets/SwiggyTicketsViewer";
 import ExportCsvEditor from "./views/ExportCsvEditor";
+import AllItemsEditor from "./views/AllItemsEditor";
 
 export default function BulkEditorRouter({
     activeBulkMode,
@@ -22,12 +23,15 @@ export default function BulkEditorRouter({
     const filteredMenuData = useMemo(() => {
         if (!Array.isArray(menuData)) return [];
         return menuData
+            .filter(cat => cat.status !== 'delete' && cat.status !== 'deleted')
             .map(cat => ({
                 ...cat,
                 sub_category: (cat.sub_category || [])
+                    .filter(sub => sub.status !== 'delete' && sub.status !== 'deleted')
                     .map(sub => ({
                         ...sub,
                         items: (sub.items || [])
+                            .filter(item => item.status !== 'delete' && item.status !== 'deleted')
                             .map(item => ({
                                 ...item,
                                 variants: (item.variants || [])
@@ -70,6 +74,8 @@ export default function BulkEditorRouter({
             return <ExportImagesEditor allItems={allItems} />;
         case "EXPORT_CSV":
             return <ExportCsvEditor allItems={allItems} />;
+        case "ALL_ITEMS":
+            return <AllItemsEditor allItems={allItems} deleteItem={deleteItem} />;
         case "TICKETS":
             return <SwiggyTicketsViewer resId={activeResId} />;
         default:

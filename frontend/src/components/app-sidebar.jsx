@@ -252,6 +252,15 @@ export function AppSidebar({ ...props }) {
                 <ImageIcon className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "IMAGE" ? "scale-110" : ""}`} /> 
                 <span className="group-data-[collapsible=icon]:hidden">Image Editor</span>
             </button>
+            <button
+                onClick={() => setActiveBulkMode("ALL_ITEMS")}
+                title="All Items & Duplicates"
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "ALL_ITEMS" ? "bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 scale-[1.01]" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground hover:scale-[1.01]"
+                    }`}
+            >
+                <ClipboardPaste className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "ALL_ITEMS" ? "scale-110" : ""}`} /> 
+                <span className="group-data-[collapsible=icon]:hidden">All Items & Duplicates</span>
+            </button>
             <div className="h-px bg-border/50 my-2 group-data-[collapsible=icon]:hidden"></div>
             <button
                 onClick={() => setActiveBulkMode("UPLOAD")}
