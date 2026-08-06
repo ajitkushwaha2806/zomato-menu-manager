@@ -8,7 +8,7 @@ class MenuTranscriptionChain:
     def __init__(self):
         self.llm = (
             LLMFactory
-            .gemini()
+            .openai()
             .get_structured_chat_model(MenuTranscription)
         )
 
