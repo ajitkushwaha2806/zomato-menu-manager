@@ -17,6 +17,16 @@ export default function SwiggyTicketsViewer({ resId }) {
   const [nextPageToken, setNextPageToken] = useState(null);
   const [hasMore, setHasMore] = useState(true);
   const [queueing, setQueueing] = useState(false);
+  const [selectedTicketIds, setSelectedTicketIds] = useState(new Set());
+
+  const handleToggleSelect = useCallback((ticketId) => {
+    setSelectedTicketIds(prev => {
+      const next = new Set(prev);
+      if (next.has(ticketId)) next.delete(ticketId);
+      else next.add(ticketId);
+      return next;
+    });
+  }, []);
 
   const observerTarget = useRef(null);
   // Map of ticket_id → TicketCard imperative handle ref
@@ -58,6 +68,7 @@ export default function SwiggyTicketsViewer({ resId }) {
     setNextPageToken(null);
     setHasMore(true);
     cardRefs.current = {};
+    setSelectedTicketIds(new Set());
     fetchTickets(null, true);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [activeTab, resId]);
@@ -75,12 +86,16 @@ export default function SwiggyTicketsViewer({ resId }) {
     return () => { if (observerTarget.current) observer.unobserve(observerTarget.current); };
   }, [hasMore, loading, nextPageToken, fetchTickets]);
 
-  const handleQueueAll = () => {
+  const handleQueueAction = () => {
     setQueueing(true);
     let queued = 0;
     let skipped = 0;
 
-    for (const ticket of tickets) {
+    const ticketsToQueue = selectedTicketIds.size > 0 
+      ? tickets.filter(t => selectedTicketIds.has(t.ticket_id))
+      : tickets;
+
+    for (const ticket of ticketsToQueue) {
       if (ticket.ticket_status !== "REJECTED") continue;
       const cardRef = cardRefs.current[ticket.ticket_id];
       if (!cardRef) continue;
@@ -101,8 +116,10 @@ export default function SwiggyTicketsViewer({ resId }) {
 
     setQueueing(false);
     if (queued > 0) toast.success(`${queued} item${queued > 1 ? "s" : ""} queued successfully!`);
-    if (skipped > 0) toast.warning(`${skipped} item${skipped > 1 ? "s" : ""} skipped (no subcategory selected).`);
+    if (skipped > 0) toast.warning(`${skipped} item${skipped > 1 ? "s" : ""} skipped (no subcategory selected or not updated).`);
     if (queued === 0 && skipped === 0) toast.info("No rejected items to queue.");
+    
+    setSelectedTicketIds(new Set());
   };
 
   return (
@@ -111,14 +128,31 @@ export default function SwiggyTicketsViewer({ resId }) {
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold text-gray-800">Swiggy Tickets</h2>
           {activeTab === "REJECTED" && tickets.length > 0 && (
-            <button
-              onClick={handleQueueAll}
-              disabled={queueing}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-semibold rounded-lg shadow-sm hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
-            >
-              {queueing ? <Loader2 size={13} className="animate-spin" /> : <ListPlus size={13} />}
-              Queue All Rejected
-            </button>
+            <div className="flex items-center gap-3">
+              <label className="flex items-center gap-1.5 text-sm font-medium text-gray-700 cursor-pointer">
+                <input
+                  type="checkbox"
+                  className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                  checked={tickets.filter(t => t.ticket_status === "REJECTED").length > 0 && selectedTicketIds.size === tickets.filter(t => t.ticket_status === "REJECTED").length}
+                  onChange={(e) => {
+                    if (e.target.checked) {
+                      setSelectedTicketIds(new Set(tickets.filter(t => t.ticket_status === "REJECTED").map(t => t.ticket_id)));
+                    } else {
+                      setSelectedTicketIds(new Set());
+                    }
+                  }}
+                />
+                Select All
+              </label>
+              <button
+                onClick={handleQueueAction}
+                disabled={queueing}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-primary text-primary-foreground text-xs font-semibold rounded-lg shadow-sm hover:bg-primary/90 transition-all active:scale-95 disabled:opacity-60 disabled:cursor-not-allowed"
+              >
+                {queueing ? <Loader2 size={13} className="animate-spin" /> : <ListPlus size={13} />}
+                {selectedTicketIds.size > 0 ? `Queue Selected (${selectedTicketIds.size})` : "Queue All Rejected"}
+              </button>
+            </div>
           )}
         </div>
         <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
@@ -142,6 +176,8 @@ export default function SwiggyTicketsViewer({ resId }) {
               <TicketCard
                 key={ticket.ticket_id || index}
                 ticket={ticket}
+                isSelected={selectedTicketIds.has(ticket.ticket_id)}
+                onToggleSelect={() => handleToggleSelect(ticket.ticket_id)}
                 ref={(el) => {
                   if (el) cardRefs.current[ticket.ticket_id] = el;
                   else delete cardRefs.current[ticket.ticket_id];

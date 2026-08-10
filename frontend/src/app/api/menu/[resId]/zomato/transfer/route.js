@@ -10,8 +10,6 @@ function regenerateIds(obj) {
         const newObj = {};
         for (const [key, value] of Object.entries(obj)) {
             let targetKey = key;
-            
-            // Rename "id" to "tempReferenceId" for media objects
             if (key === "id" && obj.mediaType) {
                 targetKey = "tempReferenceId";
             }
@@ -31,7 +29,7 @@ export const POST = async (req, { params }) => {
     try {
         await dbConnect();
         const { resId } = await params;
-        const { res_id_to } = await req.json();
+        const { res_id_to, platform_from = 'zomato', platform_to = 'zomato' } = await req.json();
 
         if (!res_id_to) {
             return NextResponse.json(
@@ -40,7 +38,9 @@ export const POST = async (req, { params }) => {
             );
         }
 
-        const menu = await Menu.findOne({ resId: resId });
+        console.log("res", resId)
+        const menu = await Menu.findOne({ resId: resId, platform: platform_from });
+        console.log("menu ", menu)
 
         if (!menu) {
             return NextResponse.json(
@@ -50,14 +50,13 @@ export const POST = async (req, { params }) => {
         }
 
         const originalMenu = menu?.menu || [];
-        // Deep clone and regenerate all IDs
         const newMenu = regenerateIds(originalMenu);
 
-        const menuToUpdate = await Menu.findOne({ resId: res_id_to });
-
+        const menuToUpdate = await Menu.findOne({ resId: res_id_to, platform: platform_to });
         if (!menuToUpdate) {
             await Menu.create({
                 resId: res_id_to,
+                platform: platform_to,
                 menu: newMenu
             });
         } else {

@@ -31,7 +31,7 @@ export const POST = async (req, { params }) => {
     try {
         await dbConnect();
         const { resId } = await params;
-        const { res_id_to, sourceMenu } = await req.json();
+        const { res_id_to, sourceMenu, platform_from = 'swiggy', platform_to = 'swiggy' } = await req.json();
 
         if (!res_id_to) {
             return NextResponse.json(
@@ -44,7 +44,7 @@ export const POST = async (req, { params }) => {
         if (sourceMenu) {
             originalMenu = sourceMenu;
         } else {
-            const menu = await Menu.findOne({ resId: resId, platform: 'swiggy' });
+            const menu = await Menu.findOne({ resId: resId, platform: platform_from });
             if (!menu) {
                 return NextResponse.json(
                     { message: "Menu not found." },
@@ -101,12 +101,12 @@ export const POST = async (req, { params }) => {
             }
         }
 
-        const menuToUpdate = await Menu.findOne({ resId: res_id_to, platform: 'swiggy' });
+        const menuToUpdate = await Menu.findOne({ resId: res_id_to, platform: platform_to });
 
         if (!menuToUpdate) {
             await Menu.create({
                 resId: res_id_to,
-                platform: 'swiggy',
+                platform: platform_to,
                 menu: newMenu
             });
         } else {

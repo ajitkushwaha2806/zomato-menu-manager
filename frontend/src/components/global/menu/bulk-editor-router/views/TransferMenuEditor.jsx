@@ -35,7 +35,7 @@ function RestaurantImage({ restaurant }) {
 }
 
 export default function TransferMenuEditor() {
-    const { activeResId, setActiveResId, menuData } = useMenu();
+    const { activeResId, setActiveResId, menuData, activePlatform } = useMenu();
     const [platform, setPlatform] = useState("zomato");
     const { restaurants: zomatoRes, isLoading: isZomatoLoading } = useRestaurant();
     const { restaurants: swiggyRes, isLoading: isSwiggyLoading, isError: isSwiggyError, error: swiggyError, refetch: refetchSwiggy } = useSwiggyRestaurant();
@@ -85,8 +85,8 @@ export default function TransferMenuEditor() {
                 : `/api/menu/${activeResId}/swiggy/transfer`;
 
             const payload = platform === "zomato" 
-                ? { res_id_to: targetResId }
-                : { res_id_to: targetResId, sourceMenu: menuData };
+                ? { res_id_to: targetResId, platform_from: activePlatform || "zomato", platform_to: "zomato" }
+                : { res_id_to: targetResId, sourceMenu: menuData, platform_from: activePlatform || "zomato", platform_to: "swiggy" };
 
             const response = await api.post(endpoint, payload);
 

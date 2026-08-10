@@ -29,7 +29,6 @@ export async function POST(req) {
             { new: true, upsert: true }
         );
 
-        // Don't return password
         const { password: _, ...safeAccount } = account.toObject();
 
         return NextResponse.json({ success: true, account: safeAccount });

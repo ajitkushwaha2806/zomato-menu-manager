@@ -11,7 +11,7 @@ import {
 import { openImageSidebar, clearTicketImageUpdate } from "@/store/slice/menuSlice";
 import { toast } from "sonner";
 
-const TicketCard = forwardRef(function TicketCard({ ticket }, ref) {
+const TicketCard = forwardRef(function TicketCard({ ticket, isSelected, onToggleSelect }, ref) {
   const dispatch = useDispatch();
   const menuList = useSelector((state) => state.menu.menuData) || [];
 
@@ -245,6 +245,14 @@ const TicketCard = forwardRef(function TicketCard({ ticket }, ref) {
       {ticket_status === "REJECTED" ? (
         <div className="space-y-3">
           <div className="flex gap-3">
+            <div className="flex items-start pt-1 shrink-0">
+              <input
+                type="checkbox"
+                checked={isSelected || false}
+                onChange={onToggleSelect}
+                className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer mt-1"
+              />
+            </div>
             {/* image */}
             <div
               className={`relative shrink-0 rounded-lg overflow-hidden border transition-all duration-200 ${isDraggingOver ? "ring-2 ring-primary scale-105" : ""}`}
