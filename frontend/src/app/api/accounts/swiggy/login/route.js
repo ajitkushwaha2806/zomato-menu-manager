@@ -10,7 +10,6 @@ export async function POST(request) {
 
         let body = {};
         try {
-            // It might fail if body is empty
             const text = await request.text();
             if (text) {
                 body = JSON.parse(text);

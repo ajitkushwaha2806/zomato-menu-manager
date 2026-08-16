@@ -35,6 +35,7 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 import useRestaurant from "@/store/hooks/useRestaurant";
 import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
+import usePetpoojaRestaurant from "@/store/hooks/usePetpoojaRestaurant";
 import { useMenu } from "@/store/hooks/useMenu";
 
 function ProjectSkeleton() {
@@ -91,6 +92,15 @@ export function ProjectSwitcher() {
     isFetching: isSwiggyFetching,
   } = useSwiggyRestaurant();
 
+  const {
+    restaurants: petpoojaRestaurants,
+    isLoading: isPetpoojaLoading,
+    isError: isPetpoojaError,
+    error: petpoojaError,
+    refetch: refetchPetpooja,
+    isFetching: isPetpoojaFetching,
+  } = usePetpoojaRestaurant();
+
   const { activeResId, activePlatform, setActiveResId } = useMenu();
 
   const [searchQuery, setSearchQuery] = React.useState("");
@@ -105,16 +115,18 @@ export function ProjectSwitcher() {
   const entities = React.useMemo(() => {
     const zomatoEntities = (zomatoRestaurants?.entities || []).map(r => ({ ...r, platform: 'zomato' }));
     const swiggyEntities = (swiggyRestaurants?.entities || []).map(r => ({ ...r, platform: 'swiggy' }));
-    return [...zomatoEntities, ...swiggyEntities];
-  }, [zomatoRestaurants, swiggyRestaurants]);
+    const petpoojaEntities = (petpoojaRestaurants?.entities || []).map(r => ({ ...r, platform: 'petpooja' }));
+    return [...zomatoEntities, ...swiggyEntities, ...petpoojaEntities];
+  }, [zomatoRestaurants, swiggyRestaurants, petpoojaRestaurants]);
 
-  const isLoading = isZomatoLoading || isSwiggyLoading;
+  const isLoading = isZomatoLoading || isSwiggyLoading || isPetpoojaLoading;
   const isError = isZomatoError; // Primary error
   const error = zomatoError;
-  const isFetching = isZomatoFetching || isSwiggyFetching;
+  const isFetching = isZomatoFetching || isSwiggyFetching || isPetpoojaFetching;
   const refetch = () => {
       refetchZomato();
       refetchSwiggy();
+      refetchPetpooja();
   };
 
   const filteredEntities = React.useMemo(() => {
@@ -230,6 +242,8 @@ export function ProjectSwitcher() {
                     <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider ${
                       selected.platform === 'swiggy' 
                         ? 'bg-orange-500/10 text-orange-600' 
+                        : selected.platform === 'petpooja'
+                        ? 'bg-emerald-500/10 text-emerald-600'
                         : 'bg-red-500/10 text-red-600'
                     }`}>
                       {selected.platform}
@@ -281,9 +295,10 @@ export function ProjectSwitcher() {
 
             <div className="px-2 pb-2">
               <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-2">
-                <TabsList className="w-full grid grid-cols-2">
+                <TabsList className="w-full grid grid-cols-3">
                   <TabsTrigger value="zomato" className="text-[11px] uppercase tracking-wider">Zomato</TabsTrigger>
                   <TabsTrigger value="swiggy" className="text-[11px] uppercase tracking-wider">Swiggy</TabsTrigger>
+                  <TabsTrigger value="petpooja" className="text-[11px] uppercase tracking-wider">Petpooja</TabsTrigger>
                 </TabsList>
               </Tabs>
               <div className="relative">
@@ -329,6 +344,8 @@ export function ProjectSwitcher() {
                         <span className={`px-1 rounded text-[9px] uppercase font-bold tracking-wider shrink-0 ${
                           restaurant.platform === 'swiggy' 
                             ? 'bg-orange-500/10 text-orange-600' 
+                            : restaurant.platform === 'petpooja'
+                            ? 'bg-emerald-500/10 text-emerald-600'
                             : 'bg-red-500/10 text-red-600'
                         }`}>
                           {restaurant.platform}

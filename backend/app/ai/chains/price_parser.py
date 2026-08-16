@@ -8,7 +8,7 @@ class PriceParserChain:
     def __init__(self):
         self.llm = (
             LLMFactory
-            .openai()
+            .bedrock()
             .get_structured_chat_model(ExtractedPricesList)
         )
 

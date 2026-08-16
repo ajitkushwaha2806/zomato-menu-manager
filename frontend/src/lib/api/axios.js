@@ -22,6 +22,11 @@ api.interceptors.request.use(
             config.headers["x-swiggy-account"] = swiggyAccount;
         }
 
+        const petpoojaCookie = CookieStorage.getPetpoojaCookie();
+        if (petpoojaCookie) {
+            config.headers["x-petpooja-cookie"] = petpoojaCookie;
+        }
+
         return config;
     },
     (error) => Promise.reject(error)

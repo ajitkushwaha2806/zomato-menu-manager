@@ -35,16 +35,15 @@ export function MenuEditorHeader({
     onSave,
     isSaving,
 }) {
-    const { menuData, isLoading, error, syncZomatoMenu, syncSwiggyMenu, isSyncing, activeResId: resId, updateItem, setActiveCategory, setActiveSubCategory, setActiveView, globalSearchQuery, setGlobalSearchQuery, updated_menu, markMenuUpdatesDone, getMenuByResId } = useMenu();
+    const { menuData, isLoading, error, syncZomatoMenu, syncSwiggyMenu, syncPetpoojaMenu, isSyncing, activeResId: resId, activePlatform, updateItem, setActiveCategory, setActiveSubCategory, setActiveView, globalSearchQuery, setGlobalSearchQuery, updated_menu, markMenuUpdatesDone, getMenuByResId } = useMenu();
     const notification = useNotification();
 
     const { restaurants: zomatoRestaurants } = useRestaurant();
     const { restaurants: swiggyRestaurants } = useSwiggyRestaurant();
     const [activeSyncProgress, setActiveSyncProgress] = useState(null);
 
-    const isSwiggy = React.useMemo(() => {
-        return swiggyRestaurants?.entities?.some(r => String(r.id) === String(resId));
-    }, [swiggyRestaurants, resId]);
+    const isSwiggy = activePlatform === 'swiggy';
+    const isPetpooja = activePlatform === 'petpooja';
 
     const menuArray = Array.isArray(menuData) ? menuData : [];
     const totalCategories = menuArray.length;
@@ -108,7 +107,10 @@ export function MenuEditorHeader({
 
     const handleSync = async () => {
         try {
-            if (isSwiggy) {
+            if (isPetpooja) {
+                await syncPetpoojaMenu(resId);
+                notification.success("Menu synced with Petpooja successfully!", { duration: 3000 });
+            } else if (isSwiggy) {
                 await syncSwiggyMenu(resId);
                 notification.success("Menu synced with Swiggy successfully!", { duration: 3000 });
             } else {

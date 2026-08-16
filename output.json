@@ -1,0 +1,1381 @@
+{
+    "resId": "123456789",
+    "platform": "zomato",
+    "menu": [
+        {
+            "id": "temp-k3sh8ulo3",
+            "temp_id": "",
+            "name": "Recommended",
+            "sub_category": [
+                {
+                    "id": "temp-hngogbj0y",
+                    "temp_id": "",
+                    "name": "Recommended",
+                    "items": [
+                        {
+                            "id": "temp-6a3q2rf8s",
+                            "temp_id": "",
+                            "name": "Paneer Butter Masala",
+                            "description": "A rich, creamy delight, this indulgent treasure features soft cheese cubes enveloped in a velvety tomato-based sauce, bursting with flavor.",
+                            "base_price": 299,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/izllbcfbt6vkv41nvren"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-byeuxtyh0",
+                            "temp_id": "",
+                            "name": "Kadhai Paneer",
+                            "description": "Indulge in a rich, aromatic medley of cottage cheese and vibrant vegetables, cooked to perfection in a fragrant masala.",
+                            "base_price": 349,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/c8282e8636f8ffa030cdd2ca67393aec"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-4nu1linkf",
+                            "temp_id": "",
+                            "name": "Matar Paneer",
+                            "description": "A creamy, vibrant curry featuring tender cheese cubes and fresh green peas, offering a delightful blend of flavors.",
+                            "base_price": 249,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/zjqtbm11oratvrdbqd2u"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-9o8r9ws27",
+                            "temp_id": "",
+                            "name": "Mix Dal",
+                            "description": "A sumptuous blend of lentils, slow-cooked to perfection, offering a rich and comforting flavor experience.",
+                            "base_price": 249,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/7/848dc014-7f20-4f50-bc7e-e87bc3c2bea6_9954063e-185b-4c57-890a-5c3167318e1b.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-scgmkme4o",
+                            "temp_id": "",
+                            "name": "Dal Makhni",
+                            "description": "A creamy and rich lentil dish, slow-cooked to perfection, offering a comforting warmth and indulgent flavor.",
+                            "base_price": 299,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Quantity",
+                                    "property_id": "temp-ghhn45g5j",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-tyusocefn",
+                                            "variant_id": "temp-jhjvb814a",
+                                            "price": 299,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-3v5lv0vow",
+                                            "variant_id": "temp-2g6dlail4",
+                                            "price": 369,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/2c14b3a35942ce4240acb18fc89eaffe"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-6parcceso",
+                            "temp_id": "",
+                            "name": "Matar Mushroom",
+                            "description": "Savor the delightful harmony of tender mushrooms and vibrant peas in a rich, aromatic sauce that will tantalize your taste buds.",
+                            "base_price": 349,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/851895b93aa25e706af7f094d4e3a279"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-4auttb9yx",
+            "temp_id": "",
+            "name": "Main Course",
+            "sub_category": [
+                {
+                    "id": "temp-h16vkp1q0",
+                    "temp_id": "",
+                    "name": "Main Course",
+                    "items": [
+                        {
+                            "id": "temp-wm70957hw",
+                            "temp_id": "",
+                            "name": "Paneer Bhuerji",
+                            "description": "Savor a delightful medley of crumbled cheese sautéed with aromatic spices and fresh herbs, creating a flavorful and satisfying main course.",
+                            "base_price": 349,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/20/3cde508e-a9a5-4883-b1eb-eb97c1338f8e_4816b238-987e-49a7-ada6-1f0160eb8cf6.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-5osfpkvwj",
+                            "temp_id": "",
+                            "name": "Chilly Paneer Gravy",
+                            "description": "Tender paneer pieces are enveloped in a rich, flavorful sauce that tantalizes the taste buds.",
+                            "base_price": 349,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-uljyl9jg5",
+                            "temp_id": "",
+                            "name": "Paneer Butter Masala",
+                            "description": "A rich, creamy delight, this indulgent treasure features soft cheese cubes enveloped in a velvety tomato-based sauce, bursting with flavor.",
+                            "base_price": 299,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/izllbcfbt6vkv41nvren"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-648mwgdqq",
+                            "temp_id": "",
+                            "name": "Kadhai Paneer",
+                            "description": "Indulge in a rich, aromatic medley of cottage cheese and vibrant vegetables, cooked to perfection in a fragrant masala.",
+                            "base_price": 349,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/c8282e8636f8ffa030cdd2ca67393aec"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-cocksg5me",
+                            "temp_id": "",
+                            "name": "Matar Paneer",
+                            "description": "A creamy, vibrant curry featuring tender cheese cubes and fresh green peas, offering a delightful blend of flavors.",
+                            "base_price": 249,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/zjqtbm11oratvrdbqd2u"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-y8nk3w6ri",
+                            "temp_id": "",
+                            "name": "Soya Malai Chaap Gravy",
+                            "description": "Indulge in tender skewers enveloped in a rich, creamy sauce, offering a delightful blend of flavors.",
+                            "base_price": 329,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/20/2e1ecfbc-60fc-4de1-bbec-6fb3c71f8795_98f5f94a-c040-4daf-8467-331859ba20ac.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-wn6afqvwo",
+                            "temp_id": "",
+                            "name": "Soya Cheap Gravy",
+                            "description": "Delight in a rich, savory sauce enveloping perfectly cooked soy chunks, creating a hearty, satisfying main course.",
+                            "base_price": 279,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/9/c8043dbb-e249-458a-b7b6-551a5e2c0c77_5555cf32-b8bb-4b81-8204-f6a3a3a375dc.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-15gq83yp7",
+                            "temp_id": "",
+                            "name": "Chana Masala",
+                            "description": "This hearty dish features tender legumes simmered in a rich, aromatic sauce, bursting with flavor and warmth.",
+                            "base_price": 270,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-vvi5qpjos",
+                            "temp_id": "",
+                            "name": "Aloo Matar",
+                            "description": "A comforting medley of tender potatoes and sweet green peas, simmered in a rich, flavorful sauce that delights the palate.",
+                            "base_price": 199,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Quantity",
+                                    "property_id": "temp-joh6oe5wr",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-lun51pce4",
+                                            "variant_id": "temp-cbf2ev68c",
+                                            "price": 199,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-4ldcwuabg",
+                                            "variant_id": "temp-zbe4c84ma",
+                                            "price": 269,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-njt9yxiuz",
+                            "temp_id": "",
+                            "name": "Jeera Aloo",
+                            "description": "Savor the warm, earthy flavors of tender potatoes, expertly tossed with fragrant cumin, creating a delightful and comforting main course.",
+                            "base_price": 199,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-7npr3qoih",
+                            "temp_id": "",
+                            "name": "Kashmiri Dum Aloo",
+                            "description": "Delight in tender potatoes, enriched with a rich and aromatic gravy, offering a captivating blend of flavors.",
+                            "base_price": 299,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2025/8/14/8b8d1592-c58a-4c2e-b2a0-6cb83aef4606_9f0ebe00-3328-4cbc-a168-35e431d97002.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-tex7i995j",
+                            "temp_id": "",
+                            "name": "Mix Dal",
+                            "description": "A sumptuous blend of lentils, slow-cooked to perfection, offering a rich and comforting flavor experience.",
+                            "base_price": 249,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/7/848dc014-7f20-4f50-bc7e-e87bc3c2bea6_9954063e-185b-4c57-890a-5c3167318e1b.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-m4h6xg9o2",
+                            "temp_id": "",
+                            "name": "Dal Makhni",
+                            "description": "A creamy and rich lentil dish, slow-cooked to perfection, offering a comforting warmth and indulgent flavor.",
+                            "base_price": 299,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Quantity",
+                                    "property_id": "temp-ardy20giu",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-c0ygrp940",
+                                            "variant_id": "temp-3thps01j6",
+                                            "price": 299,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-qbtjujpgd",
+                                            "variant_id": "temp-i9igxjwwv",
+                                            "price": 369,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/2c14b3a35942ce4240acb18fc89eaffe"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-4rd9wyq5z",
+                            "temp_id": "",
+                            "name": "Dal Butter Fry",
+                            "description": "Indulge in a luscious blend of creamy lentils, enriched with buttery goodness for a comforting, hearty experience.",
+                            "base_price": 229,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/2ab24f90-317a-45fc-99de-ecac3533e67b_ecbcdff5-2601-4f6f-8bfc-f18d8f680967.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-578l71l70",
+                            "temp_id": "",
+                            "name": "Dal Fry",
+                            "description": "Experience a hearty, comforting bowl of lentils cooked to perfection, delivering rich flavors and aromatic warmth.",
+                            "base_price": 199,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/20/288376c9-4d6c-45d9-9b93-5316230744f7_7c35ce92-6081-41a9-ace3-c7ae44f9dac6.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-pdbhrh4kk",
+                            "temp_id": "",
+                            "name": "Matar Mushroom",
+                            "description": "Savor the delightful harmony of tender mushrooms and vibrant peas in a rich, aromatic sauce that will tantalize your taste buds.",
+                            "base_price": 349,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/851895b93aa25e706af7f094d4e3a279"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-zi3pxat8v",
+                            "temp_id": "",
+                            "name": "Malai Kofta",
+                            "description": "Indulge in creamy, luscious balls of delightful flavor, swimming in a rich, aromatic sauce that's simply irresistible.",
+                            "base_price": 349,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/zyzyegnc0ekp72pfuhj7"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-z3ma081xx",
+                            "temp_id": "",
+                            "name": "Mix Veg",
+                            "description": "A colorful medley of fresh vegetables, thoughtfully blended and expertly seasoned for a delightful, wholesome experience.",
+                            "base_price": 249,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2025/6/17/5d6ce6a6-8771-4a5b-9f47-a4af0fee5805_8ddd128a-39d8-4398-a126-ecb5a113ae77.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-8567saa62",
+                            "temp_id": "",
+                            "name": "Paneer Lababdar",
+                            "description": "Rich and creamy, this flavorful delight features succulent paneer in a luscious, aromatic tomato-based gravy, delivering a comforting and indulgent experience.",
+                            "base_price": 389,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/827bc3e03aa2c4e1817f024ce27ff14e"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-77an0cld3",
+                            "temp_id": "",
+                            "name": "Shahi Paneer",
+                            "description": "Indulge in a creamy and rich curry that delivers a perfect harmony of flavors and textures, creating an exquisite dining experience.",
+                            "base_price": 219,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-rpetefolt",
+            "temp_id": "",
+            "name": "Thali",
+            "sub_category": [
+                {
+                    "id": "temp-p0cptg6k0",
+                    "temp_id": "",
+                    "name": "Thali",
+                    "items": [
+                        {
+                            "id": "temp-5m42hz6cg",
+                            "temp_id": "",
+                            "name": "Sada Thali",
+                            "description": "Dal fry , seasonal veg ,steam rice ,raita ,salad ,4 tawa roti",
+                            "base_price": 240,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/6/83f561e7-da5c-44f8-8209-6a972403a1dc_6bb76209-b356-4b94-a2f8-82f8e0ba8f35.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-3i6sg5npq",
+                            "temp_id": "",
+                            "name": "Speacial Thali",
+                            "description": "Dal fry + shahi paneer + mix veg + steam rice + boondi raita + papad + salad + pickle +4 tawa butter roti",
+                            "base_price": 360,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-edjk6e25o",
+                            "temp_id": "",
+                            "name": "Butter Naan Thali",
+                            "description": "Dal makhni + paneer butter masala +boondi raita + salad + 2 butter naan (tawa)",
+                            "base_price": 260,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-tern62faq",
+                            "temp_id": "",
+                            "name": "Aloo Naan Thali",
+                            "description": "Dal makhni + paneer butter masala + boondi raita + salad + 2 aloo naan (tawa)",
+                            "base_price": 299,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-3phc1rmiz",
+                            "temp_id": "",
+                            "name": "Paneer Naan Thali",
+                            "description": "Dal makhni + paneer butter masala + boondi raita + salad + 2 paneer naan (tawa)",
+                            "base_price": 349,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-6grhygieg",
+            "temp_id": "",
+            "name": "Roti/chapati",
+            "sub_category": [
+                {
+                    "id": "temp-ojg6fxtyp",
+                    "temp_id": "",
+                    "name": "Roti/chapati",
+                    "items": [
+                        {
+                            "id": "temp-ne2tpvxi9",
+                            "temp_id": "",
+                            "name": "Missi Roti",
+                            "description": "A delectable vegetarian roti with a rich blend of flavors that will leave you craving for more.",
+                            "base_price": 60,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-1vt50vgi6",
+                            "temp_id": "",
+                            "name": "Tawa Butter Roti",
+                            "description": "A buttery delight straight from the tawa, this Indian bread will melt in your mouth with its irresistible, flaky goodness.",
+                            "base_price": 30,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/8/5/4719f7e0-8819-450d-982f-37f112a0cd14_a50d09a5-3e7b-4ff2-882b-7bd13bfcffaf.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-1713852y4",
+                            "temp_id": "",
+                            "name": "Onion Naan (tawa)",
+                            "description": "A soft, golden-brown bread, infused with caramelized onions, perfect for savoring with your favorite curries.",
+                            "base_price": 99,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-sctwxr3cd",
+                            "temp_id": "",
+                            "name": "Mix Naan (tawa)",
+                            "description": "Indulge in this delightful combination of fluffy, toasted flatbreads, boasting a perfect blend of flavors and textures.",
+                            "base_price": 130,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-s3gnadc8p",
+                            "temp_id": "",
+                            "name": "Makke Ki Roti (seasonal)",
+                            "description": "Indulge in warm, golden flatbreads with a delightful rustic flavor, perfect for any seasonal feast.",
+                            "base_price": 60,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2025/1/16/5908515d-6016-4b0c-8d7b-42aa5379eecc_c73658db-cdae-4784-85d9-9fd9ea27899c.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-37faqlyzk",
+                            "temp_id": "",
+                            "name": "Paneer Naan (tawa)",
+                            "description": "Fluffy, golden-brown bread filled with creamy cheese, offering a delightful balance of warmth and richness.",
+                            "base_price": 120,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-fvojyxo4q",
+                            "temp_id": "",
+                            "name": "Aloo Naan (tawa)",
+                            "description": "Soft, warm flatbread is stuffed with savory spiced potatoes, creating a delightful culinary experience.",
+                            "base_price": 99,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/7f7017be-c457-4203-922c-c8037a6a25c4_0923570d-1fd3-4aec-892b-3caf098bcd0c.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-368yae004",
+                            "temp_id": "",
+                            "name": "Butter Naan (tawa)",
+                            "description": "Indulge in this soft, buttery flatbread, perfectly roasted for a delightful, warm experience.",
+                            "base_price": 60,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/8/5/353b048b-8306-4674-b0ef-6ce41398d6a5_9ab49bce-3085-4265-89c7-18452adb337c.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-om440kc2f",
+                            "temp_id": "",
+                            "name": "Tawa Roti",
+                            "description": "Delicately cooked on an open flame, this soft and flavorful flatbread is perfect for savoring with any meal.",
+                            "base_price": 24,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/3/3df150fb-3d24-4366-a427-f65d6100be62_30dcaa69-00f4-4bab-a2fb-599b9934b448.jpg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-5ek3fciff",
+            "temp_id": "",
+            "name": "Rice",
+            "sub_category": [
+                {
+                    "id": "temp-ucxv9ohyl",
+                    "temp_id": "",
+                    "name": "Rice",
+                    "items": [
+                        {
+                            "id": "temp-s968kpgot",
+                            "temp_id": "",
+                            "name": "Veg Biryani",
+                            "description": "A flavorful and aromatic rice delicacy bursting with assorted vegetables.",
+                            "base_price": 200,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/k9xuguzh6veucksexaok"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-mhl4312d6",
+                            "temp_id": "",
+                            "name": "Jeera Rice",
+                            "description": "A delicate and aromatic rice dish tossed with fragrant Indian spices, perfect for any vegetarian Rice lover.",
+                            "base_price": 199,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/izhw1ah11dzurldaq3wi"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-gisfg4iea",
+                            "temp_id": "",
+                            "name": "Matar Pulao",
+                            "description": "Savor the delightful harmony of fragrant rice and vibrant green peas, creating a comforting and aromatic experience.",
+                            "base_price": 209,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/6/f87059db-eaa2-4a4c-8690-be2565c7bfe4_8b908127-c8c6-4a66-aa9d-670721ca473d.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-8ss0eqafj",
+                            "temp_id": "",
+                            "name": "Fried Rice",
+                            "description": "A delightful medley of seasoned grains, vibrant vegetables, and savory flavors come together in this comforting dish.",
+                            "base_price": 199,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/1/30/caa95b10-5c1d-4447-837e-15233bc5d45e_18c7d316-eb8d-482c-9d64-be7cb7f13655.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-4gjtchpzs",
+                            "temp_id": "",
+                            "name": "Steam Rice",
+                            "description": "Fluffy, tender grains create a comforting staple that beautifully complements any meal.",
+                            "base_price": 140,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/f719010c-31a8-473a-968e-8ba2f075f720_655ae7f2-f616-4a9d-9c5d-11e06a89c6bb.JPG"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-grho8e7dy",
+            "temp_id": "",
+            "name": "Raita ,lassi & Dahi",
+            "sub_category": [
+                {
+                    "id": "temp-4cykojwqq",
+                    "temp_id": "",
+                    "name": "Raita ,lassi & Dahi",
+                    "items": [
+                        {
+                            "id": "temp-8r1w6sese",
+                            "temp_id": "",
+                            "name": "Salted Lassi",
+                            "description": "This refreshing yogurt drink, with its creamy texture and a hint of salt, is the perfect way to cool down and rejuvenate your palate.",
+                            "base_price": 60,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/1/30/bca8fc37-ff01-4abc-974e-c368b77bd3c7_97e8201d-52aa-41b6-8107-6cb19013bb25.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-pkd4bj4dd",
+                            "temp_id": "",
+                            "name": "Sweet Lassi",
+                            "description": "Experience a delightful blend of creamy yogurt and sweet flavors, perfect for refreshing your palate.",
+                            "base_price": 99,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-hwwsvjcx4",
+                            "temp_id": "",
+                            "name": "Pudina Raita",
+                            "description": "A refreshing and tangy yogurt blend, bursting with vibrant mint flavors, perfect for complementing any meal.",
+                            "base_price": 110,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-k02yf1s6j",
+                            "temp_id": "",
+                            "name": "Cucumber Raita (kheera)",
+                            "description": "A refreshing and creamy yogurt delight, this dish offers a cool burst of flavor, perfect for balancing any meal.",
+                            "base_price": 120,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Quantity",
+                                    "property_id": "temp-evm78typ8",
+                                    "options": [
+                                        {
+                                            "option_name": "Half (300ml)",
+                                            "option_id": "temp-7nma1khqo",
+                                            "variant_id": "temp-5a5afshvi",
+                                            "price": 215,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full (750ml0",
+                                            "option_id": "temp-15rbnty6j",
+                                            "variant_id": "temp-4k2t1qj2j",
+                                            "price": 300,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-sonruhjgw",
+                            "temp_id": "",
+                            "name": "Mix Raita",
+                            "description": "A delightful blend of creamy textures and refreshing flavors that perfectly complements any Indian meal.",
+                            "base_price": 150,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/6/f5589541-506b-40e6-a157-56dd399bee3c_af7d6d4c-3c70-41fc-90d3-07aa89869b8f.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-iehcg876k",
+                            "temp_id": "",
+                            "name": "Boondi Raita",
+                            "description": "This creamy yogurt delight, with crunchy pearls and subtle flavors, is a refreshing accompaniment that elevates any meal.",
+                            "base_price": 99,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/ec2c619825294f1465ccbcc4bb744be1"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-ubhwlhcmh",
+                            "temp_id": "",
+                            "name": "Fry Curd (tomato+ Onion)",
+                            "description": "Delight in this creamy concoction, where fresh tomatoes and onions blend seamlessly for a refreshing, tangy treat.",
+                            "base_price": 110,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-95kjyj1oq",
+                            "temp_id": "",
+                            "name": "Dahi With Masala",
+                            "description": "This creamy delight blends cool yogurt with a medley of aromatic spices, creating a refreshing and flavorful complement to any meal.",
+                            "base_price": 95,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Quantity",
+                                    "property_id": "temp-pr8cscykr",
+                                    "options": [
+                                        {
+                                            "option_name": "Half (300ml)",
+                                            "option_id": "temp-sq8605rmg",
+                                            "variant_id": "temp-fgnrax3g5",
+                                            "price": 190,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full (750ml)",
+                                            "option_id": "temp-46wnj5wl6",
+                                            "variant_id": "temp-s57x72i09",
+                                            "price": 275,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-4t6ocdhgl",
+                            "temp_id": "",
+                            "name": "Dahi With Sugar",
+                            "description": "Creamy and refreshing, this delightful treat combines tangy yogurt with a touch of sweetness for a heavenly experience.",
+                            "base_price": 95,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Quantity",
+                                    "property_id": "temp-oc4sxa9gy",
+                                    "options": [
+                                        {
+                                            "option_name": "Half (300ml)",
+                                            "option_id": "temp-bk73xur88",
+                                            "variant_id": "temp-c5ua4xr7u",
+                                            "price": 190,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full (750ml)",
+                                            "option_id": "temp-gjs6rfff0",
+                                            "variant_id": "temp-qmglj7ijm",
+                                            "price": 275,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-jjeety2gw",
+                            "temp_id": "",
+                            "name": "Plain Dahi",
+                            "description": "Indulge in the creamy, cooling delight that adds a refreshing touch to any meal.",
+                            "base_price": 85,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Quantity",
+                                    "property_id": "temp-tu8l0tbuk",
+                                    "options": [
+                                        {
+                                            "option_name": "Half (300ml)",
+                                            "option_id": "temp-edwg2pguz",
+                                            "variant_id": "temp-u2marydrm",
+                                            "price": 170,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full (750ml)",
+                                            "option_id": "temp-jp84y1cmg",
+                                            "variant_id": "temp-ickly67a4",
+                                            "price": 245,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/c0d7a83a418bc519fab86aa8ead25a4c"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-prjk97vka",
+            "temp_id": "",
+            "name": "Paratha",
+            "sub_category": [
+                {
+                    "id": "temp-13k6mud3x",
+                    "temp_id": "",
+                    "name": "Paratha",
+                    "items": [
+                        {
+                            "id": "temp-jprgq7n29",
+                            "temp_id": "",
+                            "name": "Plain Paratha",
+                            "description": "Delicately layered and perfectly flaky, this traditional flatbread offers a warm, comforting bite that’s simply irresistible.",
+                            "base_price": 75,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/e21d6cfd-31ca-4b09-b796-7c6fc2bc6d23_1d36ac4f-2fab-420f-931f-b114e9850bc5.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-hvps6w5kq",
+                            "temp_id": "",
+                            "name": "Pudina Paratha",
+                            "description": "Flaky and aromatic, this wholesome flatbread is infused with refreshing mint for a delightful taste experience.",
+                            "base_price": 60,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-hm34knuzw",
+                            "temp_id": "",
+                            "name": "Mix Paratha",
+                            "description": "Delight in a flaky, golden-brown flatbread filled with a harmonious blend of fresh, savory fillings, perfect for any meal.",
+                            "base_price": 90,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/30f89645962d704eb83ef85fec4d2bce"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-xq1usrxg6",
+                            "temp_id": "",
+                            "name": "Paneer Paratha",
+                            "description": "Delight in a warm, flaky flatbread filled with creamy, flavorful cheese goodness, perfect for any meal.",
+                            "base_price": 90,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/47764c765d00e0bb84cb3f858d573e15"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-v5u8ablpu",
+                            "temp_id": "",
+                            "name": "Aloo Paratha",
+                            "description": "Delight in this flaky, golden-brown flatbread filled with a delectable potato mixture, perfect for any meal.",
+                            "base_price": 75,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/684d758d-02da-4747-a5c7-9dbd9afb79a2_41cbd635-7efe-4532-baee-458cbc3b5c7a.JPG"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-nj50lqz9f",
+                            "temp_id": "",
+                            "name": "Onion Paratha",
+                            "description": "Indulge in a warm, flaky flatbread filled with savory, aromatic onions, perfect for any meal.",
+                            "base_price": 99,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/20/2e3b0c62-77ea-497d-9a07-50d79c944eb5_ded2693f-16ca-42dc-bcc8-c7c2e78870c6.JPG"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-yy1j9yc3v",
+            "temp_id": "",
+            "name": "Combos",
+            "sub_category": [
+                {
+                    "id": "temp-kpifbggq1",
+                    "temp_id": "",
+                    "name": "Combos",
+                    "items": [
+                        {
+                            "id": "temp-1qg8rmufy",
+                            "temp_id": "",
+                            "name": "Chole + Rice",
+                            "description": "A delectable and wholesome combination of flavorful chole curry served with fluffy rice.",
+                            "base_price": 199,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-r52sv4cgd",
+                            "temp_id": "",
+                            "name": "Dal + Rice (mix)",
+                            "description": "A delectable fusion of aromatic lentils and fluffy rice, creating a perfect harmony of flavors and textures.",
+                            "base_price": 199,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-962rzqpr7",
+                            "temp_id": "",
+                            "name": "Curd + Rice",
+                            "description": "Creamy and comforting, this veg combo pairs fluffy rice with a velvety curd for a delightful culinary experience.",
+                            "base_price": 199,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-fzhcbji0x",
+            "temp_id": "",
+            "name": "Salad",
+            "sub_category": [
+                {
+                    "id": "temp-o8w8kjrn5",
+                    "temp_id": "",
+                    "name": "Salad",
+                    "items": [
+                        {
+                            "id": "temp-5dvolh4xu",
+                            "temp_id": "",
+                            "name": "Green Salad",
+                            "description": "A refreshing medley of crisp and vibrant greens tossed together to create a mouthwatering salad bursting with flavor.",
+                            "base_price": 129,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/z0a0alzfhxzedwvtlcti"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-ufpm57of5",
+                            "temp_id": "",
+                            "name": "Papad Roasted",
+                            "description": "This tantalizing salad features crispy, flavorful layers that offer a delightful crunch with every bite.",
+                            "base_price": 24,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/9fdc55655cf758715767289fa0821ab6"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-kguvdf7d0",
+                            "temp_id": "",
+                            "name": "Onion Salad ",
+                            "description": "A refreshing medley of crisp textures and zesty flavors, perfect for a light and invigorating bite.",
+                            "base_price": 99,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/b1f7f664944086e293e0d584ed1cf0aa"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-nfe1qp033",
+            "temp_id": "",
+            "name": "Sweet Dish",
+            "sub_category": [
+                {
+                    "id": "temp-m0jbu9883",
+                    "temp_id": "",
+                    "name": "Sweet Dish",
+                    "items": [
+                        {
+                            "id": "temp-m15zbnjqp",
+                            "temp_id": "",
+                            "name": "Rice Kheer (seasonal) (300ml)",
+                            "description": "",
+                            "base_price": 99,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

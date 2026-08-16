@@ -15,7 +15,7 @@ const RestaurantSchema = new mongoose.Schema(
         platform: {
             type: String,
             default: "swiggy",
-            enum: ['swiggy', 'zomato', "auto"],
+            enum: ['swiggy', 'zomato', 'petpooja', 'auto'],
             index: true,
         },
         credentials: {

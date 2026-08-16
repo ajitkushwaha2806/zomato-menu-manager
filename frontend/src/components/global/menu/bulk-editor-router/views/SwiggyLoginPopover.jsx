@@ -23,7 +23,7 @@ export default function SwiggyLoginPopover({ isOpen, onClose, onSuccess }) {
 
         try {
             setIsLoading(true);
-            const response = await api.post("/api/auth/swiggy/login", {
+            const response = await api.post("/api/accounts/swiggy/login", {
                 username,
                 password
             });

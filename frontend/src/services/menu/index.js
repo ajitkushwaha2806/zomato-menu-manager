@@ -28,6 +28,19 @@ export const MenuService = {
         }
     },
 
+    async syncPetpoojaMenu(resId) {
+        try {
+            const { data } = await api.get(API_ENDPOINTS.MENU.PETPOOJA_MENU_IMPORT(resId));
+            return data?.data;
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Something went wrong."
+            );
+        }
+    },
+
     async getMenu(resId, platform) {
         try {
             const { data } = await api.get(API_ENDPOINTS.MENU.GET_MENU(resId, platform));

@@ -42,7 +42,7 @@ export async function GET(req) {
         });
 
         const rawRestaurants = restaurantResp?.data?.data?.get_user?.restaurants || [];
-        
+
         const entities = rawRestaurants.map(r => ({
             id: r.rest_id,
             name: r.rest_name,
@@ -50,13 +50,13 @@ export async function GET(req) {
             thumbnail: null,
             hasMenuAccess: r.hasMenuAccess,
             isPOS: r.isPOS,
-            raw: r, 
+            raw: r,
         }));
 
         return NextResponse.json({
             success: true,
             entities: entities,
-            data: restaurantResp, 
+            data: restaurantResp,
         });
     } catch (err) {
         console.error(err);

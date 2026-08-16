@@ -2,10 +2,9 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import SwiggyCredential from "@/model/swiggyCredential";
 
-export async function GET(req) {
+export async function GET() {
     try {
         await dbConnect();
-        // Don't return passwords to frontend
         const accounts = await SwiggyCredential.find().select("-password").sort({ createdAt: -1 });
         return NextResponse.json({ success: true, accounts });
     } catch (error) {

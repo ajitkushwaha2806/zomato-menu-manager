@@ -8,6 +8,7 @@ import { Loader2 } from "lucide-react";
 import MenuItemList from "@/components/global/menu/item-view/menu-item-list";
 import BulkEditorRouter from "@/components/global/menu/bulk-editor-router";
 import ImageSidebar from "@/components/global/menu/bulk-editor-router/views/ImageSidebar";
+import PetpoojaHTMLModal from "@/components/global/menu/petpooja-html-modal";
 
 const MenuPage = () => {
     const { activeResId, activePlatform, getMenuByResId, saveMenuByResId, isLoading, isSaving, activeCategory, activeSubCategory, menuData, addItem, updateItem, deleteItem, moveItem, activeView, activeBulkMode } = useMenu();
@@ -69,6 +70,8 @@ const MenuPage = () => {
             <Suspense fallback={null}>
                 <ImageSidebar />
             </Suspense>
+
+            <PetpoojaHTMLModal />
         </div>
     );
 };

@@ -2,13 +2,13 @@ import { NextResponse } from "next/server";
 import dbConnect from "@/lib/dbConnect";
 import ZomatoAccount from "@/model/zomatoAccount";
 
-export async function GET(req) {
+export async function GET() {
     try {
         await dbConnect();
         const accounts = await ZomatoAccount.find().sort({ createdAt: -1 });
         return NextResponse.json({ success: true, accounts });
     } catch (error) {
-        console.error("Error fetching accounts:", error);
+        console.error("Error fetching zomato accounts:", error);
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
 }
@@ -30,7 +30,7 @@ export async function POST(req) {
 
         return NextResponse.json({ success: true, account });
     } catch (error) {
-        console.error("Error saving account:", error);
+        console.error("Error saving zomato account:", error);
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
 }
@@ -46,9 +46,9 @@ export async function DELETE(req) {
         }
 
         await ZomatoAccount.findOneAndDelete({ name });
-        return NextResponse.json({ success: true, message: "Account deleted." });
+        return NextResponse.json({ success: true, message: "Zomato account deleted." });
     } catch (error) {
-        console.error("Error deleting account:", error);
+        console.error("Error deleting zomato account:", error);
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
     }
 }

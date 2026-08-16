@@ -15,7 +15,7 @@ const MenuSchema = new mongoose.Schema(
         platform: {
             type: String,
             default: "auto",
-            enum: ['swiggy', 'zomato', "auto"],
+            enum: ['swiggy', 'zomato', 'petpooja', "auto"],
             index: true,
         },
 

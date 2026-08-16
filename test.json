@@ -1,0 +1,61 @@
+{
+    "resId": "22820899",
+    "platform": "zomato",
+    "menu": [
+        {
+            "id": "61591552",
+            "temp_id": "",
+            "name": "Soups",
+            "sub_category": [
+                {
+                    "id": "88077938",
+                    "temp_id": "",
+                    "name": "Soups",
+                    "items": [
+                        {
+                            "id": "806695806",
+                            "temp_id": "",
+                            "name": "Veg Clear Soup",
+                            "description": "",
+                            "base_price": 119,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "media": [
+                                {
+                                    "id": "662830147",
+                                    "mediaType": "PHOTO",
+                                    "mediaId": "e2da401a075b61fa7126f07e495ccb59.jpg",
+                                    "order": 1,
+                                    "usageType": "FOODSHOT",
+                                    "entityType": "CATALOGUE",
+                                    "entityId": "806695806",
+                                    "url": "https://b.zmtcdn.com/data/dish_photos/b59/e2da401a075b61fa7126f07e495ccb59.jpg",
+                                    "thumbUrl": "https://b.zmtcdn.com/data/dish_photos/b59/e2da401a075b61fa7126f07e495ccb59.jpg?fit=around%7C200%3A200&crop=200%3A200%3B%2A%2C%2A",
+                                    "fileDirectory": "data/dish_photos/b59/",
+                                    "source": "MS_MENU_TOOL",
+                                    "fileName": "e2da401a075b61fa7126f07e495ccb59.jpg",
+                                    "mediaTags": [
+                                        {
+                                            "tagSlug": "stock_image"
+                                        },
+                                        {
+                                            "tagSlug": "uid_media"
+                                        }
+                                    ],
+                                    "usageTypeEnum": "USAGE_TYPE_FOODSHOT"
+                                }
+                            ],
+                            "variants": [],
+                            "meatTypes": null,
+                            "onHold": true,
+                            "holdComments": [
+                                "Item under review for moderation. May take up to 3 hours to review."
+                            ],
+                            "addons": []
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}

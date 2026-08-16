@@ -37,7 +37,7 @@ export async function POST(req, { params }) {
 
     const body = await req.json().catch(() => ({}));
     const platform = body.platform || "zomato";
-    
+
     const menu = await Menu.findOne({ resId, platform });
 
     if (!menu) {

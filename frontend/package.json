@@ -70,6 +70,7 @@
     "axios": "^1.13.2",
     "bullmq": "^5.81.2",
     "canvas": "^3.2.3",
+    "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "cloudinary": "^2.8.0",
     "clsx": "^2.1.1",

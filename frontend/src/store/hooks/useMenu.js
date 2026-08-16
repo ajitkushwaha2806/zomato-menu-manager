@@ -22,6 +22,7 @@ import {
     saveMenuByResId as dispatchSaveMenuByResId,
     syncZomatoMenu as dispatchSyncZomatoMenu,
     syncSwiggyMenu as dispatchSyncSwiggyMenu,
+    syncPetpoojaMenu as dispatchSyncPetpoojaMenu,
     addAddonGroup as dispatchAddAddonGroup,
     updateAddonGroup as dispatchUpdateAddonGroup,
     deleteAddonGroup as dispatchDeleteAddonGroup,
@@ -34,16 +35,18 @@ import {
     markMenuUpdatesDone as dispatchMarkMenuUpdatesDone,
     queueAll as dispatchQueueAll,
     queuePriceUpdates as dispatchQueuePriceUpdates,
-    queueDescriptionUpdates as dispatchQueueDescriptionUpdates
+    queueDescriptionUpdates as dispatchQueueDescriptionUpdates,
+    clearPetpoojaHtml as dispatchClearPetpoojaHtml
 } from '../slice/menuSlice';
 
 export const useMenu = () => {
     const dispatch = useDispatch();
 
+    const menuData = useSelector((state) => state.menu.menuData);
+    const addonsData = useSelector((state) => state.menu.addonsData);
+    const petpoojaHtml = useSelector((state) => state.menu.petpoojaHtml);
+    const restaurantName = useSelector((state) => state.menu.restaurantName);
     const {
-        menuData,
-        addonsData,
-        restaurantName,
         activeResId,
         activePlatform,
         activeView,
@@ -222,11 +225,16 @@ export const useMenu = () => {
         saveMenuByResId: () => dispatch(dispatchSaveMenuByResId()),
         syncZomatoMenu: (resId) => dispatch(dispatchSyncZomatoMenu(resId)),
         syncSwiggyMenu: (resId) => dispatch(dispatchSyncSwiggyMenu(resId)),
+        syncPetpoojaMenu: (resId) => dispatch(dispatchSyncPetpoojaMenu(resId)),
         
         // Swiggy specific actions
         markMenuUpdatesDone: () => dispatch(dispatchMarkMenuUpdatesDone()),
         queueAll: () => dispatch(dispatchQueueAll()),
         queuePriceUpdates: () => dispatch(dispatchQueuePriceUpdates()),
-        queueDescriptionUpdates: () => dispatch(dispatchQueueDescriptionUpdates())
+        queueDescriptionUpdates: () => dispatch(dispatchQueueDescriptionUpdates()),
+        
+        // Petpooja HTML support
+        petpoojaHtml,
+        clearPetpoojaHtml: () => dispatch(dispatchClearPetpoojaHtml())
     };
 };

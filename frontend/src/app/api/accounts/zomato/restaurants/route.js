@@ -10,17 +10,6 @@ export async function GET(req) {
             method: "GET",
         });
 
-        console.log("restaurantResp", restaurantResp)
-        // if (!restaurantResp?.loggedIn) {
-        //     return NextResponse.json(
-        //         {
-        //             success: false,
-        //             message: "Unable to login. Please try again.",
-        //         },
-        //         { status: 401 }
-        //     );
-        // }
-
         return NextResponse.json({
             success: true,
             data: restaurantResp,

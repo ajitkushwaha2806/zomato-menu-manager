@@ -7,6 +7,7 @@ import { LogOut } from "lucide-react";
 import useUser from "@/store/hooks/useUser";
 import useNotification from "@/store/hooks/useNotification";
 import CookieStorage from "@/services/cookie";
+import { clearAccessToken, clearLoginPromise } from "@/lib/auth/swiggy-client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
@@ -35,7 +36,9 @@ export function NavUser() {
   useEffect(() => {
     if (!isError || handled.current) return;
     handled.current = true;
-    CookieStorage.remove();
+    CookieStorage.clear();
+    clearAccessToken();
+    clearLoginPromise();
     notify.error(
       error?.message || "Zomato session expired. Please login again.",
       {
@@ -51,7 +54,9 @@ export function NavUser() {
   }, [isError, error, notify, router]);
 
   const handleLogout = () => {
-    CookieStorage.remove();
+    CookieStorage.clear();
+    clearAccessToken();
+    clearLoginPromise();
     queryClient.removeQueries({
       queryKey: ["user"],
     });

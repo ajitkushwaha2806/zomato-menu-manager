@@ -41,6 +41,18 @@ export const syncSwiggyMenu = createAsyncThunk(
     }
 );
 
+export const syncPetpoojaMenu = createAsyncThunk(
+    'menu/syncPetpoojaMenu',
+    async (resId, { rejectWithValue }) => {
+        try {
+            const data = await MenuService.syncPetpoojaMenu(resId);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message || 'Failed to sync Petpooja menu');
+        }
+    }
+);
+
 export const saveMenuByResId = createAsyncThunk(
     'menu/saveMenuByResId',
     async (_, { getState, rejectWithValue }) => {
@@ -131,6 +143,7 @@ const initialState = {
     updated_menu: createEmptyUpdatedMenu(),
     menuData: null,         // Array of categories
     addonsData: [],         // Array of addons/modifier groups
+    petpoojaHtml: null,
     restaurantName: '',
     activeResId: null,
     activePlatform: null,
@@ -914,6 +927,9 @@ const menuSlice = createSlice({
                     });
                 });
             });
+        },
+        clearPetpoojaHtml: (state) => {
+            state.petpoojaHtml = null;
         }
     },
     extraReducers: (builder) => {
@@ -1038,6 +1054,20 @@ const menuSlice = createSlice({
             .addCase(syncSwiggyMenu.rejected, (state, action) => {
                 state.isSyncing = false;
                 state.error = action.payload;
+            })
+            // Sync Petpooja Menu
+            .addCase(syncPetpoojaMenu.pending, (state) => {
+                state.isSyncing = true;
+                state.error = null;
+                state.petpoojaHtml = null;
+            })
+            .addCase(syncPetpoojaMenu.fulfilled, (state, action) => {
+                state.isSyncing = false;
+                state.petpoojaHtml = action.payload;
+            })
+            .addCase(syncPetpoojaMenu.rejected, (state, action) => {
+                state.isSyncing = false;
+                state.error = action.payload;
             });
     },
 });
@@ -1054,6 +1084,7 @@ export const {
     clearMenuState,
     setImageUploadStatus,
     setGlobalSearchQuery,
+    clearPetpoojaHtml,
 
     // Category actions
     addCategory,

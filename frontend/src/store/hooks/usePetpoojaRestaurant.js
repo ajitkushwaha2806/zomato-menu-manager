@@ -1,13 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api/axios";
 
-export const SWIGGY_RESTAURANT_QUERY_KEY = ["swiggy-restaurant"];
+export const PETPOOJA_RESTAURANT_QUERY_KEY = ["petpooja-restaurant"];
 
-export default function useSwiggyRestaurant() {
+export default function usePetpoojaRestaurant() {
     const query = useQuery({
-        queryKey: SWIGGY_RESTAURANT_QUERY_KEY,
+        queryKey: PETPOOJA_RESTAURANT_QUERY_KEY,
         queryFn: async () => {
-            const { data } = await api.get("/api/accounts/swiggy/restaurants");
+            const { data } = await api.get("/api/accounts/petpooja/restaurants");
             return data;
         },
         retry: false,
