@@ -31,7 +31,7 @@ export async function POST(request, { params }) {
             data: payload,
         });
 
-        console.log("Response", response);
+        console.log("Response", JSON.stringify(response, null, 2));
 
         return NextResponse.json({
             response,

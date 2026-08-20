@@ -4,23 +4,53 @@ function generateTempId() {
     return 'temp-' + Math.random().toString(36).substr(2, 9);
 }
 
-function parseSwiggyData() {
+function capitalizeSlug(slug) {
+    if (!slug) return "Other";
+    return slug
+        .split('-')
+        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+        .join(' ');
+}
+
+function checkIsVeg(item) {
+    if (item.category_slug && item.category_slug.toLowerCase() === 'non-veg-pizza') {
+        return 'NONVEG';
+    }
+    const nonVegKeywords = ['chicken', 'fish', 'meat', 'egg', 'mutton', 'nugget', 'non-veg', 'non veg'];
+    const textToCheck = `${item.name || ''} ${item.description || ''}`.toLowerCase();
+    for (const keyword of nonVegKeywords) {
+        if (textToCheck.includes(keyword)) {
+            return 'NONVEG';
+        }
+    }
+    return 'VEG';
+}
+
+function parseMenuData() {
     const rawData = fs.readFileSync('/Users/ajitkushwaha3101/Desktop/zomato-menu-manager/scratch.json', 'utf8');
-    const swiggyCategories = JSON.parse(rawData);
+    const itemsList = JSON.parse(rawData);
 
     const restaurantId = "123456789";
+    
+    // Group items by category_slug
+    const groups = {};
+    itemsList.forEach(item => {
+        const slug = item.category_slug || 'others';
+        if (!groups[slug]) {
+            groups[slug] = [];
+        }
+        groups[slug].push(item);
+    });
+
     const zomatoMenu = [];
 
-    swiggyCategories.forEach(categoryObj => {
-        const catCard = categoryObj.card?.card;
-        if (!catCard || !catCard.title || !catCard.itemCards) return;
-
-        const catName = catCard.title;
+    for (const [slug, items] of Object.entries(groups)) {
+        const catName = capitalizeSlug(slug);
 
         const subCategory = {
             id: generateTempId(),
             temp_id: "",
-            name: catName, // subcat same as cat name
+            name: catName,
             items: []
         };
 
@@ -31,52 +61,40 @@ function parseSwiggyData() {
             sub_category: [subCategory]
         };
 
-        catCard.itemCards.forEach(itemCard => {
-            const itemInfo = itemCard.card?.info;
-            if (!itemInfo) return;
-
-            const basePrice = itemInfo.price ? itemInfo.price / 100 : (itemInfo.defaultPrice ? itemInfo.defaultPrice / 100 : 0);
+        items.forEach(rawItem => {
+            const basePrice = rawItem.base_price || 0;
 
             const item = {
                 id: generateTempId(),
                 temp_id: "",
-                name: itemInfo.name || "",
-                description: itemInfo.description || "",
+                name: rawItem.name || "",
+                description: rawItem.description || "",
                 base_price: basePrice,
-                is_veg: itemInfo.isVeg || itemInfo.itemAttribute?.vegClassifier === "VEG" ? "VEG" : "NONVEG",
+                is_veg: checkIsVeg(rawItem),
                 packing_charges: 0,
                 variants: [],
                 addons: [],
-                media: [
-                    {
-                        url: "https://media-assets.swiggy.com/swiggy/image/upload/" + itemInfo.imageId
-                    },
-                ]
+                media: rawItem.image_url ? [{ url: rawItem.image_url }] : []
             };
 
-            const swiggyVariantGroups = itemInfo.variantsV2?.variantGroups || itemInfo.variants?.variantGroups || [];
-            if (swiggyVariantGroups.length > 0) {
-                swiggyVariantGroups.forEach(group => {
-                    const variant = {
-                        property_name: group.name || "",
-                        property_id: generateTempId(),
-                        options: []
-                    };
+            if (rawItem.variants && rawItem.variants.length > 0) {
+                const variant = {
+                    property_name: "Size",
+                    property_id: generateTempId(),
+                    options: []
+                };
 
-                    if (group.variations && group.variations.length > 0) {
-                        group.variations.forEach(variation => {
-                            variant.options.push({
-                                option_name: variation.name || "",
-                                option_id: generateTempId(),
-                                variant_id: generateTempId(),
-                                price: basePrice + (variation.price ? variation.price / 100 : 0),
-                                is_default: variation.default === 1 ? true : false
-                            });
-                        });
-                    }
-
-                    item.variants.push(variant);
+                rawItem.variants.forEach((v, index) => {
+                    variant.options.push({
+                        option_name: v.label || "",
+                        option_id: generateTempId(),
+                        variant_id: generateTempId(),
+                        price: Number(v.price) || 0,
+                        is_default: index === 0
+                    });
                 });
+
+                item.variants.push(variant);
             }
 
             subCategory.items.push(item);
@@ -85,7 +103,7 @@ function parseSwiggyData() {
         if (subCategory.items.length > 0) {
             zomatoMenu.push(category);
         }
-    });
+    }
 
     const result = {
         resId: restaurantId,
@@ -97,4 +115,5 @@ function parseSwiggyData() {
     console.log('Successfully generated output.json');
 }
 
-parseSwiggyData();
+parseMenuData();
+

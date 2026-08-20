@@ -72,6 +72,11 @@ export default function TransferMenuEditor() {
         return availableRestaurants.find((r) => r.id === targetResId) || null;
     }, [availableRestaurants, targetResId]);
 
+    const activeRestaurant = useMemo(() => {
+        const entities = activePlatform === "swiggy" ? swiggyRes?.entities : zomatoRes?.entities;
+        return entities?.find(r => r.id === activeResId) || null;
+    }, [activePlatform, swiggyRes, zomatoRes, activeResId]);
+
     const handleTransfer = async () => {
         if (!targetResId) {
             notification.error("Please select a target restaurant");
@@ -91,6 +96,28 @@ export default function TransferMenuEditor() {
             const response = await api.post(endpoint, payload);
 
             if (response.data) {
+                // Save the transaction to the database
+                try {
+                    await fetch("/api/transfers", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            fromResId: activeResId,
+                            fromResName: activeRestaurant?.name || "Unknown Source",
+                            toResId: targetResId,
+                            toResName: selectedTarget?.name || "Unknown Target",
+                            platform: `${activePlatform || "zomato"} -> ${platform}`,
+                            details: {
+                                accountName: localStorage.getItem("swiggy_account") || ""
+                            }
+                        }),
+                    });
+                } catch (dbError) {
+                    console.error("Failed to save transfer to db:", dbError);
+                }
+
                 notification.success("Menu transferred successfully!");
                 setActiveResId({ id: targetResId, platform: platform });
             }

@@ -101,13 +101,15 @@ export async function POST(req, { params }) {
                         }
                         console.log(`[${syncId}] ✅ Image uploaded successfully`);
                     } else {
-                        requestPayload.image_url = "";
-                        requestPayload.image_id = "";
+                        requestPayload.image_url = null;
+                        requestPayload.image_id = null;
+                        requestPayload.media = [];
                         console.warn(`[${syncId}] ⚠️ Failed to upload image:`, uploadData);
                     }
                 } catch (err) {
-                    requestPayload.image_url = "";
-                    requestPayload.image_id = "";
+                    requestPayload.image_url = null;
+                    requestPayload.image_id = null;
+                    requestPayload.media = [];
                     console.error(`[${syncId}] ❌ Image upload error:`, err.message);
                 }
             }
@@ -137,7 +139,7 @@ export async function POST(req, { params }) {
             console.error(`Swiggy API Error in item sync for action ${action}:`, err.message);
         }
 
-        console.log("data", data)
+        console.log("data", JSON.stringify(data, null, 2))
         console.log("data item", data?.updatePayload?.item_vo?.item);
         console.log("data variants", data?.updatePayload?.item_vo?.variant_groups_vo);
         console.log("data variants var", data?.updatePayload?.item_vo?.variant_groups_vo[0]?.variants_vo);

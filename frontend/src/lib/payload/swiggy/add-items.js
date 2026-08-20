@@ -66,8 +66,8 @@ export function buildItemPayload({
     discoverable = false,
     order = 0,
 }) {
-    const finalImageUrl = image_url || (media && media.length > 0 ? media[0].url : "");
-    const finalImageId = image_id || (media && media.length > 0 ? media[0].mediaId : null);
+    const finalImageUrl = image_url || (media && media.length > 0 ? (media[0].url || media[0].utl) : null) || null;
+    const finalImageId = image_id || (media && media.length > 0 ? (media[0].mediaId || media[0].imageId || media[0].id) : null) || null;
     const finalPackingCharges = packing_charges !== undefined && packing_charges !== 0 ? packing_charges : packingCharges;
 
     return {
@@ -259,8 +259,8 @@ export function buildItemUpdatePayload(source, updates = {}) {
             if (url) allowedUpdates.item_vo.item.image_url = url;
             if (imgId) allowedUpdates.item_vo.item.image_id = imgId;
         } else if (Array.isArray(updates.media) && updates.media.length === 0) {
-            allowedUpdates.item_vo.item.image_url = "";
-            allowedUpdates.item_vo.item.image_id = "";
+            allowedUpdates.item_vo.item.image_url = null;
+            allowedUpdates.item_vo.item.image_id = null;
         }
     }
 

@@ -93,7 +93,7 @@ const SyncItem = ({ label, items, type }) => {
     );
 };
 
-const JobCard = ({ job, onRetry, isRetrying }) => {
+const JobCard = ({ job, onRetry, onRetryFailed, isRetrying }) => {
     const [expanded, setExpanded] = useState(false);
     
     const categories = job.updated_menu?.categories || [];
@@ -101,6 +101,10 @@ const JobCard = ({ job, onRetry, isRetrying }) => {
     const items = job.updated_menu?.items || [];
     
     const totalChanges = categories.length + subCategories.length + items.length;
+
+    const hasFailedItems = items.some(item => item.status === 'failed') || 
+                           categories.some(cat => cat.status === 'failed') || 
+                           subCategories.some(sub => sub.status === 'failed');
 
     return (
         <div className="bg-white border rounded-xl shadow-sm overflow-hidden mb-3 transition-all hover:shadow-md">
@@ -121,6 +125,19 @@ const JobCard = ({ job, onRetry, isRetrying }) => {
                     <p className="text-xs text-gray-500 font-mono mt-0.5">ID: {job._id}</p>
                 </div>
                 <div className="flex items-center gap-3">
+                    {hasFailedItems && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRetryFailed(job);
+                            }}
+                            disabled={isRetrying}
+                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors disabled:opacity-50"
+                        >
+                            <RefreshCcw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
+                            Retry Failed
+                        </button>
+                    )}
                     <button
                         onClick={(e) => {
                             e.stopPropagation();
@@ -130,7 +147,7 @@ const JobCard = ({ job, onRetry, isRetrying }) => {
                         className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors disabled:opacity-50"
                     >
                         <RefreshCcw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
-                        Retry
+                        Retry All
                     </button>
                     <div className="text-gray-400">
                         {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
@@ -210,6 +227,36 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
         }
     };
 
+    const handleRetryFailed = async (job) => {
+        try {
+            setRetryingId(job._id);
+            const failedCategories = (job.updated_menu?.categories || []).filter(c => c.status === "failed").map(cat => ({ ...cat, status: undefined, error: undefined }));
+            const failedSubCategories = (job.updated_menu?.sub_categories || []).filter(s => s.status === "failed").map(sub => ({ ...sub, status: undefined, error: undefined }));
+            const failedItems = (job.updated_menu?.items || []).filter(i => i.status === "failed").map(item => ({ ...item, status: undefined, error: undefined }));
+
+            const payload = {
+                updated_menu: {
+                    categories: failedCategories,
+                    sub_categories: failedSubCategories,
+                    items: failedItems
+                }
+            };
+
+            const res = await api.post(`/api/menu/${resId}/swiggy/queue-changes`, payload);
+            if (res.data?.success) {
+                notify.success("Failed changes queued for retry successfully!");
+                fetchHistory(); // refresh the list
+            } else {
+                notify.error(res.data?.message || "Failed to retry sync job.");
+            }
+        } catch (error) {
+            console.error("Failed to retry failed items", error);
+            notify.error("Failed to retry sync job.");
+        } finally {
+            setRetryingId(null);
+        }
+    };
+
     useEffect(() => {
         if (isOpen && resId) {
             fetchHistory();
@@ -283,6 +330,7 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
                                             key={job._id} 
                                             job={job} 
                                             onRetry={handleRetry}
+                                            onRetryFailed={handleRetryFailed}
                                             isRetrying={retryingId === job._id}
                                         />
                                     ))}

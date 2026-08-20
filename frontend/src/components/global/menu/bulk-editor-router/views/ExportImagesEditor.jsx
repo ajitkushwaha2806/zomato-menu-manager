@@ -68,7 +68,7 @@ function ExportImagesContent({ allItems }) {
             notification.error("No images available to export.");
             return;
         }
-        
+
         login(); // Trigger Google Login popup
     };
 

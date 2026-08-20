@@ -3,940 +3,46 @@
     "platform": "zomato",
     "menu": [
         {
-            "id": "temp-k3sh8ulo3",
+            "id": "temp-lnen22lpa",
             "temp_id": "",
-            "name": "Recommended",
+            "name": "Classic Pizza",
             "sub_category": [
                 {
-                    "id": "temp-hngogbj0y",
+                    "id": "temp-jhob5omau",
                     "temp_id": "",
-                    "name": "Recommended",
+                    "name": "Classic Pizza",
                     "items": [
                         {
-                            "id": "temp-6a3q2rf8s",
+                            "id": "temp-qyv1gzggy",
                             "temp_id": "",
-                            "name": "Paneer Butter Masala",
-                            "description": "A rich, creamy delight, this indulgent treasure features soft cheese cubes enveloped in a velvety tomato-based sauce, bursting with flavor.",
-                            "base_price": 299,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/izllbcfbt6vkv41nvren"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-byeuxtyh0",
-                            "temp_id": "",
-                            "name": "Kadhai Paneer",
-                            "description": "Indulge in a rich, aromatic medley of cottage cheese and vibrant vegetables, cooked to perfection in a fragrant masala.",
-                            "base_price": 349,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/c8282e8636f8ffa030cdd2ca67393aec"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-4nu1linkf",
-                            "temp_id": "",
-                            "name": "Matar Paneer",
-                            "description": "A creamy, vibrant curry featuring tender cheese cubes and fresh green peas, offering a delightful blend of flavors.",
-                            "base_price": 249,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/zjqtbm11oratvrdbqd2u"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-9o8r9ws27",
-                            "temp_id": "",
-                            "name": "Mix Dal",
-                            "description": "A sumptuous blend of lentils, slow-cooked to perfection, offering a rich and comforting flavor experience.",
-                            "base_price": 249,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/7/848dc014-7f20-4f50-bc7e-e87bc3c2bea6_9954063e-185b-4c57-890a-5c3167318e1b.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-scgmkme4o",
-                            "temp_id": "",
-                            "name": "Dal Makhni",
-                            "description": "A creamy and rich lentil dish, slow-cooked to perfection, offering a comforting warmth and indulgent flavor.",
-                            "base_price": 299,
+                            "name": "Tomato N Cheese",
+                            "description": "Classic tomato and cheese pizza",
+                            "base_price": 100,
                             "is_veg": "VEG",
                             "packing_charges": 0,
                             "variants": [
                                 {
-                                    "property_name": "Quantity",
-                                    "property_id": "temp-ghhn45g5j",
+                                    "property_name": "Size",
+                                    "property_id": "temp-9ppm26lcg",
                                     "options": [
                                         {
-                                            "option_name": "Half",
-                                            "option_id": "temp-tyusocefn",
-                                            "variant_id": "temp-jhjvb814a",
-                                            "price": 299,
+                                            "option_name": "R",
+                                            "option_id": "temp-vtv0ra0y3",
+                                            "variant_id": "temp-6hu1icuau",
+                                            "price": 100,
                                             "is_default": true
                                         },
                                         {
-                                            "option_name": "Full",
-                                            "option_id": "temp-3v5lv0vow",
-                                            "variant_id": "temp-2g6dlail4",
-                                            "price": 369,
+                                            "option_name": "M",
+                                            "option_id": "temp-89jsxhf8c",
+                                            "variant_id": "temp-wlrgwuxn9",
+                                            "price": 200,
                                             "is_default": false
-                                        }
-                                    ]
-                                }
-                            ],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/2c14b3a35942ce4240acb18fc89eaffe"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-6parcceso",
-                            "temp_id": "",
-                            "name": "Matar Mushroom",
-                            "description": "Savor the delightful harmony of tender mushrooms and vibrant peas in a rich, aromatic sauce that will tantalize your taste buds.",
-                            "base_price": 349,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/851895b93aa25e706af7f094d4e3a279"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "temp-4auttb9yx",
-            "temp_id": "",
-            "name": "Main Course",
-            "sub_category": [
-                {
-                    "id": "temp-h16vkp1q0",
-                    "temp_id": "",
-                    "name": "Main Course",
-                    "items": [
-                        {
-                            "id": "temp-wm70957hw",
-                            "temp_id": "",
-                            "name": "Paneer Bhuerji",
-                            "description": "Savor a delightful medley of crumbled cheese sautéed with aromatic spices and fresh herbs, creating a flavorful and satisfying main course.",
-                            "base_price": 349,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/20/3cde508e-a9a5-4883-b1eb-eb97c1338f8e_4816b238-987e-49a7-ada6-1f0160eb8cf6.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-5osfpkvwj",
-                            "temp_id": "",
-                            "name": "Chilly Paneer Gravy",
-                            "description": "Tender paneer pieces are enveloped in a rich, flavorful sauce that tantalizes the taste buds.",
-                            "base_price": 349,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-uljyl9jg5",
-                            "temp_id": "",
-                            "name": "Paneer Butter Masala",
-                            "description": "A rich, creamy delight, this indulgent treasure features soft cheese cubes enveloped in a velvety tomato-based sauce, bursting with flavor.",
-                            "base_price": 299,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/izllbcfbt6vkv41nvren"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-648mwgdqq",
-                            "temp_id": "",
-                            "name": "Kadhai Paneer",
-                            "description": "Indulge in a rich, aromatic medley of cottage cheese and vibrant vegetables, cooked to perfection in a fragrant masala.",
-                            "base_price": 349,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/c8282e8636f8ffa030cdd2ca67393aec"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-cocksg5me",
-                            "temp_id": "",
-                            "name": "Matar Paneer",
-                            "description": "A creamy, vibrant curry featuring tender cheese cubes and fresh green peas, offering a delightful blend of flavors.",
-                            "base_price": 249,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/zjqtbm11oratvrdbqd2u"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-y8nk3w6ri",
-                            "temp_id": "",
-                            "name": "Soya Malai Chaap Gravy",
-                            "description": "Indulge in tender skewers enveloped in a rich, creamy sauce, offering a delightful blend of flavors.",
-                            "base_price": 329,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/20/2e1ecfbc-60fc-4de1-bbec-6fb3c71f8795_98f5f94a-c040-4daf-8467-331859ba20ac.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-wn6afqvwo",
-                            "temp_id": "",
-                            "name": "Soya Cheap Gravy",
-                            "description": "Delight in a rich, savory sauce enveloping perfectly cooked soy chunks, creating a hearty, satisfying main course.",
-                            "base_price": 279,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/9/c8043dbb-e249-458a-b7b6-551a5e2c0c77_5555cf32-b8bb-4b81-8204-f6a3a3a375dc.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-15gq83yp7",
-                            "temp_id": "",
-                            "name": "Chana Masala",
-                            "description": "This hearty dish features tender legumes simmered in a rich, aromatic sauce, bursting with flavor and warmth.",
-                            "base_price": 270,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-vvi5qpjos",
-                            "temp_id": "",
-                            "name": "Aloo Matar",
-                            "description": "A comforting medley of tender potatoes and sweet green peas, simmered in a rich, flavorful sauce that delights the palate.",
-                            "base_price": 199,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [
-                                {
-                                    "property_name": "Quantity",
-                                    "property_id": "temp-joh6oe5wr",
-                                    "options": [
-                                        {
-                                            "option_name": "Half",
-                                            "option_id": "temp-lun51pce4",
-                                            "variant_id": "temp-cbf2ev68c",
-                                            "price": 199,
-                                            "is_default": true
                                         },
                                         {
-                                            "option_name": "Full",
-                                            "option_id": "temp-4ldcwuabg",
-                                            "variant_id": "temp-zbe4c84ma",
-                                            "price": 269,
-                                            "is_default": false
-                                        }
-                                    ]
-                                }
-                            ],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-njt9yxiuz",
-                            "temp_id": "",
-                            "name": "Jeera Aloo",
-                            "description": "Savor the warm, earthy flavors of tender potatoes, expertly tossed with fragrant cumin, creating a delightful and comforting main course.",
-                            "base_price": 199,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-7npr3qoih",
-                            "temp_id": "",
-                            "name": "Kashmiri Dum Aloo",
-                            "description": "Delight in tender potatoes, enriched with a rich and aromatic gravy, offering a captivating blend of flavors.",
-                            "base_price": 299,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2025/8/14/8b8d1592-c58a-4c2e-b2a0-6cb83aef4606_9f0ebe00-3328-4cbc-a168-35e431d97002.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-tex7i995j",
-                            "temp_id": "",
-                            "name": "Mix Dal",
-                            "description": "A sumptuous blend of lentils, slow-cooked to perfection, offering a rich and comforting flavor experience.",
-                            "base_price": 249,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/7/848dc014-7f20-4f50-bc7e-e87bc3c2bea6_9954063e-185b-4c57-890a-5c3167318e1b.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-m4h6xg9o2",
-                            "temp_id": "",
-                            "name": "Dal Makhni",
-                            "description": "A creamy and rich lentil dish, slow-cooked to perfection, offering a comforting warmth and indulgent flavor.",
-                            "base_price": 299,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [
-                                {
-                                    "property_name": "Quantity",
-                                    "property_id": "temp-ardy20giu",
-                                    "options": [
-                                        {
-                                            "option_name": "Half",
-                                            "option_id": "temp-c0ygrp940",
-                                            "variant_id": "temp-3thps01j6",
-                                            "price": 299,
-                                            "is_default": true
-                                        },
-                                        {
-                                            "option_name": "Full",
-                                            "option_id": "temp-qbtjujpgd",
-                                            "variant_id": "temp-i9igxjwwv",
-                                            "price": 369,
-                                            "is_default": false
-                                        }
-                                    ]
-                                }
-                            ],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/2c14b3a35942ce4240acb18fc89eaffe"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-4rd9wyq5z",
-                            "temp_id": "",
-                            "name": "Dal Butter Fry",
-                            "description": "Indulge in a luscious blend of creamy lentils, enriched with buttery goodness for a comforting, hearty experience.",
-                            "base_price": 229,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/2ab24f90-317a-45fc-99de-ecac3533e67b_ecbcdff5-2601-4f6f-8bfc-f18d8f680967.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-578l71l70",
-                            "temp_id": "",
-                            "name": "Dal Fry",
-                            "description": "Experience a hearty, comforting bowl of lentils cooked to perfection, delivering rich flavors and aromatic warmth.",
-                            "base_price": 199,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/20/288376c9-4d6c-45d9-9b93-5316230744f7_7c35ce92-6081-41a9-ace3-c7ae44f9dac6.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-pdbhrh4kk",
-                            "temp_id": "",
-                            "name": "Matar Mushroom",
-                            "description": "Savor the delightful harmony of tender mushrooms and vibrant peas in a rich, aromatic sauce that will tantalize your taste buds.",
-                            "base_price": 349,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/851895b93aa25e706af7f094d4e3a279"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-zi3pxat8v",
-                            "temp_id": "",
-                            "name": "Malai Kofta",
-                            "description": "Indulge in creamy, luscious balls of delightful flavor, swimming in a rich, aromatic sauce that's simply irresistible.",
-                            "base_price": 349,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/zyzyegnc0ekp72pfuhj7"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-z3ma081xx",
-                            "temp_id": "",
-                            "name": "Mix Veg",
-                            "description": "A colorful medley of fresh vegetables, thoughtfully blended and expertly seasoned for a delightful, wholesome experience.",
-                            "base_price": 249,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2025/6/17/5d6ce6a6-8771-4a5b-9f47-a4af0fee5805_8ddd128a-39d8-4398-a126-ecb5a113ae77.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-8567saa62",
-                            "temp_id": "",
-                            "name": "Paneer Lababdar",
-                            "description": "Rich and creamy, this flavorful delight features succulent paneer in a luscious, aromatic tomato-based gravy, delivering a comforting and indulgent experience.",
-                            "base_price": 389,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/827bc3e03aa2c4e1817f024ce27ff14e"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-77an0cld3",
-                            "temp_id": "",
-                            "name": "Shahi Paneer",
-                            "description": "Indulge in a creamy and rich curry that delivers a perfect harmony of flavors and textures, creating an exquisite dining experience.",
-                            "base_price": 219,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "temp-rpetefolt",
-            "temp_id": "",
-            "name": "Thali",
-            "sub_category": [
-                {
-                    "id": "temp-p0cptg6k0",
-                    "temp_id": "",
-                    "name": "Thali",
-                    "items": [
-                        {
-                            "id": "temp-5m42hz6cg",
-                            "temp_id": "",
-                            "name": "Sada Thali",
-                            "description": "Dal fry , seasonal veg ,steam rice ,raita ,salad ,4 tawa roti",
-                            "base_price": 240,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/6/83f561e7-da5c-44f8-8209-6a972403a1dc_6bb76209-b356-4b94-a2f8-82f8e0ba8f35.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-3i6sg5npq",
-                            "temp_id": "",
-                            "name": "Speacial Thali",
-                            "description": "Dal fry + shahi paneer + mix veg + steam rice + boondi raita + papad + salad + pickle +4 tawa butter roti",
-                            "base_price": 360,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-edjk6e25o",
-                            "temp_id": "",
-                            "name": "Butter Naan Thali",
-                            "description": "Dal makhni + paneer butter masala +boondi raita + salad + 2 butter naan (tawa)",
-                            "base_price": 260,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-tern62faq",
-                            "temp_id": "",
-                            "name": "Aloo Naan Thali",
-                            "description": "Dal makhni + paneer butter masala + boondi raita + salad + 2 aloo naan (tawa)",
-                            "base_price": 299,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-3phc1rmiz",
-                            "temp_id": "",
-                            "name": "Paneer Naan Thali",
-                            "description": "Dal makhni + paneer butter masala + boondi raita + salad + 2 paneer naan (tawa)",
-                            "base_price": 349,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "temp-6grhygieg",
-            "temp_id": "",
-            "name": "Roti/chapati",
-            "sub_category": [
-                {
-                    "id": "temp-ojg6fxtyp",
-                    "temp_id": "",
-                    "name": "Roti/chapati",
-                    "items": [
-                        {
-                            "id": "temp-ne2tpvxi9",
-                            "temp_id": "",
-                            "name": "Missi Roti",
-                            "description": "A delectable vegetarian roti with a rich blend of flavors that will leave you craving for more.",
-                            "base_price": 60,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-1vt50vgi6",
-                            "temp_id": "",
-                            "name": "Tawa Butter Roti",
-                            "description": "A buttery delight straight from the tawa, this Indian bread will melt in your mouth with its irresistible, flaky goodness.",
-                            "base_price": 30,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/8/5/4719f7e0-8819-450d-982f-37f112a0cd14_a50d09a5-3e7b-4ff2-882b-7bd13bfcffaf.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-1713852y4",
-                            "temp_id": "",
-                            "name": "Onion Naan (tawa)",
-                            "description": "A soft, golden-brown bread, infused with caramelized onions, perfect for savoring with your favorite curries.",
-                            "base_price": 99,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-sctwxr3cd",
-                            "temp_id": "",
-                            "name": "Mix Naan (tawa)",
-                            "description": "Indulge in this delightful combination of fluffy, toasted flatbreads, boasting a perfect blend of flavors and textures.",
-                            "base_price": 130,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-s3gnadc8p",
-                            "temp_id": "",
-                            "name": "Makke Ki Roti (seasonal)",
-                            "description": "Indulge in warm, golden flatbreads with a delightful rustic flavor, perfect for any seasonal feast.",
-                            "base_price": 60,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2025/1/16/5908515d-6016-4b0c-8d7b-42aa5379eecc_c73658db-cdae-4784-85d9-9fd9ea27899c.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-37faqlyzk",
-                            "temp_id": "",
-                            "name": "Paneer Naan (tawa)",
-                            "description": "Fluffy, golden-brown bread filled with creamy cheese, offering a delightful balance of warmth and richness.",
-                            "base_price": 120,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-fvojyxo4q",
-                            "temp_id": "",
-                            "name": "Aloo Naan (tawa)",
-                            "description": "Soft, warm flatbread is stuffed with savory spiced potatoes, creating a delightful culinary experience.",
-                            "base_price": 99,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/7f7017be-c457-4203-922c-c8037a6a25c4_0923570d-1fd3-4aec-892b-3caf098bcd0c.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-368yae004",
-                            "temp_id": "",
-                            "name": "Butter Naan (tawa)",
-                            "description": "Indulge in this soft, buttery flatbread, perfectly roasted for a delightful, warm experience.",
-                            "base_price": 60,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/8/5/353b048b-8306-4674-b0ef-6ce41398d6a5_9ab49bce-3085-4265-89c7-18452adb337c.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-om440kc2f",
-                            "temp_id": "",
-                            "name": "Tawa Roti",
-                            "description": "Delicately cooked on an open flame, this soft and flavorful flatbread is perfect for savoring with any meal.",
-                            "base_price": 24,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/3/3df150fb-3d24-4366-a427-f65d6100be62_30dcaa69-00f4-4bab-a2fb-599b9934b448.jpg"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "temp-5ek3fciff",
-            "temp_id": "",
-            "name": "Rice",
-            "sub_category": [
-                {
-                    "id": "temp-ucxv9ohyl",
-                    "temp_id": "",
-                    "name": "Rice",
-                    "items": [
-                        {
-                            "id": "temp-s968kpgot",
-                            "temp_id": "",
-                            "name": "Veg Biryani",
-                            "description": "A flavorful and aromatic rice delicacy bursting with assorted vegetables.",
-                            "base_price": 200,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/k9xuguzh6veucksexaok"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-mhl4312d6",
-                            "temp_id": "",
-                            "name": "Jeera Rice",
-                            "description": "A delicate and aromatic rice dish tossed with fragrant Indian spices, perfect for any vegetarian Rice lover.",
-                            "base_price": 199,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/izhw1ah11dzurldaq3wi"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-gisfg4iea",
-                            "temp_id": "",
-                            "name": "Matar Pulao",
-                            "description": "Savor the delightful harmony of fragrant rice and vibrant green peas, creating a comforting and aromatic experience.",
-                            "base_price": 209,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/6/f87059db-eaa2-4a4c-8690-be2565c7bfe4_8b908127-c8c6-4a66-aa9d-670721ca473d.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-8ss0eqafj",
-                            "temp_id": "",
-                            "name": "Fried Rice",
-                            "description": "A delightful medley of seasoned grains, vibrant vegetables, and savory flavors come together in this comforting dish.",
-                            "base_price": 199,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/1/30/caa95b10-5c1d-4447-837e-15233bc5d45e_18c7d316-eb8d-482c-9d64-be7cb7f13655.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-4gjtchpzs",
-                            "temp_id": "",
-                            "name": "Steam Rice",
-                            "description": "Fluffy, tender grains create a comforting staple that beautifully complements any meal.",
-                            "base_price": 140,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/f719010c-31a8-473a-968e-8ba2f075f720_655ae7f2-f616-4a9d-9c5d-11e06a89c6bb.JPG"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "temp-grho8e7dy",
-            "temp_id": "",
-            "name": "Raita ,lassi & Dahi",
-            "sub_category": [
-                {
-                    "id": "temp-4cykojwqq",
-                    "temp_id": "",
-                    "name": "Raita ,lassi & Dahi",
-                    "items": [
-                        {
-                            "id": "temp-8r1w6sese",
-                            "temp_id": "",
-                            "name": "Salted Lassi",
-                            "description": "This refreshing yogurt drink, with its creamy texture and a hint of salt, is the perfect way to cool down and rejuvenate your palate.",
-                            "base_price": 60,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/1/30/bca8fc37-ff01-4abc-974e-c368b77bd3c7_97e8201d-52aa-41b6-8107-6cb19013bb25.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-pkd4bj4dd",
-                            "temp_id": "",
-                            "name": "Sweet Lassi",
-                            "description": "Experience a delightful blend of creamy yogurt and sweet flavors, perfect for refreshing your palate.",
-                            "base_price": 99,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-hwwsvjcx4",
-                            "temp_id": "",
-                            "name": "Pudina Raita",
-                            "description": "A refreshing and tangy yogurt blend, bursting with vibrant mint flavors, perfect for complementing any meal.",
-                            "base_price": 110,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-k02yf1s6j",
-                            "temp_id": "",
-                            "name": "Cucumber Raita (kheera)",
-                            "description": "A refreshing and creamy yogurt delight, this dish offers a cool burst of flavor, perfect for balancing any meal.",
-                            "base_price": 120,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [
-                                {
-                                    "property_name": "Quantity",
-                                    "property_id": "temp-evm78typ8",
-                                    "options": [
-                                        {
-                                            "option_name": "Half (300ml)",
-                                            "option_id": "temp-7nma1khqo",
-                                            "variant_id": "temp-5a5afshvi",
-                                            "price": 215,
-                                            "is_default": true
-                                        },
-                                        {
-                                            "option_name": "Full (750ml0",
-                                            "option_id": "temp-15rbnty6j",
-                                            "variant_id": "temp-4k2t1qj2j",
+                                            "option_name": "L",
+                                            "option_id": "temp-ei0t00bj8",
+                                            "variant_id": "temp-kxvmzcifl",
                                             "price": 300,
                                             "is_default": false
                                         }
@@ -946,15 +52,1874 @@
                             "addons": [],
                             "media": [
                                 {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                    "url": "https://www.cafechococraze.com/wp-content/uploads/2016/06/cheese-tomato.jpg"
                                 }
                             ]
                         },
                         {
-                            "id": "temp-sonruhjgw",
+                            "id": "temp-a2b8jjl5t",
                             "temp_id": "",
-                            "name": "Mix Raita",
-                            "description": "A delightful blend of creamy textures and refreshing flavors that perfectly complements any Indian meal.",
+                            "name": "Tandoori Paneer",
+                            "description": "Tandoori and paneer pizza",
+                            "base_price": 180,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-h88rk66or",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-7lb43yoc2",
+                                            "variant_id": "temp-pa5ut374a",
+                                            "price": 180,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-uqgwfhn9h",
+                                            "variant_id": "temp-weema3sm3",
+                                            "price": 350,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-jqgju53vq",
+                                            "variant_id": "temp-7cr2vb20s",
+                                            "price": 490,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.bigbasket.com/media/uploads/recipe/w-l/3663_1_1.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-an4clx95q",
+                            "temp_id": "",
+                            "name": "Spicy Paneer",
+                            "description": "Spicy and Paneer pizza",
+                            "base_price": 180,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-c6bycrtz1",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-x2jpg6693",
+                                            "variant_id": "temp-uji6gf9e0",
+                                            "price": 180,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-73m3u6z8o",
+                                            "variant_id": "temp-yin1fbq6b",
+                                            "price": 350,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-86kb653ad",
+                                            "variant_id": "temp-1z1ge54hn",
+                                            "price": 490,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://i.pinimg.com/736x/ff/b8/e8/ffb8e8c94bf6210bf383e050520b00cf.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-1hpbqyneo",
+                            "temp_id": "",
+                            "name": "Delux Veggie",
+                            "description": "Delux veggie pizza",
+                            "base_price": 180,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-fr00w450h",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-02wny0vdd",
+                                            "variant_id": "temp-p3omhpwp6",
+                                            "price": 180,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-4nnn6lvux",
+                                            "variant_id": "temp-4gy6dgk91",
+                                            "price": 350,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-iqz96l1o8",
+                                            "variant_id": "temp-ksgtgo0it",
+                                            "price": 490,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRGsO8_BXeu1PTx2mLrb7OPazuxz4hJp273FQ&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-rbf01yh48",
+                            "temp_id": "",
+                            "name": "Onion Cheese",
+                            "description": "Onion and cheese combo Pizza",
+                            "base_price": 100,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-cc7gijj0f",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-qk7bxx1mf",
+                                            "variant_id": "temp-m3a6zal3n",
+                                            "price": 100,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-lordemjyq",
+                                            "variant_id": "temp-stcagxw7e",
+                                            "price": 200,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-gjsrbnl0n",
+                                            "variant_id": "temp-wzl4e7jjb",
+                                            "price": 300,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://ftvtxohiypfktsqvilhz.supabase.co/storage/v1/object/sign/menu-images/1784777270272-d97uub.jpg?token=eyJraWQiOiJzdG9yYWdlLXVybC1zaWduaW5nLWtleV85OTYzMmY2Mi0zZjkzLTQwMWMtOGEzZC04M2U1Y2QxNTIzYmQiLCJhbGciOiJIUzI1NiJ9.eyJ1cmwiOiJtZW51LWltYWdlcy8xNzg0Nzc3MjcwMjcyLWQ5N3V1Yi5qcGciLCJzY29wZSI6ImRvd25sb2FkIiwiaWF0IjoxNzg0Nzc3MjcxLCJleHAiOjIxMDAxMzcyNzF9.wlq-4cCngihsw7wstgf8Ws19u9Hm8v6-YyawUIJmtGA"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-b58w2rocv",
+                            "temp_id": "",
+                            "name": "Corn N Cheese",
+                            "description": "Corn & cheese pizza",
+                            "base_price": 100,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-d6q9bhrpv",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-av344xoeb",
+                                            "variant_id": "temp-gll0dv28i",
+                                            "price": 100,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-f3q01bt0q",
+                                            "variant_id": "temp-db8acv4xu",
+                                            "price": 200,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-loacpexdd",
+                                            "variant_id": "temp-pcsqy9egc",
+                                            "price": 300,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTDDt9Z5TvZPsCDcrfT1VQ-2qBnDHvRtWw0Kw&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-fih3serlc",
+                            "temp_id": "",
+                            "name": "Capsicum N Cheese",
+                            "description": "Capsicum & cheese pizza",
+                            "base_price": 100,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-u8vr9d4s1",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-9d15n9gi7",
+                                            "variant_id": "temp-oph40lsmd",
+                                            "price": 100,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-bkr4j2v7o",
+                                            "variant_id": "temp-tur7u0uif",
+                                            "price": 200,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-0jsi190tu",
+                                            "variant_id": "temp-p38xzejc9",
+                                            "price": 300,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQBQkn9wYIhnym59AZ-4rdRelW6xfPh4Yuxiw&s"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-1qctv8728",
+            "temp_id": "",
+            "name": "Others",
+            "sub_category": [
+                {
+                    "id": "temp-5hauip090",
+                    "temp_id": "",
+                    "name": "Others",
+                    "items": [
+                        {
+                            "id": "temp-h3nh6iv9z",
+                            "temp_id": "",
+                            "name": "Hookah",
+                            "description": "Hookah",
+                            "base_price": 500,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://images.meesho.com/images/products/480746399/jzlde_512.avif?width=512"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-6ya32dde3",
+            "temp_id": "",
+            "name": "Soft Drinks",
+            "sub_category": [
+                {
+                    "id": "temp-cdckt1bdx",
+                    "temp_id": "",
+                    "name": "Soft Drinks",
+                    "items": [
+                        {
+                            "id": "temp-kc6hfv9h0",
+                            "temp_id": "",
+                            "name": "Campa Cold Drink",
+                            "description": "Campa Cold Drink",
+                            "base_price": 20,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://cdn.dotpe.in/longtail/store-items/7497834/s4ZVAJoE.webp"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-5imlgok98",
+                            "temp_id": "",
+                            "name": "Red Bull",
+                            "description": "Red Bull",
+                            "base_price": 125,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://m.media-amazon.com/images/I/51Bp30CR3IL.jpg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-hfgw214pf",
+            "temp_id": "",
+            "name": "Fries",
+            "sub_category": [
+                {
+                    "id": "temp-1bmk1gm60",
+                    "temp_id": "",
+                    "name": "Fries",
+                    "items": [
+                        {
+                            "id": "temp-hcy1b3igh",
+                            "temp_id": "",
+                            "name": "Classic Fries",
+                            "description": "Crispy salted fries",
+                            "base_price": 50,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-t2wc1idia",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-9lnmg04ww",
+                                            "variant_id": "temp-bhqp5dagn",
+                                            "price": 50,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-2gxvesiyy",
+                                            "variant_id": "temp-ihy3sbymv",
+                                            "price": 100,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://revacafe.in/cdn/shop/files/Fries.png?v=1721554407"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-8wgirc2y1",
+                            "temp_id": "",
+                            "name": "Peri Peri Fries",
+                            "description": "Spicy peri peri fries",
+                            "base_price": 60,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-sxtljs0f1",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-fung8lx79",
+                                            "variant_id": "temp-wulhi28a3",
+                                            "price": 60,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-vx7i4jayz",
+                                            "variant_id": "temp-bcwgrv4gg",
+                                            "price": 120,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://cookingwithparita.com/wp-content/uploads/2022/10/image-of-baked-crispy-peri-peri-fries-recipe-2.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-f985ztuzu",
+                            "temp_id": "",
+                            "name": "Cheesy Fries",
+                            "description": "Fries with melted cheese",
+                            "base_price": 70,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-7qud7al4a",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-dhym5az84",
+                                            "variant_id": "temp-jxn9s71nb",
+                                            "price": 70,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-hihfqegxr",
+                                            "variant_id": "temp-0sj2ozqec",
+                                            "price": 140,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpwjAhvVd1MJ5wlJbr70PI5mq2LyX1pDfUZg&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-g40lfot60",
+                            "temp_id": "",
+                            "name": "Chicken Loaded Fries",
+                            "description": "Loaded fries with chicken",
+                            "base_price": 200,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQpwjAhvVd1MJ5wlJbr70PI5mq2LyX1pDfUZg&s"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-elqlddknv",
+            "temp_id": "",
+            "name": "Cake",
+            "sub_category": [
+                {
+                    "id": "temp-h20ycn9td",
+                    "temp_id": "",
+                    "name": "Cake",
+                    "items": [
+                        {
+                            "id": "temp-vvqool5lb",
+                            "temp_id": "",
+                            "name": "Choco Lava Cake",
+                            "description": "Choco Lava Cake",
+                            "base_price": 70,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://i.pinimg.com/736x/18/4c/10/184c10659c61ed96e4b238e89ff35918.jpg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-0ed1mh21n",
+            "temp_id": "",
+            "name": "Bergers",
+            "sub_category": [
+                {
+                    "id": "temp-rx2ut0mna",
+                    "temp_id": "",
+                    "name": "Bergers",
+                    "items": [
+                        {
+                            "id": "temp-g80flyik4",
+                            "temp_id": "",
+                            "name": "Crunchy Veg Cheese",
+                            "description": "Crunchy veg and cheese burger",
+                            "base_price": 70,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://canadabeef.ca/wp-content/uploads/2022/03/RS11875_Air-Fryer-Quarter-pound-Beef-Burgers-Fries-scr.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-p3fjiwbg1",
+                            "temp_id": "",
+                            "name": "Crisspy Paneer",
+                            "description": "Crisspy and Paneer Burger",
+                            "base_price": 80,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://static01.nyt.com/images/2022/06/27/dining/kc-mushroom-beef-burgers/merlin_209008674_b3fa58fa-9bb1-4cfe-a08a-40b4dda0de78-jumbo.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-fhb56719u",
+                            "temp_id": "",
+                            "name": "Veg Maharaja",
+                            "description": "Veg maharaja burger",
+                            "base_price": 130,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://c.ndtvimg.com/2024-06/8lb0cosg_burger_625x300_12_June_24.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-usaxfzcd1",
+                            "temp_id": "",
+                            "name": "Chicken Tikki",
+                            "description": "Chicken tikki Burger",
+                            "base_price": 100,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT-1MoBFqmb02SQ1xYMmzHb5hAbjW0PfmXCjg&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-j91da3ao5",
+                            "temp_id": "",
+                            "name": "Chicken Zinger Burger",
+                            "description": "Crispy chicken burger",
+                            "base_price": 120,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://t3.ftcdn.net/jpg/00/94/92/10/360_F_94921053_Lc06uabhNtMNSKq6H5gBhZVDoI6nKjXW.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-x717d26tn",
+                            "temp_id": "",
+                            "name": "Chicken Maharaja",
+                            "description": "Chicken Maharaja burger",
+                            "base_price": 130,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media.istockphoto.com/id/617759204/photo/steakhouse-double-bacon-cheeseburger.jpg?s=612x612&w=0&k=20&c=QRaHtrxJsmNKOlOTkvxyE-o-3kM-Me1zU320yPT8ycI="
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-ab8azobam",
+            "temp_id": "",
+            "name": "Pizza Special",
+            "sub_category": [
+                {
+                    "id": "temp-eea9slikg",
+                    "temp_id": "",
+                    "name": "Pizza Special",
+                    "items": [
+                        {
+                            "id": "temp-pnd2mj5o9",
+                            "temp_id": "",
+                            "name": "Double Cheese Margherita",
+                            "description": "Double Cheese Margherita pizza",
+                            "base_price": 150,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-qf8t458hx",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-9y51rg9j1",
+                                            "variant_id": "temp-nwd3hfpg4",
+                                            "price": 199,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-4d9k2f3iu",
+                                            "variant_id": "temp-8rgff22ws",
+                                            "price": 399,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-zwuws57fe",
+                                            "variant_id": "temp-auau0ugzr",
+                                            "price": 499,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://img.cdnx.in/99675/SKU-0001_0-1714331469319.webp?width=600&format=webp"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-a5gnlp2ko",
+                            "temp_id": "",
+                            "name": "Mexican Veg",
+                            "description": "Mexican veg with extra cheese pizza 5 topping ",
+                            "base_price": 150,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-09tlk79na",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-dqfk5npv0",
+                                            "variant_id": "temp-64hhqzpng",
+                                            "price": 150,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-lfymk9ivd",
+                                            "variant_id": "temp-w9b6l6jd3",
+                                            "price": 290,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-lgfs9vvx7",
+                                            "variant_id": "temp-v8kd4ybkd",
+                                            "price": 380,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://i.pinimg.com/736x/87/62/85/87628528113efea6bd53dab67cf0702d.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-5brwsu4qi",
+                            "temp_id": "",
+                            "name": "Farm House",
+                            "description": "Farm house pizza",
+                            "base_price": 150,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-tkpqr8rfd",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-gvj3r9756",
+                                            "variant_id": "temp-8azl5j326",
+                                            "price": 150,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-4bqs4mo1z",
+                                            "variant_id": "temp-w1x5o9fz5",
+                                            "price": 280,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-7x13zpi98",
+                                            "variant_id": "temp-x2ovi65oj",
+                                            "price": 380,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media.istockphoto.com/id/1393150881/photo/italian-pizza-margherita-with-cheese-and-tomato-sauce-on-the-board-on-grey-table-macro-close.jpg?s=612x612&w=0&k=20&c=kL0Vhg2XKBjEl__iG8sFv31WTiahdpLc3rTDtNZuD2g="
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-1d8tyco2x",
+                            "temp_id": "",
+                            "name": "Indian Veggie",
+                            "description": "Capsicum and onion ",
+                            "base_price": 150,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-gp5sulr26",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-rbhvjwbcy",
+                                            "variant_id": "temp-0pyj314nj",
+                                            "price": 150,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-xxheip0f9",
+                                            "variant_id": "temp-jmz1o4lyq",
+                                            "price": 280,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-jduhehntt",
+                                            "variant_id": "temp-mvbxt9jj2",
+                                            "price": 380,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ1bdKKaTySsc4t8ahzTXQIG87Ls_J8ph907w&s"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-s70m1o42n",
+            "temp_id": "",
+            "name": "Shakes",
+            "sub_category": [
+                {
+                    "id": "temp-qk5cy56ek",
+                    "temp_id": "",
+                    "name": "Shakes",
+                    "items": [
+                        {
+                            "id": "temp-dze88ugvt",
+                            "temp_id": "",
+                            "name": "Cold Coffee",
+                            "description": "Cold coffee",
+                            "base_price": 70,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.sharmispassions.com/wp-content/uploads/2020/02/iced-coffee-recipe.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-jxqirlc0h",
+                            "temp_id": "",
+                            "name": "Chocolate Shake",
+                            "description": "Chocolate Shake",
+                            "base_price": 80,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.organicvalley.coop/_next/image/?url=https%3A%2F%2Fcdn.sanity.io%2Fimages%2F5dqbssss%2Fproduction-v3%2F3ba3f137c02a6f320c156bb7c39e362bdbd87bb8-1356x1576.jpg&w=3840&q=75"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-lrzo9tkls",
+                            "temp_id": "",
+                            "name": "Strawberry Shake",
+                            "description": "Strawberry Shake",
+                            "base_price": 70,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.skinnymixes.com/cdn/shop/articles/1.jpg?v=1612293629"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-zaldukkee",
+                            "temp_id": "",
+                            "name": "Butterscotch Shake",
+                            "description": "Butterscotch Shake",
+                            "base_price": 80,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://5.imimg.com/data5/SELLER/Default/2024/12/477526362/AD/VK/IU/221601678/thick-shake-premix-regular-flavours-800-g-500x500.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-xodoa5j93",
+                            "temp_id": "",
+                            "name": "Oreo Shake",
+                            "description": "Oreo Shake",
+                            "base_price": 80,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTibm7UoT5p7j_4nQxQJxWWnv_B-NprVjRdVA&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-nub0k21t1",
+                            "temp_id": "",
+                            "name": "Kit Kat Shake",
+                            "description": "Kit Kat Shake",
+                            "base_price": 80,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://res.cloudinary.com/purnesh/image/upload/f_auto/v1477048104/cafe-wink.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-90fo8pcv3",
+                            "temp_id": "",
+                            "name": "Khajoor Shake",
+                            "description": "Khajoor Shake",
+                            "base_price": 90,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://static.punjabkesari.in/multimedia/2017_2image_16_02_155647708shake.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-7d5wkka3m",
+                            "temp_id": "",
+                            "name": "Peanut Shake",
+                            "description": "Peanut Shake",
+                            "base_price": 90,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQNfotfTy6d8ZOYBIhDeY02Ph88-V5oNmvW1A&s"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-otgwg9ain",
+            "temp_id": "",
+            "name": "Apetizers",
+            "sub_category": [
+                {
+                    "id": "temp-ozsumb8yo",
+                    "temp_id": "",
+                    "name": "Apetizers",
+                    "items": [
+                        {
+                            "id": "temp-d8da738n0",
+                            "temp_id": "",
+                            "name": "Chicken Nuggets (8P)",
+                            "description": "Chicken Nuggets (8 Pcs)",
+                            "base_price": 150,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFP8ONEsy2XmKzd0FJb_9mmJQKgd8_6HtH2Q&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-2a6w51u63",
+                            "temp_id": "",
+                            "name": "Chicken Popcorn (10) peace ",
+                            "description": "Chicken Popcorn (10 Pcs)",
+                            "base_price": 120,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRi4tREmeuAYYNcPMMGDidMOLy-LLWB1BNutw&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-zfnqeqnsx",
+                            "temp_id": "",
+                            "name": "Chicken Chizza (2P)",
+                            "description": "Chicken Chizza (2 Pcs)",
+                            "base_price": 140,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://dudefoods.com/wp-content/uploads/2024/03/CHIZZASquare.jpg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-akmxqhldp",
+            "temp_id": "",
+            "name": "Pasta",
+            "sub_category": [
+                {
+                    "id": "temp-1xuuowg83",
+                    "temp_id": "",
+                    "name": "Pasta",
+                    "items": [
+                        {
+                            "id": "temp-jubupq6ud",
+                            "temp_id": "",
+                            "name": "Red Sauce",
+                            "description": "Red sauce pasta with veggies ",
+                            "base_price": 100,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-0bifs4cgx",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-7emevk5bw",
+                                            "variant_id": "temp-i7v48lk18",
+                                            "price": 100,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-db5zzu6ad",
+                                            "variant_id": "temp-rbc0zn5yt",
+                                            "price": 200,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTzyr-0W5T2kDt50-uTdoRvScuOBjopJo5muQ&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-69kzofoe6",
+                            "temp_id": "",
+                            "name": "White Sauce",
+                            "description": "White Sauce Pasta",
+                            "base_price": 100,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-4qa9o7m5b",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-vkpdqmnmi",
+                                            "variant_id": "temp-7486q3yva",
+                                            "price": 100,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-defkamxvz",
+                                            "variant_id": "temp-qvklw58z3",
+                                            "price": 200,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.cookwithmanali.com/wp-content/uploads/2018/12/White-Sauce-Pasta.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-edsnky54a",
+                            "temp_id": "",
+                            "name": "Tanduri Sauce",
+                            "description": "Tanduri Sauce Pasta",
+                            "base_price": 100,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-2cvatagfw",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-4epkvh9au",
+                                            "variant_id": "temp-t0ene2d74",
+                                            "price": 100,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-em2npx76d",
+                                            "variant_id": "temp-smjw2bqjg",
+                                            "price": 200,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.myplantifulcooking.com/wp-content/uploads/2022/03/tandoori-pasta-featured.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-ii1zmnmev",
+                            "temp_id": "",
+                            "name": "Mix Sauce",
+                            "description": "Mix Sauce Pasta",
+                            "base_price": 120,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-o3tghq0dh",
+                                    "options": [
+                                        {
+                                            "option_name": "Half",
+                                            "option_id": "temp-mjht3apar",
+                                            "variant_id": "temp-sive5qrwx",
+                                            "price": 120,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Full",
+                                            "option_id": "temp-fd4apsiw2",
+                                            "variant_id": "temp-s1ivxcva0",
+                                            "price": 220,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://veronikaskitchen.com/wp-content/uploads/2022/04/Pink-Sauce-Pasta-2263.jpg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-fg85dsr7j",
+            "temp_id": "",
+            "name": "Non Veg Pizza",
+            "sub_category": [
+                {
+                    "id": "temp-0cp7p2dlc",
+                    "temp_id": "",
+                    "name": "Non Veg Pizza",
+                    "items": [
+                        {
+                            "id": "temp-d3jcarb08",
+                            "temp_id": "",
+                            "name": "Chicken Barbeque Pizza",
+                            "description": "BBQ chicken toppings",
+                            "base_price": 0,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-sdgaoiqbe",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-5azx4iked",
+                                            "variant_id": "temp-uivtpmf4p",
+                                            "price": 180,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-6y0of4unr",
+                                            "variant_id": "temp-9d2og0f2i",
+                                            "price": 350,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-56ddaiynx",
+                                            "variant_id": "temp-17yhxwhky",
+                                            "price": 490,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFCJERFxVF4b2oTQrXoRUm9igZDflIth7GOg&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-3ns2vadci",
+                            "temp_id": "",
+                            "name": "Chicken Fiest",
+                            "description": "Chicken fiest pizza",
+                            "base_price": 180,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-yid1z7a8p",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-it1k4xgd4",
+                                            "variant_id": "temp-wkloy0i59",
+                                            "price": 180,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-1jk9hzqiz",
+                                            "variant_id": "temp-goq5mcols",
+                                            "price": 350,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-e3u3xr4iq",
+                                            "variant_id": "temp-5o8867jci",
+                                            "price": 490,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media-cdn.tripadvisor.com/media/photo-p/19/32/3b/f2/img-20190308-130153-largejpg.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-jalq9xjiv",
+                            "temp_id": "",
+                            "name": "Chicken Lover",
+                            "description": "Chicken lover pizza",
+                            "base_price": 240,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-6sspc9i49",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-694aars77",
+                                            "variant_id": "temp-pe6eealtg",
+                                            "price": 240,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-0fxh7g7ev",
+                                            "variant_id": "temp-ml3zyri36",
+                                            "price": 380,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-q823z6qst",
+                                            "variant_id": "temp-6ah4vzyeb",
+                                            "price": 520,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQ4IGHLM6b5JO6DdSPfw3tLQaEVRwjnfp08gg&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-msrhrwcin",
+                            "temp_id": "",
+                            "name": "Non Veg Supreme",
+                            "description": "Non Veg supreme pizza",
+                            "base_price": 260,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-q08frgqyj",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-ia9kxbofr",
+                                            "variant_id": "temp-k73fyhq9t",
+                                            "price": 260,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-gbw8fsabv",
+                                            "variant_id": "temp-25xap2hgj",
+                                            "price": 400,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-b4bx0kwdf",
+                                            "variant_id": "temp-dwdjn3287",
+                                            "price": 560,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://media.istockphoto.com/id/489809469/photo/bbq-chicken-pizza.jpg?s=612x612&w=0&k=20&c=kB3xRU4-A7fJ9iYpIzlOqSiLX4f6OIath45yFOmqjxQ="
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-ivfc2jgq8",
+                            "temp_id": "",
+                            "name": "Chicken Supreme",
+                            "description": "Chicken supreme pizza",
+                            "base_price": 260,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-h5h4pdbsd",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-8mdmuaezl",
+                                            "variant_id": "temp-a0fov18li",
+                                            "price": 260,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-8oh07eqqo",
+                                            "variant_id": "temp-m2grvfz2d",
+                                            "price": 400,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-6v00rey56",
+                                            "variant_id": "temp-acz360esp",
+                                            "price": 560,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.shutterstock.com/image-photo/this-perfect-pizza-picture-that-600nw-2320397189.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-6gk7t33r2",
+                            "temp_id": "",
+                            "name": "Cheesy Chicken Pizza",
+                            "description": "Cheese loaded chicken pizza",
+                            "base_price": 180,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-mr15ygktn",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-5zllofx5z",
+                                            "variant_id": "temp-3a5dtoi0y",
+                                            "price": 180,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-cq7knr3qx",
+                                            "variant_id": "temp-93w2wbrxu",
+                                            "price": 350,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-z9rpu15vv",
+                                            "variant_id": "temp-6etxj4i7j",
+                                            "price": 490,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://theartisticcook.com/wp-content/uploads/2025/03/Chicken-Pizza.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-5wgcjrtq0",
+                            "temp_id": "",
+                            "name": "Chicken Tandoori Pizza",
+                            "description": "Tandoori flavored chicken",
+                            "base_price": 180,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-k09cxke7i",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-cw49etwqg",
+                                            "variant_id": "temp-e6nqdt3or",
+                                            "price": 180,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-9cdpe7s03",
+                                            "variant_id": "temp-r75b113mv",
+                                            "price": 350,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-h8kvwxdc0",
+                                            "variant_id": "temp-3zae6hjfb",
+                                            "price": 490,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://glebekitchen.com/wp-content/uploads/2022/04/tandooripizzawoodoven-900x827.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-erqdnsygi",
+                            "temp_id": "",
+                            "name": "Zesty Chicken Pizza",
+                            "description": "Spicy zesty chicken",
+                            "base_price": 180,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-x687ym0yt",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-4gaam8694",
+                                            "variant_id": "temp-uutf5ebxg",
+                                            "price": 180,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-ipyie95ho",
+                                            "variant_id": "temp-pkqp9aton",
+                                            "price": 350,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-7nltnzvgs",
+                                            "variant_id": "temp-9blgwhaht",
+                                            "price": 490,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://i.ytimg.com/vi/pWGi3sae0w4/hq720.jpg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-59u0ea338",
+            "temp_id": "",
+            "name": "Summer Cooler",
+            "sub_category": [
+                {
+                    "id": "temp-wugp5wrll",
+                    "temp_id": "",
+                    "name": "Summer Cooler",
+                    "items": [
+                        {
+                            "id": "temp-eh2t7gv4r",
+                            "temp_id": "",
+                            "name": "Virgin Mojito",
+                            "description": "Refreshing Virgin Mojito",
+                            "base_price": 70,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://images.milkandmore.co.uk/image/upload/w_iw/f_auto/q_auto/v1626876287/Blog/Recipes/summer-cooler-mocktail/summer-cooler-mocktail-main.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-77r1rv9pm",
+                            "temp_id": "",
+                            "name": "Peach Ice Tea",
+                            "description": "Chilled Peach Ice Tea",
+                            "base_price": 70,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://static01.nyt.com/images/2022/08/24/dining/18Coolers1/merlin_211206027_f8ec18c5-5277-4791-8661-d47ba2c33f42-articleLarge.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-l6tidyes4",
+                            "temp_id": "",
+                            "name": "Lemon Ice Tea",
+                            "description": "Refreshing Lemon Ice Tea",
+                            "base_price": 70,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://images.immediate.co.uk/production/volatile/sites/30/2022/06/Tequila-sunrise-fb8b3ab.jpg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-uwpx8hodk",
+            "temp_id": "",
+            "name": "Cigarettes",
+            "sub_category": [
+                {
+                    "id": "temp-z370bidbn",
+                    "temp_id": "",
+                    "name": "Cigarettes",
+                    "items": [
+                        {
+                            "id": "temp-mb1k6ft9i",
+                            "temp_id": "",
+                            "name": "Gold Flake",
+                            "description": "Gold Flake Cigarette",
+                            "base_price": 150,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-3fjb1rsc7",
+                                    "options": [
+                                        {
+                                            "option_name": "Choti",
+                                            "option_id": "temp-ax060wcsh",
+                                            "variant_id": "temp-1i8955dpf",
+                                            "price": 150,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "Badhi",
+                                            "option_id": "temp-7j510sn0c",
+                                            "variant_id": "temp-hddxednmv",
+                                            "price": 300,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://dukaan.b-cdn.net/700x700/webp/537460/a260cf35-c69c-4b4a-b7fe-815175254d8b.png"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-b237p5rt0",
+                            "temp_id": "",
+                            "name": "Regular",
+                            "description": "Regular cigarettes",
+                            "base_price": 400,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://dukaan.b-cdn.net/700x700/webp/media/b606478b-de32-4945-8ec3-15134803c67c.webp"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-cskfwuj2f",
+                            "temp_id": "",
+                            "name": "Ultra Mild",
+                            "description": "Ultra mild cigarette",
+                            "base_price": 400,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://dukaan.b-cdn.net/700x700/webp/media/b606478b-de32-4945-8ec3-15134803c67c.webp"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-fmw07eyc1",
+            "temp_id": "",
+            "name": "Extra Cheese",
+            "sub_category": [
+                {
+                    "id": "temp-5f07vvtxv",
+                    "temp_id": "",
+                    "name": "Extra Cheese",
+                    "items": [
+                        {
+                            "id": "temp-owzbqjg59",
+                            "temp_id": "",
+                            "name": "Cheese Brust",
+                            "description": "Cheese loaded",
+                            "base_price": 50,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-luevuabf2",
+                                    "options": [
+                                        {
+                                            "option_name": "R",
+                                            "option_id": "temp-eb6et78lp",
+                                            "variant_id": "temp-27q1blhrs",
+                                            "price": 50,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-4zjg3gi7g",
+                                            "variant_id": "temp-adompc32b",
+                                            "price": 70,
+                                            "is_default": false
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-1hpzsvpvx",
+                                            "variant_id": "temp-k1knpemwd",
+                                            "price": 90,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://pos.atplcloud.com/wp-content/uploads/2024/06/Extra-Cheese.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-2o6ubl0vd",
+                            "temp_id": "",
+                            "name": "Double Cheese Brust",
+                            "description": "Extra cheesy",
+                            "base_price": 90,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [
+                                {
+                                    "property_name": "Size",
+                                    "property_id": "temp-67e8a5hw1",
+                                    "options": [
+                                        {
+                                            "option_name": "M",
+                                            "option_id": "temp-mmrywo1f9",
+                                            "variant_id": "temp-0897dlznn",
+                                            "price": 90,
+                                            "is_default": true
+                                        },
+                                        {
+                                            "option_name": "L",
+                                            "option_id": "temp-6lcig74ne",
+                                            "variant_id": "temp-xv85cosat",
+                                            "price": 150,
+                                            "is_default": false
+                                        }
+                                    ]
+                                }
+                            ],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.elloras.in/cdn/shop/products/cheeseslice.jpg?v=1663944029"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-2dd2irhvq",
+            "temp_id": "",
+            "name": "Garlic Bread",
+            "sub_category": [
+                {
+                    "id": "temp-ccr77wlss",
+                    "temp_id": "",
+                    "name": "Garlic Bread",
+                    "items": [
+                        {
+                            "id": "temp-nxhhfym7u",
+                            "temp_id": "",
+                            "name": "Stuffed Garlic Bread",
+                            "description": "Stuffed Garlic Bread",
+                            "base_price": 100,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.indianveggiedelight.com/wp-content/uploads/2017/03/dominos_stuffed_garlic_bread_final.jpg"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-pdatlx1sr",
+                            "temp_id": "",
+                            "name": "Cheese Garlic Bread",
+                            "description": "Garlic Bread with Cheese",
+                            "base_price": 80,
+                            "is_veg": "VEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRFAG53qZSvTyYjJXLaY2lpGP66LMBenVFZ7Q&s"
+                                }
+                            ]
+                        },
+                        {
+                            "id": "temp-86uxmrxi3",
+                            "temp_id": "",
+                            "name": "Chicken Garlic Bread",
+                            "description": "Chicken garlic bread with tandoori sauce ",
+                            "base_price": 120,
+                            "is_veg": "NONVEG",
+                            "packing_charges": 0,
+                            "variants": [],
+                            "addons": [],
+                            "media": [
+                                {
+                                    "url": "https://www.allrecipes.com/thmb/vyn4T8uJF2YH0qH7V5CfgsPm19w=/1500x0/filters:no_upscale():max_bytes(150000):strip_icc()/11703384_Chicken-Alfredo-Garlic-Bread_Peyton-Beckwith_4x3-e1348c029ef7400abfaac879417f50f1.jpg"
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            "id": "temp-obe9ul37g",
+            "temp_id": "",
+            "name": "Jumbo Sandwich",
+            "sub_category": [
+                {
+                    "id": "temp-vd8uiic0t",
+                    "temp_id": "",
+                    "name": "Jumbo Sandwich",
+                    "items": [
+                        {
+                            "id": "temp-huedtnops",
+                            "temp_id": "",
+                            "name": "Jumbo Paneer Sandwich",
+                            "description": "Jumbo Paneer Sandwich",
                             "base_price": 150,
                             "is_veg": "VEG",
                             "packing_charges": 0,
@@ -962,150 +1927,23 @@
                             "addons": [],
                             "media": [
                                 {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2026/2/6/f5589541-506b-40e6-a157-56dd399bee3c_af7d6d4c-3c70-41fc-90d3-07aa89869b8f.JPG"
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT2pzh7c6rnA6bdPIUN1GG6x6EcZQN0NVsP9g&s"
                                 }
                             ]
                         },
                         {
-                            "id": "temp-iehcg876k",
+                            "id": "temp-ff0rn1o4x",
                             "temp_id": "",
-                            "name": "Boondi Raita",
-                            "description": "This creamy yogurt delight, with crunchy pearls and subtle flavors, is a refreshing accompaniment that elevates any meal.",
-                            "base_price": 99,
+                            "name": "Jumbo Veg Sandwich",
+                            "description": "Jumbo Veg Sandwich",
+                            "base_price": 100,
                             "is_veg": "VEG",
                             "packing_charges": 0,
                             "variants": [],
                             "addons": [],
                             "media": [
                                 {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/ec2c619825294f1465ccbcc4bb744be1"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-ubhwlhcmh",
-                            "temp_id": "",
-                            "name": "Fry Curd (tomato+ Onion)",
-                            "description": "Delight in this creamy concoction, where fresh tomatoes and onions blend seamlessly for a refreshing, tangy treat.",
-                            "base_price": 110,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-95kjyj1oq",
-                            "temp_id": "",
-                            "name": "Dahi With Masala",
-                            "description": "This creamy delight blends cool yogurt with a medley of aromatic spices, creating a refreshing and flavorful complement to any meal.",
-                            "base_price": 95,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [
-                                {
-                                    "property_name": "Quantity",
-                                    "property_id": "temp-pr8cscykr",
-                                    "options": [
-                                        {
-                                            "option_name": "Half (300ml)",
-                                            "option_id": "temp-sq8605rmg",
-                                            "variant_id": "temp-fgnrax3g5",
-                                            "price": 190,
-                                            "is_default": true
-                                        },
-                                        {
-                                            "option_name": "Full (750ml)",
-                                            "option_id": "temp-46wnj5wl6",
-                                            "variant_id": "temp-s57x72i09",
-                                            "price": 275,
-                                            "is_default": false
-                                        }
-                                    ]
-                                }
-                            ],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-4t6ocdhgl",
-                            "temp_id": "",
-                            "name": "Dahi With Sugar",
-                            "description": "Creamy and refreshing, this delightful treat combines tangy yogurt with a touch of sweetness for a heavenly experience.",
-                            "base_price": 95,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [
-                                {
-                                    "property_name": "Quantity",
-                                    "property_id": "temp-oc4sxa9gy",
-                                    "options": [
-                                        {
-                                            "option_name": "Half (300ml)",
-                                            "option_id": "temp-bk73xur88",
-                                            "variant_id": "temp-c5ua4xr7u",
-                                            "price": 190,
-                                            "is_default": true
-                                        },
-                                        {
-                                            "option_name": "Full (750ml)",
-                                            "option_id": "temp-gjs6rfff0",
-                                            "variant_id": "temp-qmglj7ijm",
-                                            "price": 275,
-                                            "is_default": false
-                                        }
-                                    ]
-                                }
-                            ],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-jjeety2gw",
-                            "temp_id": "",
-                            "name": "Plain Dahi",
-                            "description": "Indulge in the creamy, cooling delight that adds a refreshing touch to any meal.",
-                            "base_price": 85,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [
-                                {
-                                    "property_name": "Quantity",
-                                    "property_id": "temp-tu8l0tbuk",
-                                    "options": [
-                                        {
-                                            "option_name": "Half (300ml)",
-                                            "option_id": "temp-edwg2pguz",
-                                            "variant_id": "temp-u2marydrm",
-                                            "price": 170,
-                                            "is_default": true
-                                        },
-                                        {
-                                            "option_name": "Full (750ml)",
-                                            "option_id": "temp-jp84y1cmg",
-                                            "variant_id": "temp-ickly67a4",
-                                            "price": 245,
-                                            "is_default": false
-                                        }
-                                    ]
-                                }
-                            ],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/c0d7a83a418bc519fab86aa8ead25a4c"
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRUIdVNXZrEmgOeFZLdRgBaFvZBmS4sWqAjfQ&s"
                                 }
                             ]
                         }
@@ -1114,262 +1952,44 @@
             ]
         },
         {
-            "id": "temp-prjk97vka",
+            "id": "temp-jucwpfudn",
             "temp_id": "",
-            "name": "Paratha",
+            "name": "Grilled Sandwich",
             "sub_category": [
                 {
-                    "id": "temp-13k6mud3x",
+                    "id": "temp-eyrwu5vnw",
                     "temp_id": "",
-                    "name": "Paratha",
+                    "name": "Grilled Sandwich",
                     "items": [
                         {
-                            "id": "temp-jprgq7n29",
+                            "id": "temp-b2kqcbo5k",
                             "temp_id": "",
-                            "name": "Plain Paratha",
-                            "description": "Delicately layered and perfectly flaky, this traditional flatbread offers a warm, comforting bite that’s simply irresistible.",
-                            "base_price": 75,
-                            "is_veg": "VEG",
+                            "name": "Chicken jumbo Sandwich",
+                            "description": "Chicken jumbo Sandwich",
+                            "base_price": 150,
+                            "is_veg": "NONVEG",
                             "packing_charges": 0,
                             "variants": [],
                             "addons": [],
                             "media": [
                                 {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/e21d6cfd-31ca-4b09-b796-7c6fc2bc6d23_1d36ac4f-2fab-420f-931f-b114e9850bc5.JPG"
+                                    "url": "https://i.ytimg.com/vi/WbangANZ1WU/hq720.jpg"
                                 }
                             ]
                         },
                         {
-                            "id": "temp-hvps6w5kq",
+                            "id": "temp-t1f0bqass",
                             "temp_id": "",
-                            "name": "Pudina Paratha",
-                            "description": "Flaky and aromatic, this wholesome flatbread is infused with refreshing mint for a delightful taste experience.",
-                            "base_price": 60,
-                            "is_veg": "VEG",
+                            "name": "Chicken Cheesy Sandwich",
+                            "description": "Chicken Cheesy Sandwich",
+                            "base_price": 180,
+                            "is_veg": "NONVEG",
                             "packing_charges": 0,
                             "variants": [],
                             "addons": [],
                             "media": [
                                 {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-hm34knuzw",
-                            "temp_id": "",
-                            "name": "Mix Paratha",
-                            "description": "Delight in a flaky, golden-brown flatbread filled with a harmonious blend of fresh, savory fillings, perfect for any meal.",
-                            "base_price": 90,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/30f89645962d704eb83ef85fec4d2bce"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-xq1usrxg6",
-                            "temp_id": "",
-                            "name": "Paneer Paratha",
-                            "description": "Delight in a warm, flaky flatbread filled with creamy, flavorful cheese goodness, perfect for any meal.",
-                            "base_price": 90,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/47764c765d00e0bb84cb3f858d573e15"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-v5u8ablpu",
-                            "temp_id": "",
-                            "name": "Aloo Paratha",
-                            "description": "Delight in this flaky, golden-brown flatbread filled with a delectable potato mixture, perfect for any meal.",
-                            "base_price": 75,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/7/8/684d758d-02da-4747-a5c7-9dbd9afb79a2_41cbd635-7efe-4532-baee-458cbc3b5c7a.JPG"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-nj50lqz9f",
-                            "temp_id": "",
-                            "name": "Onion Paratha",
-                            "description": "Indulge in a warm, flaky flatbread filled with savory, aromatic onions, perfect for any meal.",
-                            "base_price": 99,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/FOOD_CATALOG/IMAGES/CMS/2024/9/20/2e3b0c62-77ea-497d-9a07-50d79c944eb5_ded2693f-16ca-42dc-bcc8-c7c2e78870c6.JPG"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "temp-yy1j9yc3v",
-            "temp_id": "",
-            "name": "Combos",
-            "sub_category": [
-                {
-                    "id": "temp-kpifbggq1",
-                    "temp_id": "",
-                    "name": "Combos",
-                    "items": [
-                        {
-                            "id": "temp-1qg8rmufy",
-                            "temp_id": "",
-                            "name": "Chole + Rice",
-                            "description": "A delectable and wholesome combination of flavorful chole curry served with fluffy rice.",
-                            "base_price": 199,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-r52sv4cgd",
-                            "temp_id": "",
-                            "name": "Dal + Rice (mix)",
-                            "description": "A delectable fusion of aromatic lentils and fluffy rice, creating a perfect harmony of flavors and textures.",
-                            "base_price": 199,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-962rzqpr7",
-                            "temp_id": "",
-                            "name": "Curd + Rice",
-                            "description": "Creamy and comforting, this veg combo pairs fluffy rice with a velvety curd for a delightful culinary experience.",
-                            "base_price": 199,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "temp-fzhcbji0x",
-            "temp_id": "",
-            "name": "Salad",
-            "sub_category": [
-                {
-                    "id": "temp-o8w8kjrn5",
-                    "temp_id": "",
-                    "name": "Salad",
-                    "items": [
-                        {
-                            "id": "temp-5dvolh4xu",
-                            "temp_id": "",
-                            "name": "Green Salad",
-                            "description": "A refreshing medley of crisp and vibrant greens tossed together to create a mouthwatering salad bursting with flavor.",
-                            "base_price": 129,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/z0a0alzfhxzedwvtlcti"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-ufpm57of5",
-                            "temp_id": "",
-                            "name": "Papad Roasted",
-                            "description": "This tantalizing salad features crispy, flavorful layers that offer a delightful crunch with every bite.",
-                            "base_price": 24,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/9fdc55655cf758715767289fa0821ab6"
-                                }
-                            ]
-                        },
-                        {
-                            "id": "temp-kguvdf7d0",
-                            "temp_id": "",
-                            "name": "Onion Salad ",
-                            "description": "A refreshing medley of crisp textures and zesty flavors, perfect for a light and invigorating bite.",
-                            "base_price": 99,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/b1f7f664944086e293e0d584ed1cf0aa"
-                                }
-                            ]
-                        }
-                    ]
-                }
-            ]
-        },
-        {
-            "id": "temp-nfe1qp033",
-            "temp_id": "",
-            "name": "Sweet Dish",
-            "sub_category": [
-                {
-                    "id": "temp-m0jbu9883",
-                    "temp_id": "",
-                    "name": "Sweet Dish",
-                    "items": [
-                        {
-                            "id": "temp-m15zbnjqp",
-                            "temp_id": "",
-                            "name": "Rice Kheer (seasonal) (300ml)",
-                            "description": "",
-                            "base_price": 99,
-                            "is_veg": "VEG",
-                            "packing_charges": 0,
-                            "variants": [],
-                            "addons": [],
-                            "media": [
-                                {
-                                    "url": "https://media-assets.swiggy.com/swiggy/image/upload/undefined"
+                                    "url": "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT8K4p81c3j0nEI-x1n8bsglnENbMRXlVMZOw&s"
                                 }
                             ]
                         }
