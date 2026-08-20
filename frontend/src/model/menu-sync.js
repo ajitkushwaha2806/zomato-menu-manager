@@ -12,6 +12,11 @@ const MenuSyncSchema = new mongoose.Schema(
             default: null,
         },
 
+        taskId: {
+            type: String,
+            default: null,
+        },
+
         status: {
             type: String,
             enum: [

@@ -1,4 +1,5 @@
 import MenuSync from "@/model/menu-sync";
+import Trigger from "@/model/trigger";
 import { NextResponse } from "next/server";
 import { swiggyProcessorJob } from "@/lib/bullmq/job/swiggy-processor";
 
@@ -15,11 +16,20 @@ export async function POST(req, { params }) {
             );
         }
 
-        let { updated_menu } = body;
+        let { updated_menu, taskId } = body;
+
+        const Menu = require('@/model/menu').default || require('@/model/menu');
+        if (taskId) {
+            await Menu.findOneAndUpdate(
+                { resId, platform: 'swiggy' },
+                { $set: { taskId } },
+                { upsert: true }
+            );
+        }
+        
+        const menuDoc = await Menu.findOne({ resId, platform: 'swiggy' });
 
         if (!updated_menu) {
-            const Menu = require('@/model/menu').default || require('@/model/menu');
-            const menuDoc = await Menu.findOne({ resId, platform: 'swiggy' });
             if (!menuDoc || !menuDoc.menu) {
                 return NextResponse.json(
                     { success: false, message: "Menu not found in database" },
@@ -43,8 +53,13 @@ export async function POST(req, { params }) {
             resId,
             status: "pending",
             accountName,
+            taskId,
             updated_menu,
         });
+
+        if (taskId) {
+            await Trigger.create({ resId: String(resId), platform: "swiggy", taskId, status: "SUCCESS" });
+        }
 
         console.log(sync);
 
@@ -65,6 +80,9 @@ export async function POST(req, { params }) {
         );
     } catch (error) {
         console.error(error);
+        if (body?.taskId) {
+            await Trigger.create({ resId: String((await params).resId), platform: "swiggy", taskId: body.taskId, status: "FAILED", error: error.message });
+        }
 
         return NextResponse.json(
             {

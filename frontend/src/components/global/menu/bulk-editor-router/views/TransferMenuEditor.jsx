@@ -110,7 +110,7 @@ export default function TransferMenuEditor() {
                             toResName: selectedTarget?.name || "Unknown Target",
                             platform: `${activePlatform || "zomato"} -> ${platform}`,
                             details: {
-                                accountName: localStorage.getItem("swiggy_account") || ""
+                                accountName: localStorage.getItem("swiggy_account") || "",
                             }
                         }),
                     });

@@ -160,6 +160,7 @@ const initialState = {
     ticketImageUpdates: {},
     error: null,
     globalSearchQuery: "",
+    taskId: null,
 };
 
 const menuSlice = createSlice({
@@ -219,6 +220,9 @@ const menuSlice = createSlice({
         },
         setGlobalSearchQuery: (state, action) => {
             state.globalSearchQuery = action.payload;
+        },
+        setTaskId: (state, action) => {
+            state.taskId = action.payload;
         },
 
         clearMenuState: () => initialState,
@@ -951,6 +955,7 @@ const menuSlice = createSlice({
                 state.updated_menu = createEmptyUpdatedMenu();
                 state.addonsData = Array.isArray(payloadData?.addons) ? payloadData.addons : [];
                 state.restaurantName = payloadData?.restaurantName || payloadData?.name || '';
+                state.taskId = payloadData?.taskId || null;
 
                 if (!state.activeResId && payloadData?.resId) {
                     state.activeResId = payloadData.resId;
@@ -1000,6 +1005,7 @@ const menuSlice = createSlice({
                 const fetchedMenu = dbDoc?.menu || [];
                 const fetchedAddons = dbDoc?.addons || [];
 
+                state.taskId = dbDoc?.taskId || null;
                 state.menuData = Array.isArray(fetchedMenu) ? fetchedMenu : [];
                 state.addonsData = Array.isArray(fetchedAddons) ? fetchedAddons : [];
 
@@ -1033,6 +1039,7 @@ const menuSlice = createSlice({
                 const fetchedMenu = dbDoc?.menu || [];
                 const fetchedAddons = dbDoc?.addons || [];
 
+                state.taskId = dbDoc?.taskId || null;
                 state.menuData = Array.isArray(fetchedMenu) ? fetchedMenu : [];
                 state.addonsData = Array.isArray(fetchedAddons) ? fetchedAddons : [];
 
@@ -1084,6 +1091,7 @@ export const {
     clearMenuState,
     setImageUploadStatus,
     setGlobalSearchQuery,
+    setTaskId,
     clearPetpoojaHtml,
 
     // Category actions

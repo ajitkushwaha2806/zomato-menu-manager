@@ -36,7 +36,8 @@ import {
     queueAll as dispatchQueueAll,
     queuePriceUpdates as dispatchQueuePriceUpdates,
     queueDescriptionUpdates as dispatchQueueDescriptionUpdates,
-    clearPetpoojaHtml as dispatchClearPetpoojaHtml
+    clearPetpoojaHtml as dispatchClearPetpoojaHtml,
+    setTaskId as dispatchSetTaskId
 } from '../slice/menuSlice';
 
 export const useMenu = () => {
@@ -58,7 +59,8 @@ export const useMenu = () => {
         isSyncing,
         error,
         globalSearchQuery,
-        updated_menu
+        updated_menu,
+        taskId
     } = useSelector((state) => state.menu);
 
     const getMenuByResId = useCallback((resId) => {
@@ -235,6 +237,8 @@ export const useMenu = () => {
         
         // Petpooja HTML support
         petpoojaHtml,
-        clearPetpoojaHtml: () => dispatch(dispatchClearPetpoojaHtml())
+        clearPetpoojaHtml: () => dispatch(dispatchClearPetpoojaHtml()),
+        taskId,
+        setTaskId: (id) => dispatch(dispatchSetTaskId(id))
     };
 };

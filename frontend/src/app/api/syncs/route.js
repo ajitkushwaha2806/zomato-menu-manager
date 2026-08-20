@@ -21,19 +21,16 @@ export async function GET(req) {
       });
     }
 
+    console.log("Syncs API Date filter:", { startDate, endDate });
+    const count = await MenuSync.countDocuments();
+    const countToday = await MenuSync.countDocuments(pipeline[0]?.$match || {});
+    console.log("Total syncs in DB:", count, "Today:", countToday);
+
     pipeline.push(
-      {
-        $group: {
-          _id: "$resId",
-          count: { $sum: 1 },
-          latestTimestamp: { $max: "$createdAt" },
-          accountName: { $first: "$accountName" }
-        }
-      },
       {
         $lookup: {
           from: "restaurants",
-          localField: "_id",
+          localField: "resId",
           foreignField: "resId",
           as: "restaurant"
         }
@@ -45,11 +42,12 @@ export async function GET(req) {
       },
       {
         $project: {
-          restaurant: 0
+          restaurant: 0,
+          updated_menu: 0
         }
       },
       {
-        $sort: { latestTimestamp: -1 }
+        $sort: { createdAt: -1 }
       }
     );
 

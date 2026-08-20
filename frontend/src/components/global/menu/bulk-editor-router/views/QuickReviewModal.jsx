@@ -4,7 +4,9 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { X, Loader2, CheckCircle2, XCircle, ChevronRight, ChevronLeft, Search, Save, RefreshCw, UploadCloud } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { uploadPlatformImage } from "@/services/imageService";
 import { useMenu } from "@/store/hooks/useMenu";
@@ -51,9 +53,21 @@ export default function QuickReviewModal({
     const [uploadStatus, setUploadStatus] = useState(null);
     const [processingId, setProcessingId] = useState(null);
     const [customQuery, setCustomQuery] = useState("");
+    const [triggerTaskId, setTriggerTaskId] = useState("");
+    const [isTriggerPopoverOpen, setIsTriggerPopoverOpen] = useState(false);
+    
+    const { saveMenuByResId, syncZomatoMenu, isSyncing, isSaving, taskId: dbTaskId, setTaskId } = useMenu();
+    
+    useEffect(() => {
+        if (isOpen && dbTaskId) {
+            setTriggerTaskId(dbTaskId);
+        } else if (!dbTaskId) {
+            setTriggerTaskId("");
+        }
+    }, [isOpen, dbTaskId]);
+
     const gridRef = useRef(null);
     const [isTriggering, setIsTriggering] = useState(false);
-    const { saveMenuByResId, syncZomatoMenu, isSyncing, isSaving } = useMenu();
 
     const handleSave = async () => {
         try {
@@ -79,15 +93,22 @@ export default function QuickReviewModal({
             toast.error("Restaurant ID is missing");
             return;
         }
+        if (!triggerTaskId.trim()) {
+            toast.error("Task ID is required to trigger the menu");
+            return;
+        }
         try {
             setIsTriggering(true);
-            await api.post(`/api/menu/${activeResId}/zomato/update-menu`, {});
+            await api.post(`/api/menu/${activeResId}/zomato/update-menu`, { taskId: triggerTaskId });
             toast.success("Menu saved to Zomato successfully!");
+            setTaskId(triggerTaskId);
         } catch (error) {
             console.error(error);
             toast.error(error?.response?.data?.message || error.message || "Failed to trigger menu");
         } finally {
             setIsTriggering(false);
+            setIsTriggerPopoverOpen(false);
+            setTriggerTaskId("");
         }
     };
 
@@ -444,9 +465,39 @@ export default function QuickReviewModal({
                             <Button variant="ghost" size="sm" onClick={handleSync} disabled={isSyncing} className="h-7 px-2 text-xs">
                                 {isSyncing ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RefreshCw className="w-3 h-3 mr-1" />} Sync
                             </Button>
-                            <Button variant="default" size="sm" onClick={handleTriggerMenu} disabled={isTriggering} className="h-7 px-2 text-xs bg-red-600 hover:bg-red-700 text-white">
-                                {isTriggering ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <UploadCloud className="w-3 h-3 mr-1" />} Trigger
-                            </Button>
+                            
+                            <Popover open={isTriggerPopoverOpen} onOpenChange={setIsTriggerPopoverOpen}>
+                                <PopoverTrigger asChild>
+                                    <Button variant="default" size="sm" disabled={isTriggering} className="h-7 px-2 text-xs bg-red-600 hover:bg-red-700 text-white">
+                                        {isTriggering ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <UploadCloud className="w-3 h-3 mr-1" />} Trigger
+                                    </Button>
+                                </PopoverTrigger>
+                                <PopoverContent className="w-80" align="end" side="top">
+                                    <div className="grid gap-4">
+                                        <div className="space-y-2">
+                                            <h4 className="font-medium leading-none">Trigger Menu</h4>
+                                            <p className="text-sm text-muted-foreground">
+                                                Enter a Task ID to proceed with triggering.
+                                            </p>
+                                        </div>
+                                        <div className="grid gap-2">
+                                            <Label htmlFor="reviewTaskId">Task ID <span className="text-destructive">*</span></Label>
+                                            <Input
+                                                id="reviewTaskId"
+                                                placeholder="Enter task ID"
+                                                value={triggerTaskId}
+                                                onChange={(e) => setTriggerTaskId(e.target.value)}
+                                                required
+                                                disabled={!!dbTaskId}
+                                            />
+                                        </div>
+                                        <Button onClick={handleTriggerMenu} disabled={!triggerTaskId.trim() || isTriggering} className="w-full">
+                                            {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                            Confirm Trigger
+                                        </Button>
+                                    </div>
+                                </PopoverContent>
+                            </Popover>
                         </div>
                         
                         <div className="w-px h-6 bg-border mx-1"></div>

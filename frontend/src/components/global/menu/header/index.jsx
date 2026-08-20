@@ -12,6 +12,9 @@ import {
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useMenu } from "@/store/hooks/useMenu";
 import useNotification from "@/store/hooks/useNotification";
@@ -35,7 +38,7 @@ export function MenuEditorHeader({
     onSave,
     isSaving,
 }) {
-    const { menuData, isLoading, error, syncZomatoMenu, syncSwiggyMenu, syncPetpoojaMenu, isSyncing, activeResId: resId, activePlatform, updateItem, setActiveCategory, setActiveSubCategory, setActiveView, globalSearchQuery, setGlobalSearchQuery, updated_menu, markMenuUpdatesDone, getMenuByResId } = useMenu();
+    const { menuData, isLoading, error, syncZomatoMenu, syncSwiggyMenu, syncPetpoojaMenu, isSyncing, activeResId: resId, activePlatform, updateItem, setActiveCategory, setActiveSubCategory, setActiveView, globalSearchQuery, setGlobalSearchQuery, updated_menu, markMenuUpdatesDone, getMenuByResId, taskId: dbTaskId, setTaskId } = useMenu();
     const notification = useNotification();
 
     const { restaurants: zomatoRestaurants } = useRestaurant();
@@ -125,11 +128,53 @@ export function MenuEditorHeader({
 
     const [isTriggering, setIsTriggering] = useState(false);
     const [isSyncHistoryOpen, setIsSyncHistoryOpen] = useState(false);
+    const [triggerTaskId, setTriggerTaskId] = useState("");
+    const [isTriggerPopoverOpen, setIsTriggerPopoverOpen] = useState(false);
     const notify = useNotification()
+
+    const [isSavingTaskId, setIsSavingTaskId] = useState(false);
+
+    useEffect(() => {
+        if (dbTaskId) {
+            setTriggerTaskId(dbTaskId);
+        } else {
+            setTriggerTaskId("");
+        }
+    }, [dbTaskId, resId]);
+
+    const handleSaveTaskId = async () => {
+        if (!triggerTaskId.trim()) {
+            notify.error("Task ID is required");
+            return;
+        }
+        try {
+            setIsSavingTaskId(true);
+            const { data } = await api.post(`/api/menu/${resId}/task-id`, {
+                taskId: triggerTaskId,
+                platform: isSwiggy ? "swiggy" : "zomato"
+            });
+            if (data?.success) {
+                notify.success("Task ID saved successfully");
+                setTaskId(triggerTaskId); // Update global state so it becomes disabled
+            } else {
+                notify.error(data?.message || "Failed to save Task ID");
+            }
+        } catch (error) {
+            console.error(error);
+            notify.error(error?.response?.data?.message || "Something went wrong");
+        } finally {
+            setIsSavingTaskId(false);
+        }
+    };
 
     const handleTriggerMenu = async () => {
         if (!resId) {
             notify.error("Restaurant ID is missing");
+            return;
+        }
+
+        if (!triggerTaskId.trim()) {
+            notify.error("Task ID is required to trigger the menu");
             return;
         }
 
@@ -171,10 +216,11 @@ export function MenuEditorHeader({
             setIsTriggering(true);
 
             let url = `/api/menu/${resId}/zomato/update-menu`;
-            let payload = {};
+            let payload = { taskId: triggerTaskId };
 
             if (isSwiggy) {
                 url = `/api/menu/${resId}/swiggy/queue-changes`;
+                payload = { accountName: localStorage.getItem("swiggy_account"), taskId: triggerTaskId };
 
                 let final_updated_menu = updated_menu;
                 const isUpdatedMenuEmpty = !updated_menu ||
@@ -282,16 +328,22 @@ export function MenuEditorHeader({
                 }
             }
 
-            if (isSwiggy) {
-                notification.success("Menu queued to Swiggy — syncing in background!");
-            } else {
-                notification.success("Zomato Menu successfully triggered!");
+            if (res.data) {
+                if (isSwiggy) {
+                    notification.success("Swiggy Menu trigger queued successfully!");
+                } else {
+                    notification.success("Zomato Menu successfully triggered!");
+                }
+                
+                // Update the taskId in the local store so it stays disabled and auto-filled
+                setTaskId(triggerTaskId);
             }
         } catch (error) {
             console.error(error);
-            notification.error(error?.response?.data?.message || error.message || "Failed to trigger menu");
+            notify.error(error?.response?.data?.message || error.message || "Failed to trigger menu");
         } finally {
             setIsTriggering(false);
+            setIsTriggerPopoverOpen(false);
         }
     };
 
@@ -413,21 +465,56 @@ export function MenuEditorHeader({
                                     )}
                                 </Button>
 
-                                <Button
-                                    onClick={handleTriggerMenu}
-                                    disabled={isTriggering || (activeSyncProgress && (activeSyncProgress.status === 'pending' || activeSyncProgress.status === 'processing'))}
-                                    className="h-10 rounded-lg px-5 bg-green-600 hover:bg-green-700 text-white shadow-md transition-colors relative"
-                                >
-                                    {isTriggering ? (
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                    ) : (
-                                        <Sparkles className="mr-2 h-4 w-4" />
-                                    )}
-                                    Trigger Menu
-                                    {hasUnsavedChanges && (
-                                        <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white"></span>
-                                    )}
-                                </Button>
+                                <Popover open={isTriggerPopoverOpen} onOpenChange={setIsTriggerPopoverOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button
+                                            disabled={isTriggering || (activeSyncProgress && (activeSyncProgress.status === 'pending' || activeSyncProgress.status === 'processing'))}
+                                            className="h-10 rounded-lg px-5 bg-green-600 hover:bg-green-700 text-white shadow-md transition-colors relative"
+                                        >
+                                            {isTriggering ? (
+                                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                            ) : (
+                                                <Sparkles className="mr-2 h-4 w-4" />
+                                            )}
+                                            Trigger Menu
+                                            {hasUnsavedChanges && (
+                                                <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-red-500 rounded-full animate-pulse border-2 border-white"></span>
+                                            )}
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80" align="end">
+                                        <div className="grid gap-4">
+                                            <div className="space-y-2">
+                                                <h4 className="font-medium leading-none">Trigger Menu</h4>
+                                                <p className="text-sm text-muted-foreground">
+                                                    Enter a Task ID to proceed with triggering.
+                                                </p>
+                                            </div>
+                                            <div className="grid gap-2">
+                                                <Label htmlFor="taskId">Task ID <span className="text-destructive">*</span></Label>
+                                                <Input
+                                                    id="taskId"
+                                                    placeholder="Enter task ID"
+                                                    value={triggerTaskId}
+                                                    onChange={(e) => setTriggerTaskId(e.target.value)}
+                                                    required
+                                                    disabled={!!dbTaskId}
+                                                />
+                                            </div>
+                                            {!dbTaskId ? (
+                                                <Button onClick={handleSaveTaskId} disabled={!triggerTaskId.trim() || isSavingTaskId} className="w-full bg-blue-600 hover:bg-blue-700">
+                                                    {isSavingTaskId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Save className="h-4 w-4 mr-2" />}
+                                                    Save Task ID
+                                                </Button>
+                                            ) : (
+                                                <Button onClick={handleTriggerMenu} disabled={isTriggering} className="w-full">
+                                                    {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                                    Confirm Trigger
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
 
                                 {activeSyncProgress && (
                                     <div className="flex flex-col justify-center gap-1.5 w-40 text-xs font-medium bg-muted/40 px-3 py-1.5 rounded-lg border border-border shadow-sm relative overflow-hidden">

@@ -3,6 +3,8 @@ import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
 import { apiClient } from "@/lib/api/client";
 
+export const dynamic = "force-dynamic";
+
 const getDeliveryPrice = (variantPrices = []) => {
     const match =
         variantPrices.find(
@@ -305,11 +307,13 @@ export async function GET(req, { params }) {
         const savedMenu = await Menu.findOneAndUpdate(
             { resId, platform: "zomato" },
             {
-                resId,
-                platform: "zomato",
-                menu: parsedMenu,
-                addons: parsedAddons,
-                updatedAt: new Date()
+                $set: {
+                    resId,
+                    platform: "zomato",
+                    menu: parsedMenu,
+                    addons: parsedAddons,
+                    updatedAt: new Date()
+                }
             },
             { new: true, upsert: true }
         );

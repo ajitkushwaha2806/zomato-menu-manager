@@ -19,6 +19,12 @@ const MenuSchema = new mongoose.Schema(
             index: true,
         },
 
+        taskId: {
+            type: String,
+            unique: true,
+            sparse: true,
+        },
+
         menu: mongoose.Schema.Types.Mixed,
         addons: mongoose.Schema.Types.Mixed,
     },

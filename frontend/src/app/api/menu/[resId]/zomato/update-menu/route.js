@@ -1,4 +1,6 @@
 import Menu from "@/model/menu"
+import Trigger from "@/model/trigger"
+import MenuSync from "@/model/menu-sync"
 import { NextResponse } from "next/server";
 import { apiClient } from "@/lib/api/client";
 import { buildZomatoMenuPayload } from "@/lib/payload/zomato/menu";
@@ -6,6 +8,15 @@ import { buildZomatoMenuPayload } from "@/lib/payload/zomato/menu";
 export async function POST(req, { params }) {
     try {
         const { resId } = await params;
+        
+        let body;
+        try {
+            body = await req.json();
+        } catch (e) {
+            body = {};
+        }
+        
+        const { taskId } = body;
 
         if (!resId) {
             return NextResponse.json(
@@ -17,9 +28,15 @@ export async function POST(req, { params }) {
             );
         }
 
-        const resMenu = await Menu.findOne({
-            resId
-        })
+        if (taskId) {
+            await Menu.findOneAndUpdate(
+                { resId, platform: 'zomato' },
+                { $set: { taskId } },
+                { upsert: true }
+            );
+        }
+
+        const resMenu = await Menu.findOne({ resId, platform: 'zomato' });
 
         const menuInfo = await apiClient({
             req,
@@ -130,6 +147,17 @@ export async function POST(req, { params }) {
             );
         }
 
+        if (taskId) {
+            await Trigger.create({ resId: String(resId), platform: "zomato", taskId, status: "SUCCESS" });
+        }
+
+        await MenuSync.create({
+            resId: String(resId),
+            status: "completed",
+            taskId,
+            updated_menu: payload?.update_menu || {},
+        });
+
         return NextResponse.json(
             {
                 success: true,
@@ -142,6 +170,18 @@ export async function POST(req, { params }) {
         );
     } catch (err) {
         console.error("MENU_UPDATE_ERROR:", err);
+
+        if (taskId) {
+            await Trigger.create({ resId: String(resId), platform: "zomato", taskId, status: "FAILED", error: err?.response?.data?.message || err?.message || "Internal Server Error" });
+        }
+
+        await MenuSync.create({
+            resId: String(resId),
+            status: "failed",
+            taskId,
+            updated_menu: {},
+            error: err?.response?.data?.message || err?.message || "Internal Server Error",
+        });
 
         return NextResponse.json(
             {

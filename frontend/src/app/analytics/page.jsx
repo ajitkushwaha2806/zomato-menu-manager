@@ -15,17 +15,24 @@ export default function AnalyticsPage() {
   const [transfers, setTransfers] = useState([]);
   const [topOutlets, setTopOutlets] = useState([]);
   const [syncs, setSyncs] = useState([]);
+  const [triggers, setTriggers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadingSyncs, setLoadingSyncs] = useState(true);
+  const [loadingTriggers, setLoadingTriggers] = useState(true);
   const [stats, setStats] = useState({
     total: 0,
     completed: 0,
     recent: 0,
   });
 
-  const [date, setDate] = useState({
-    from: undefined,
-    to: undefined,
+  const [date, setDate] = useState(() => {
+    const today = new Date();
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(today.getDate() - 7);
+    return {
+      from: sevenDaysAgo,
+      to: today,
+    };
   });
 
   useEffect(() => {
@@ -33,8 +40,12 @@ export default function AnalyticsPage() {
       try {
         setLoading(true);
         let url = "/api/transfers";
-        if (date?.from && date?.to) {
-          url += `?startDate=${date.from.toISOString()}&endDate=${date.to.toISOString()}`;
+        if (date?.from) {
+          const fromDate = new Date(date.from);
+          const fromISO = new Date(fromDate.setHours(0, 0, 0, 0)).toISOString();
+          const toDate = new Date(date.to || date.from);
+          const toISO = new Date(toDate.setHours(23, 59, 59, 999)).toISOString();
+          url += `?startDate=${fromISO}&endDate=${toISO}`;
         }
         const res = await fetch(url);
         const json = await res.json();
@@ -55,20 +66,26 @@ export default function AnalyticsPage() {
           json.data.forEach((t) => {
             if (t.fromResId) {
               if (!outletCounts[t.fromResId]) {
-                outletCounts[t.fromResId] = { id: t.fromResId, name: t.fromResName, count: 0 };
+                outletCounts[t.fromResId] = { id: t.fromResId, name: t.fromResName, count: 0, latestTimestamp: t.createdAt };
               }
               outletCounts[t.fromResId].count += 1;
+              if (new Date(t.createdAt) > new Date(outletCounts[t.fromResId].latestTimestamp)) {
+                outletCounts[t.fromResId].latestTimestamp = t.createdAt;
+              }
             }
             if (t.toResId) {
               if (!outletCounts[t.toResId]) {
-                outletCounts[t.toResId] = { id: t.toResId, name: t.toResName, count: 0 };
+                outletCounts[t.toResId] = { id: t.toResId, name: t.toResName, count: 0, latestTimestamp: t.createdAt };
               }
               outletCounts[t.toResId].count += 1;
+              if (new Date(t.createdAt) > new Date(outletCounts[t.toResId].latestTimestamp)) {
+                outletCounts[t.toResId].latestTimestamp = t.createdAt;
+              }
             }
           });
 
           const sortedOutlets = Object.values(outletCounts)
-            .sort((a, b) => b.count - a.count);
+            .sort((a, b) => new Date(b.latestTimestamp) - new Date(a.latestTimestamp));
           setTopOutlets(sortedOutlets);
         }
       } catch (error) {
@@ -82,8 +99,12 @@ export default function AnalyticsPage() {
       try {
         setLoadingSyncs(true);
         let url = "/api/syncs";
-        if (date?.from && date?.to) {
-          url += `?startDate=${date.from.toISOString()}&endDate=${date.to.toISOString()}`;
+        if (date?.from) {
+          const fromDate = new Date(date.from);
+          const fromISO = new Date(fromDate.setHours(0, 0, 0, 0)).toISOString();
+          const toDate = new Date(date.to || date.from);
+          const toISO = new Date(toDate.setHours(23, 59, 59, 999)).toISOString();
+          url += `?startDate=${fromISO}&endDate=${toISO}`;
         }
         const res = await fetch(url);
         const json = await res.json();
@@ -97,10 +118,34 @@ export default function AnalyticsPage() {
       }
     }
 
-    // Only fetch if date range is complete or cleared
-    if (!date?.from || (date?.from && date?.to)) {
+    async function fetchTriggers() {
+      try {
+        setLoadingTriggers(true);
+        let url = "/api/triggers";
+        if (date?.from) {
+          const fromDate = new Date(date.from);
+          const fromISO = new Date(fromDate.setHours(0, 0, 0, 0)).toISOString();
+          const toDate = new Date(date.to || date.from);
+          const toISO = new Date(toDate.setHours(23, 59, 59, 999)).toISOString();
+          url += `?startDate=${fromISO}&endDate=${toISO}`;
+        }
+        const res = await fetch(url);
+        const json = await res.json();
+        if (json.success && json.data) {
+          setTriggers(json.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch triggers:", error);
+      } finally {
+        setLoadingTriggers(false);
+      }
+    }
+
+    // Always fetch if date has from
+    if (date?.from) {
       fetchTransfers();
       fetchSyncs();
+      fetchTriggers();
     }
   }, [date]);
 
@@ -211,10 +256,11 @@ export default function AnalyticsPage() {
         >
           <motion.div variants={itemVariants}>
             <Tabs defaultValue="transfers" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 mb-8">
-                <TabsTrigger value="transfers">Transfers History</TabsTrigger>
-                <TabsTrigger value="outlets">Triggered Outlets</TabsTrigger>
-                <TabsTrigger value="syncs">Menu Syncs</TabsTrigger>
+              <TabsList className="bg-muted/50 p-1">
+                <TabsTrigger value="transfers">Transfers</TabsTrigger>
+                <TabsTrigger value="outlets">Outlets</TabsTrigger>
+                <TabsTrigger value="syncs">Sync Logs</TabsTrigger>
+                <TabsTrigger value="triggers">Triggers</TabsTrigger>
               </TabsList>
 
               {/* Transfers Tab */}
@@ -274,6 +320,12 @@ export default function AnalyticsPage() {
                                       <span className="font-medium text-foreground">Account: {transfer.details.accountName}</span>
                                     </>
                                   )}
+                                  {transfer.details?.taskId && (
+                                    <>
+                                      <span className="hidden sm:inline">•</span>
+                                      <span className="font-medium text-foreground">Task: {transfer.details.taskId}</span>
+                                    </>
+                                  )}
                                 </div>
                               </div>
                               
@@ -331,18 +383,21 @@ export default function AnalyticsPage() {
                         <div className="divide-y divide-border">
                           {topOutlets.map((outlet, index) => (
                             <div key={outlet.id} className="flex items-center justify-between p-6 hover:bg-muted/40 transition-colors">
-                              <div className="flex items-center gap-4 min-w-0">
-                                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-primary/10 text-primary font-bold">
-                                  #{index + 1}
-                                </div>
-                                <div className="min-w-0">
-                                  <p className="font-semibold text-lg truncate">{outlet.name}</p>
-                                  <p className="text-sm text-muted-foreground">Restaurant ID: {outlet.id}</p>
-                                </div>
+                              <div className="flex flex-col gap-1 min-w-0">
+                                <p className="font-semibold text-lg truncate flex items-center gap-2">
+                                  {outlet.name}
+                                  <Badge variant="secondary" className="text-xs">
+                                    {outlet.count} trigger{outlet.count !== 1 ? 's' : ''}
+                                  </Badge>
+                                </p>
+                                <p className="text-sm text-muted-foreground">ID: {outlet.id}</p>
                               </div>
-                              <Badge variant="default" className="text-sm px-3 py-1">
-                                {outlet.count} Trigger{outlet.count !== 1 ? 's' : ''}
-                              </Badge>
+                              <div className="text-sm text-muted-foreground text-right shrink-0">
+                                <p>Latest Trigger</p>
+                                <p className="font-medium text-foreground">
+                                  {format(new Date(outlet.latestTimestamp), "MMM d, yyyy 'at' h:mm a")}
+                                </p>
+                              </div>
                             </div>
                           ))}
                         </div>
@@ -384,24 +439,121 @@ export default function AnalyticsPage() {
                         </div>
                       ) : (
                         <div className="divide-y divide-border">
-                          {syncs.map((sync, index) => (
-                            <div key={sync._id} className="flex items-center justify-between p-6 hover:bg-muted/40 transition-colors">
-                              <div className="flex flex-col gap-1 min-w-0">
-                                <p className="font-semibold text-lg truncate flex items-center gap-2">
-                                  {sync.restaurantName || sync.accountName || `Restaurant ID: ${sync._id}`}
-                                  <Badge variant="secondary" className="text-xs">
-                                    {sync.count} sync{sync.count !== 1 ? 's' : ''}
+                          {syncs.map((sync) => (
+                            <div key={sync._id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-muted/40 transition-colors gap-4">
+                              <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+                                <div className="flex items-center gap-3">
+                                  <p className="font-semibold text-lg truncate">
+                                    {sync.restaurantName || sync.accountName || `Restaurant ID: ${sync.resId}`}
+                                  </p>
+                                  <Badge 
+                                    variant={sync.status === 'completed' ? 'default' : sync.status === 'failed' ? 'destructive' : 'secondary'}
+                                    className={sync.status === 'completed' ? 'bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 border-emerald-200' : ''}
+                                  >
+                                    {sync.status?.toUpperCase() || 'PENDING'}
                                   </Badge>
-                                </p>
-                                <p className="text-sm text-muted-foreground">
-                                  ID: {sync._id} 
-                                  {sync.restaurantName && sync.accountName ? ` • Account: ${sync.accountName}` : ''}
+                                </div>
+                                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                                  <span>Res ID: {sync.resId}</span>
+                                  <span className="hidden sm:inline">•</span>
+                                  <span>Sync ID: {sync.syncId}</span>
+                                  {sync.accountName && (
+                                    <>
+                                      <span className="hidden sm:inline">•</span>
+                                      <span className="font-medium text-foreground">Account: {sync.accountName}</span>
+                                    </>
+                                  )}
+                                  {sync.taskId && (
+                                    <>
+                                      <span className="hidden sm:inline">•</span>
+                                      <span className="font-medium text-blue-600 dark:text-blue-400">Task ID: {sync.taskId}</span>
+                                    </>
+                                  )}
+                                </div>
+                                {sync.error && (
+                                  <p className="text-sm text-destructive mt-1 bg-destructive/10 p-2 rounded-md border border-destructive/20">
+                                    {sync.error}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="text-sm text-muted-foreground sm:text-right shrink-0">
+                                <p>{format(new Date(sync.createdAt), "MMM d, yyyy")}</p>
+                                <p className="font-medium text-foreground">
+                                  {format(new Date(sync.createdAt), "h:mm a")}
                                 </p>
                               </div>
-                              <div className="text-sm text-muted-foreground text-right">
-                                <p>Last Sync</p>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+              </TabsContent>
+
+              {/* Triggers Tab */}
+              <TabsContent value="triggers">
+                <Card className="border-white/10 shadow-md">
+                  <CardHeader className="bg-muted/30">
+                    <CardTitle className="flex items-center gap-2">
+                      <Activity className="h-5 w-5" />
+                      Trigger History
+                    </CardTitle>
+                    <CardDescription>
+                      All manual menu triggers recorded on both platforms.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    <ScrollArea className="h-[500px]">
+                      {loadingTriggers ? (
+                        <div className="p-6 space-y-4">
+                          {[1, 2, 3].map((i) => (
+                            <div key={i} className="flex items-center space-x-4">
+                              <Skeleton className="h-10 w-10 rounded-md" />
+                              <div className="space-y-2 flex-1">
+                                <Skeleton className="h-4 w-[250px]" />
+                                <Skeleton className="h-3 w-32" />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      ) : triggers.length === 0 ? (
+                        <div className="flex flex-col items-center justify-center h-[300px] text-muted-foreground">
+                          <p>No trigger records found.</p>
+                        </div>
+                      ) : (
+                        <div className="divide-y divide-border">
+                          {triggers.map((trigger) => (
+                            <div key={trigger._id} className="flex flex-col sm:flex-row sm:items-center justify-between p-6 hover:bg-muted/40 transition-colors gap-4">
+                              <div className="flex flex-col gap-1.5 min-w-0 flex-1">
+                                <div className="flex items-center gap-3">
+                                  <p className="font-semibold text-lg truncate">
+                                    Res ID: {trigger.resId}
+                                  </p>
+                                  <Badge 
+                                    variant={trigger.status === 'SUCCESS' ? 'default' : 'destructive'}
+                                    className={trigger.status === 'SUCCESS' ? 'bg-emerald-500/15 text-emerald-600 hover:bg-emerald-500/25 border-emerald-200' : ''}
+                                  >
+                                    {trigger.status}
+                                  </Badge>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                                  <span className="px-2 py-0.5 bg-secondary rounded-md text-xs font-medium">
+                                    {trigger.platform?.toUpperCase()}
+                                  </span>
+                                  <span className="hidden sm:inline">•</span>
+                                  <span className="font-medium text-blue-600 dark:text-blue-400">Task ID: {trigger.taskId}</span>
+                                </div>
+                                {trigger.error && (
+                                  <p className="text-sm text-destructive mt-1 bg-destructive/10 p-2 rounded-md border border-destructive/20">
+                                    {trigger.error}
+                                  </p>
+                                )}
+                              </div>
+                              <div className="text-sm text-muted-foreground sm:text-right shrink-0">
+                                <p>{format(new Date(trigger.createdAt), "MMM d, yyyy")}</p>
                                 <p className="font-medium text-foreground">
-                                  {format(new Date(sync.latestTimestamp), "MMM d, yyyy 'at' h:mm a")}
+                                  {format(new Date(trigger.createdAt), "h:mm a")}
                                 </p>
                               </div>
                             </div>

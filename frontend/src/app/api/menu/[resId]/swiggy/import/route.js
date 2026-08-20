@@ -3,6 +3,8 @@ import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
 import { SwiggyClient } from "@/lib/api/swiggy-client";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req, { params }) {
     try {
         await dbConnect()
@@ -147,11 +149,13 @@ export async function GET(req, { params }) {
         const savedMenu = await Menu.findOneAndUpdate(
             { resId, platform: "swiggy" },
             {
-                resId,
-                platform: "swiggy",
-                menu: formattedCategories,
-                addons: [],
-                updatedAt: new Date()
+                $set: {
+                    resId,
+                    platform: "swiggy",
+                    menu: formattedCategories,
+                    addons: [],
+                    updatedAt: new Date()
+                }
             },
             { upsert: true, new: true }
         );
