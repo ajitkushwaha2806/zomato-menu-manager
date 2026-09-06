@@ -59,6 +59,30 @@ export default function MenuItemList({
         });
     };
 
+    const handleConvertVariantsToItems = (itemToConvert, groupIndex) => {
+        if (!activeSubCategoryData?.id) return;
+        
+        const group = itemToConvert.variants[groupIndex];
+        if (!group || !group.options || group.options.length === 0) return;
+
+        group.options.forEach(option => {
+            if (!option.option_name) return;
+            addItem({
+                subCategoryId: activeSubCategoryData.id,
+                item: {
+                    ...itemToConvert,
+                    id: `temp-${crypto.randomUUID()}`,
+                    name: `${option.option_name} ${itemToConvert.name || ''}`.trim(),
+                    base_price: option.price || 0,
+                    variants: [],
+                }
+            });
+        });
+
+        // Optionally delete the original item if you want it completely replaced
+        deleteItem(itemToConvert.id);
+    };
+
     return (
         <div className="flex h-full flex-1 flex-col border-x bg-background/50 backdrop-blur-xl relative">
             <div className="flex-1 overflow-y-auto p-3">
@@ -112,6 +136,7 @@ export default function MenuItemList({
                                         onDelete={() =>
                                             deleteItem(item.id)
                                         }
+                                        onConvertVariantsToItems={handleConvertVariantsToItems}
                                     />
                                 ))}
                         </div>

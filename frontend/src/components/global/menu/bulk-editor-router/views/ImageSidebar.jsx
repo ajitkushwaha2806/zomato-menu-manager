@@ -1,9 +1,9 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { usePathname, useSearchParams } from "next/navigation";
-import { X, Search, Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { X, Search, Loader2, CheckCircle2, XCircle, Sparkles } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -26,7 +26,7 @@ export default function ImageSidebar() {
     );
 
     const [searchQuery, setSearchQuery] = useState("");
-    const [searchSource, setSearchSource] = useState("dataset"); // 'dataset' | 'google'
+    const [searchSource, setSearchSource] = useState("dataset"); // 'dataset' | 'foodsnap' | 'swiggy'
     const [images, setImages] = useState([]);
     const [loading, setLoading] = useState(false);
     const [uploadStatuses, setUploadStatuses] = useState({}); // { [imageId]: 'uploading' | 'approved' | 'rejected' }
@@ -34,15 +34,10 @@ export default function ImageSidebar() {
     const [hasMore, setHasMore] = useState(true);
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
-    useEffect(() => {
-        if (isImageSidebarOpen && activeImageSearchItem?.name) {
-            setSearchQuery(activeImageSearchItem.name);
-            fetchImages(activeImageSearchItem.name, 1, searchSource);
-        }
-    }, [isImageSidebarOpen, activeImageSearchItem, searchSource]);
+    const prevItemKeyRef = useRef(null);
 
-    const fetchImages = async (query, pageNum = 1, source = searchSource) => {
-        if (!query.trim()) {
+    const fetchImages = useCallback(async (query, pageNum = 1, source = searchSource) => {
+        if (!query || !query.trim()) {
             setImages([]);
             setHasMore(false);
             return;
@@ -58,20 +53,23 @@ export default function ImageSidebar() {
 
             let endpoint = `/api/image/search?q=${encodeURIComponent(query)}&page=${pageNum}&limit=48`;
 
-            if (source === "swiggy") {
+            if (source === "foodsnap") {
+                endpoint = `/api/image/foodsnap-search?query=${encodeURIComponent(query)}&page=${pageNum}&limit=48`;
+            } else if (source === "swiggy") {
                 endpoint = `/api/image/swiggy-search?q=${encodeURIComponent(query)}&page=${pageNum}&limit=48`;
             }
 
             const res = await axios.get(endpoint);
 
             if (res.data.success) {
+                const fetchedData = res.data.data || [];
                 if (pageNum === 1) {
-                    setImages(res.data.data || []);
+                    setImages(fetchedData);
                 } else {
                     setImages((prev) => {
-                        const existingIds = new Set(prev.map((img) => img._id));
-                        const newImages = (res.data.data || []).filter(
-                            (img) => !existingIds.has(img._id),
+                        const existingIds = new Set(prev.map((img) => img._id || img.id || img.image_url));
+                        const newImages = fetchedData.filter(
+                            (img) => !existingIds.has(img._id || img.id || img.image_url),
                         );
                         return [...prev, ...newImages];
                     });
@@ -85,7 +83,18 @@ export default function ImageSidebar() {
             setLoading(false);
             setIsLoadingMore(false);
         }
-    };
+    }, [searchSource]);
+
+    useEffect(() => {
+        if (isImageSidebarOpen && activeImageSearchItem?.name) {
+            const currentKey = `${activeImageSearchItem.id || ""}-${activeImageSearchItem.name || ""}-${searchSource}`;
+            if (prevItemKeyRef.current === currentKey) return;
+            prevItemKeyRef.current = currentKey;
+
+            setSearchQuery(activeImageSearchItem.name);
+            fetchImages(activeImageSearchItem.name, 1, searchSource);
+        }
+    }, [isImageSidebarOpen, activeImageSearchItem, searchSource, fetchImages]);
 
     const handleSearchChange = (e) => {
         const query = e.target.value;
@@ -93,19 +102,21 @@ export default function ImageSidebar() {
 
         // Instant preview for pasted URLs
         if (query.trim().startsWith("http://") || query.trim().startsWith("https://")) {
-            setImages([{
-                _id: "pasted_url",
-                title: "Pasted Image URL",
-                image_url: query.trim(),
-                category: "Manual URL"
-            }]);
+            setImages([
+                {
+                    _id: "pasted_url",
+                    title: "Pasted Image URL",
+                    image_url: query.trim(),
+                    category: "Manual URL",
+                },
+            ]);
             setHasMore(false);
             return;
         }
 
         // Debounce simple version:
         if (query.trim().length > 2) {
-            fetchImages(query, 1);
+            fetchImages(query, 1, searchSource);
         }
     };
 
@@ -125,45 +136,57 @@ export default function ImageSidebar() {
         if (!activeImageSearchItem || !imageDoc.image_url) return;
         const imgId = imageDoc._id || imageDoc.id || imageDoc.image_url;
 
-        setUploadStatuses(prev => ({ ...prev, [imgId]: 'uploading' }));
+        setUploadStatuses((prev) => ({ ...prev, [imgId]: "uploading" }));
         dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "uploading" }));
 
         try {
             let mediaArray = [];
             if (activePlatform !== "swiggy") {
-                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageDoc.image_url, activeImageSearchItem.name);
+                const uploadRes = await uploadPlatformImage(
+                    activePlatform,
+                    activeResId,
+                    imageDoc.image_url,
+                    activeImageSearchItem.name,
+                );
                 if (!uploadRes.success || !uploadRes.mediaArray) {
                     throw new Error(uploadRes.message || "Failed to verify/upload image to Zomato");
                 }
-                mediaArray = uploadRes.mediaArray.map(m => ({
+                mediaArray = uploadRes.mediaArray.map((m) => ({
                     ...m,
-                    entityId: activeImageSearchItem.originalId || activeImageSearchItem.id
+                    entityId: activeImageSearchItem.originalId || activeImageSearchItem.id,
                 }));
             } else {
-                mediaArray = [{
-                    tempReferenceId: `temp-manual-${crypto.randomUUID()}`,
-                    url: imageDoc.image_url,
-                    thumbUrl: imageDoc.image_url,
-                    mediaType: "PHOTO",
-                    mediaId: imageDoc.image_url.split('/').pop() || "image.jpg",
-                    order: 1,
-                    usageType: "FOODSHOT",
-                    entityType: "CATALOGUE",
-                    entityId: activeImageSearchItem.originalId || activeImageSearchItem.id,
-                    fileDirectory: "",
-                    source: "MS_MENU_TOOL",
-                    fileName: imageDoc.image_url.split('/').pop() || "image.jpg",
-                    usageTypeEnum: "USAGE_TYPE_FOODSHOT",
-                    isNewlyUploaded: true,
-                    isUploading: false,
-                }];
+                mediaArray = [
+                    {
+                        tempReferenceId: `temp-manual-${crypto.randomUUID()}`,
+                        url: imageDoc.image_url,
+                        thumbUrl: imageDoc.image_url,
+                        mediaType: "PHOTO",
+                        mediaId: imageDoc.image_url.split("/").pop() || "image.jpg",
+                        order: 1,
+                        usageType: "FOODSHOT",
+                        entityType: "CATALOGUE",
+                        entityId: activeImageSearchItem.originalId || activeImageSearchItem.id,
+                        fileDirectory: "",
+                        source: "MS_MENU_TOOL",
+                        fileName: imageDoc.image_url.split("/").pop() || "image.jpg",
+                        usageTypeEnum: "USAGE_TYPE_FOODSHOT",
+                        isNewlyUploaded: true,
+                        isUploading: false,
+                    },
+                ];
             }
 
-            setUploadStatuses(prev => ({ ...prev, [imgId]: 'approved' }));
+            setUploadStatuses((prev) => ({ ...prev, [imgId]: "approved" }));
             dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "approved" }));
-            
+
             if (activeImageSearchItem.isTicket) {
-                dispatch(setTicketImageUpdate({ ticketId: activeImageSearchItem.ticketId, imageUrl: imageDoc.image_url }));
+                dispatch(
+                    setTicketImageUpdate({
+                        ticketId: activeImageSearchItem.ticketId,
+                        imageUrl: imageDoc.image_url,
+                    }),
+                );
             } else {
                 dispatch(
                     addImage({
@@ -174,18 +197,25 @@ export default function ImageSidebar() {
             }
             toast.success("Image applied successfully!");
             setTimeout(() => {
-                setUploadStatuses(prev => { const newMap = { ...prev }; delete newMap[imgId]; return newMap; });
+                setUploadStatuses((prev) => {
+                    const newMap = { ...prev };
+                    delete newMap[imgId];
+                    return newMap;
+                });
                 dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: null }));
             }, 500);
-
         } catch (error) {
             console.error("Image apply error:", error);
-            setUploadStatuses(prev => ({ ...prev, [imgId]: 'rejected' }));
+            setUploadStatuses((prev) => ({ ...prev, [imgId]: "rejected" }));
             dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "rejected" }));
             toast.error(error.message || "Failed to apply image");
-            
+
             setTimeout(() => {
-                setUploadStatuses(prev => { const newMap = { ...prev }; delete newMap[imgId]; return newMap; });
+                setUploadStatuses((prev) => {
+                    const newMap = { ...prev };
+                    delete newMap[imgId];
+                    return newMap;
+                });
                 dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: null }));
             }, 3000);
         }
@@ -220,19 +250,44 @@ export default function ImageSidebar() {
             <div className="p-4 border-b border-border/50 bg-slate-50/50 flex flex-col gap-3">
                 <div className="flex bg-slate-200/50 p-1 rounded-lg w-full">
                     <button
-                        onClick={() => setSearchSource("dataset")}
+                        onClick={() => {
+                            setSearchSource("dataset");
+                            fetchImages(searchQuery, 1, "dataset");
+                        }}
                         className={cn(
                             "flex-1 text-xs font-semibold py-1.5 rounded-md transition-all",
-                            searchSource === "dataset" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
+                            searchSource === "dataset"
+                                ? "bg-white shadow-sm text-primary"
+                                : "text-muted-foreground hover:text-foreground",
                         )}
                     >
-                        Internal Dataset
+                        Foodsnap
                     </button>
                     <button
-                        onClick={() => setSearchSource("swiggy")}
+                        onClick={() => {
+                            setSearchSource("foodsnap");
+                            fetchImages(searchQuery, 1, "foodsnap");
+                        }}
                         className={cn(
                             "flex-1 text-xs font-semibold py-1.5 rounded-md transition-all flex items-center justify-center gap-1.5",
-                            searchSource === "swiggy" ? "bg-white shadow-sm text-primary" : "text-muted-foreground hover:text-foreground"
+                            searchSource === "foodsnap"
+                                ? "bg-white shadow-sm text-primary"
+                                : "text-muted-foreground hover:text-foreground",
+                        )}
+                    >
+                        <Sparkles size={12} className="text-primary" />
+                        Foodsnap Plus
+                    </button>
+                    <button
+                        onClick={() => {
+                            setSearchSource("swiggy");
+                            fetchImages(searchQuery, 1, "swiggy");
+                        }}
+                        className={cn(
+                            "flex-1 text-xs font-semibold py-1.5 rounded-md transition-all flex items-center justify-center gap-1.5",
+                            searchSource === "swiggy"
+                                ? "bg-white shadow-sm text-primary"
+                                : "text-muted-foreground hover:text-foreground",
                         )}
                     >
                         <Search size={12} />
@@ -244,93 +299,101 @@ export default function ImageSidebar() {
                     <Input
                         value={searchQuery}
                         onChange={handleSearchChange}
-                        placeholder={searchSource === "swiggy" ? "Search Swiggy Images or paste URL..." : "Search dataset..."}
+                        placeholder={
+                            searchSource === "foodsnap"
+                                ? "Search Foodsnap Plus or paste URL..."
+                                : searchSource === "swiggy"
+                                ? "Search Swiggy Images or paste URL..."
+                                : "Search Foodsnap dataset..."
+                        }
                         className="pl-9 bg-white border-border/50 rounded-xl"
                     />
                 </div>
             </div>
 
             <div className="flex-1 overflow-y-auto p-4" onScroll={handleScroll}>
-                {(searchSource === "dataset" || searchSource === "swiggy") && (
-                    loading ? (
-                        <div className="flex flex-col items-center justify-center h-40 gap-3">
-                            <Loader2 className="h-6 w-6 animate-spin text-primary/50" />
-                            <p className="text-sm text-muted-foreground">
-                                Searching dataset...
-                            </p>
-                        </div>
-                    ) : images.length > 0 ? (
-                        <div className="pb-6">
-                            <div className="grid grid-cols-4 gap-3">
-                                {images.map((img) => (
-                                    <div
-                                        key={img._id}
-                                        onClick={() => handleSelectImage(img)}
-                                        className={cn(
-                                            "group relative rounded-xl overflow-hidden border border-border/50 cursor-pointer bg-white transition-all hover:border-primary/40 hover:shadow-md",
-                                            uploadStatuses[img._id || img.id || img.image_url] === 'uploading' &&
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center h-40 gap-3">
+                        <Loader2 className="h-6 w-6 animate-spin text-primary/50" />
+                        <p className="text-sm text-muted-foreground">
+                            Searching {searchSource === "foodsnap" ? "Foodsnap Plus..." : searchSource === "swiggy" ? "Swiggy images..." : "Foodsnap dataset..."}
+                        </p>
+                    </div>
+                ) : images.length > 0 ? (
+                    <div className="pb-6">
+                        <div className="grid grid-cols-4 gap-3">
+                            {images.map((img) => (
+                                <div
+                                    key={img._id || img.id || img.image_url}
+                                    onClick={() => handleSelectImage(img)}
+                                    className={cn(
+                                        "group relative rounded-xl overflow-hidden border border-border/50 cursor-pointer bg-white transition-all hover:border-primary/40 hover:shadow-md",
+                                        uploadStatuses[img._id || img.id || img.image_url] === "uploading" &&
                                             "opacity-70 pointer-events-none ring-2 ring-primary",
+                                    )}
+                                >
+                                    <div className="aspect-square w-full bg-slate-100 relative">
+                                        {/* eslint-disable-next-line @next/next/no-img-element */}
+                                        <img
+                                            src={img.image_url}
+                                            alt={img.title || "Food item"}
+                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                            loading="lazy"
+                                        />
+                                        {/* State Overlays */}
+                                        {uploadStatuses[img._id || img.id || img.image_url] === "uploading" && (
+                                            <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center animate-in fade-in duration-200">
+                                                <Loader2 className="animate-spin text-primary mb-2" size={24} />
+                                                <span className="text-[10px] font-semibold text-neutral-700 tracking-wide uppercase">
+                                                    Validating...
+                                                </span>
+                                            </div>
                                         )}
-                                    >
-                                        <div className="aspect-square w-full bg-slate-100 relative">
-                                            <img
-                                                src={img.image_url}
-                                                alt={img.title}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                loading="lazy"
-                                            />
-                                            {/* State Overlays */}
-                                            {uploadStatuses[img._id || img.id || img.image_url] === 'uploading' && (
-                                                <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center animate-in fade-in duration-200">
-                                                    <Loader2 className="animate-spin text-primary mb-2" size={24} />
-                                                    <span className="text-[10px] font-semibold text-neutral-700 tracking-wide uppercase">Validating...</span>
-                                                </div>
-                                            )}
 
-                                            {uploadStatuses[img._id || img.id || img.image_url] === "approved" && (
-                                                <div className="absolute top-2 right-2 z-20 bg-green-500/95 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm animate-in zoom-in duration-300">
-                                                    <CheckCircle2 size={12} /> Approved
-                                                </div>
-                                            )}
+                                        {uploadStatuses[img._id || img.id || img.image_url] === "approved" && (
+                                            <div className="absolute top-2 right-2 z-20 bg-green-500/95 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm animate-in zoom-in duration-300">
+                                                <CheckCircle2 size={12} /> Approved
+                                            </div>
+                                        )}
 
-                                            {uploadStatuses[img._id || img.id || img.image_url] === "rejected" && (
-                                                <div className="absolute top-2 right-2 z-20 bg-red-500/95 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm animate-in zoom-in duration-300">
-                                                    <XCircle size={12} /> Rejected
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="p-2">
-                                            <p className="text-xs font-semibold truncate text-foreground">
-                                                {img.title}
-                                            </p>
-                                            {img.category && (
-                                                <p className="text-[10px] text-muted-foreground truncate">
-                                                    {img.category}
-                                                </p>
-                                            )}
-                                        </div>
+                                        {uploadStatuses[img._id || img.id || img.image_url] === "rejected" && (
+                                            <div className="absolute top-2 right-2 z-20 bg-red-500/95 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm animate-in zoom-in duration-300">
+                                                <XCircle size={12} /> Rejected
+                                            </div>
+                                        )}
                                     </div>
-                                ))}
-                            </div>
-                            {isLoadingMore && (
-                                <div className="flex justify-center py-6">
-                                    <Loader2 className="h-5 w-5 animate-spin text-primary/50" />
+                                    <div className="p-2">
+                                        <p className="text-xs font-semibold truncate text-foreground">
+                                            {img.title}
+                                        </p>
+                                        {(img.category || img.cuisine) && (
+                                            <p className="text-[10px] text-muted-foreground truncate">
+                                                {img.cuisine || img.category}
+                                            </p>
+                                        )}
+                                    </div>
                                 </div>
-                            )}
+                            ))}
                         </div>
-                    ) : (
-                        <div className="flex flex-col items-center justify-center h-40 text-center px-4">
-                            <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
-                                <Search className="h-5 w-5 text-muted-foreground/50" />
+                        {isLoadingMore && (
+                            <div className="flex justify-center py-6">
+                                <Loader2 className="h-5 w-5 animate-spin text-primary/50" />
                             </div>
-                            <p className="text-sm font-medium text-foreground">
-                                No matches found
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                                Try modifying your search query above.
-                            </p>
+                        )}
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center h-40 text-center px-4">
+                        <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center mb-3">
+                            <Search className="h-5 w-5 text-muted-foreground/50" />
                         </div>
-                    ))}
+                        <p className="text-sm font-medium text-foreground">
+                            No matches found
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                            Try modifying your search query above.
+                        </p>
+                    </div>
+                )}
             </div>
         </aside>
     );

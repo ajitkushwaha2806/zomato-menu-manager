@@ -108,10 +108,10 @@ export function ProjectSwitcher() {
 
   React.useEffect(() => {
     if (activePlatform) {
-        setActiveTab(activePlatform);
+      setActiveTab(activePlatform);
     }
   }, [activePlatform]);
-  
+
   const entities = React.useMemo(() => {
     const zomatoEntities = (zomatoRestaurants?.entities || []).map(r => ({ ...r, platform: 'zomato' }));
     const swiggyEntities = (swiggyRestaurants?.entities || []).map(r => ({ ...r, platform: 'swiggy' }));
@@ -124,16 +124,16 @@ export function ProjectSwitcher() {
   const error = zomatoError;
   const isFetching = isZomatoFetching || isSwiggyFetching || isPetpoojaFetching;
   const refetch = () => {
-      refetchZomato();
-      refetchSwiggy();
-      refetchPetpooja();
+    refetchZomato();
+    refetchSwiggy();
+    refetchPetpooja();
   };
 
   const filteredEntities = React.useMemo(() => {
     const tabFiltered = entities.filter(r => r.platform === activeTab);
     if (!searchQuery.trim()) return tabFiltered;
-    return tabFiltered.filter(r => 
-      r.name?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+    return tabFiltered.filter(r =>
+      r.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       r.subzone?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   }, [entities, searchQuery, activeTab]);
@@ -149,9 +149,9 @@ export function ProjectSwitcher() {
       let matchedEntity = null;
       if (savedResId) {
         if (savedPlatform) {
-            matchedEntity = entities.find(e => String(e.id) === savedResId && e.platform === savedPlatform);
+          matchedEntity = entities.find(e => String(e.id) === savedResId && e.platform === savedPlatform);
         } else {
-            matchedEntity = entities.find(e => String(e.id) === savedResId);
+          matchedEntity = entities.find(e => String(e.id) === savedResId);
         }
       }
       if (matchedEntity) {
@@ -214,7 +214,7 @@ export function ProjectSwitcher() {
     <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu onOpenChange={(open) => {
-            if (!open) setSearchQuery("");
+          if (!open) setSearchQuery("");
         }}>
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
@@ -239,13 +239,12 @@ export function ProjectSwitcher() {
                 <span className="truncate text-sm font-semibold tracking-tight text-foreground flex items-center gap-1.5">
                   {selected?.name || "Select Restaurant"}
                   {selected?.platform && (
-                    <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider ${
-                      selected.platform === 'swiggy' 
-                        ? 'bg-orange-500/10 text-orange-600' 
+                    <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider ${selected.platform === 'swiggy'
+                        ? 'bg-orange-500/10 text-orange-600'
                         : selected.platform === 'petpooja'
-                        ? 'bg-emerald-500/10 text-emerald-600'
-                        : 'bg-red-500/10 text-red-600'
-                    }`}>
+                          ? 'bg-emerald-500/10 text-emerald-600'
+                          : 'bg-red-500/10 text-red-600'
+                      }`}>
                       {selected.platform}
                     </span>
                   )}
@@ -255,7 +254,7 @@ export function ProjectSwitcher() {
                     {selected?.subzone || "No zone selected"}
                   </span>
                   {selected?.id && (
-                    <span 
+                    <span
                       className="text-[9px] bg-muted px-1.5 py-0.5 rounded border flex items-center gap-1 hover:bg-muted/80 cursor-pointer text-muted-foreground transition-all hover:text-foreground opacity-0 group-hover:opacity-100"
                       onClick={(e) => {
                         e.stopPropagation();
@@ -280,7 +279,7 @@ export function ProjectSwitcher() {
             sideOffset={8}
             className="w-[320px] rounded-xl p-1 shadow-lg"
           >
-            <DropdownMenuLabel className="px-3 py-2.5"> 
+            <DropdownMenuLabel className="px-3 py-2.5">
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/70">
@@ -302,15 +301,15 @@ export function ProjectSwitcher() {
                 </TabsList>
               </Tabs>
               <div className="relative">
-                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
-                  <input 
-                      type="text" 
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Search restaurant or zone..."
-                      className="w-full text-xs bg-muted/50 border-none rounded-md pl-7 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary/30"
-                      onKeyDown={(e) => e.stopPropagation()}
-                  />
+                <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  placeholder="Search restaurant or zone..."
+                  className="w-full text-xs bg-muted/50 border-none rounded-md pl-7 pr-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary/30"
+                  onKeyDown={(e) => e.stopPropagation()}
+                />
               </div>
             </div>
 
@@ -341,13 +340,12 @@ export function ProjectSwitcher() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium flex items-center gap-1.5">
                         {restaurant.name}
-                        <span className={`px-1 rounded text-[9px] uppercase font-bold tracking-wider shrink-0 ${
-                          restaurant.platform === 'swiggy' 
-                            ? 'bg-orange-500/10 text-orange-600' 
+                        <span className={`px-1 rounded text-[9px] uppercase font-bold tracking-wider shrink-0 ${restaurant.platform === 'swiggy'
+                            ? 'bg-orange-500/10 text-orange-600'
                             : restaurant.platform === 'petpooja'
-                            ? 'bg-emerald-500/10 text-emerald-600'
-                            : 'bg-red-500/10 text-red-600'
-                        }`}>
+                              ? 'bg-emerald-500/10 text-emerald-600'
+                              : 'bg-red-500/10 text-red-600'
+                          }`}>
                           {restaurant.platform}
                         </span>
                       </p>
@@ -356,7 +354,7 @@ export function ProjectSwitcher() {
                           {restaurant.subzone}
                         </p>
                         {restaurant.id && (
-                          <span 
+                          <span
                             className="text-[9px] bg-muted px-1.5 py-0.5 rounded border flex items-center gap-1 hover:bg-muted/80 cursor-pointer text-muted-foreground transition-all hover:text-foreground opacity-0 group-hover:opacity-100"
                             onClick={(e) => {
                               e.stopPropagation();
@@ -378,7 +376,7 @@ export function ProjectSwitcher() {
                 );
               }) : (
                 <div className="px-3 py-4 text-center text-xs text-muted-foreground">
-                    No restaurants found matching "{searchQuery}"
+                  No restaurants found matching "{searchQuery}"
                 </div>
               )}
             </div>

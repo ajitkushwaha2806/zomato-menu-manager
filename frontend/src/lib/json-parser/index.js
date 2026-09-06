@@ -14,7 +14,6 @@ export function safeParseModelJson(raw) {
     .replace(/```/g, "")
     .trim();
 
-  // Strip conversational prefix by finding the first { or [
   const firstBracketIndex = text.search(/[\{\[]/);
   if (firstBracketIndex > -1) {
     text = text.substring(firstBracketIndex);

@@ -34,7 +34,8 @@ export default function MenuItemRow({
     onDelete,
     categories,
     isAllItemsView,
-    isDuplicate
+    isDuplicate,
+    onConvertVariantsToItems
 }) {
     const { activeResId } = useSelector((state) => state.menu);
     const dispatch = useDispatch();
@@ -348,6 +349,12 @@ export default function MenuItemRow({
                                         className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-1 rounded hover:bg-primary/20 flex items-center gap-1 transition-colors"
                                     >
                                         <Plus size={10} strokeWidth={3} /> Add Option
+                                    </button>
+                                    <button
+                                        onClick={() => onConvertVariantsToItems?.(item, gIdx)}
+                                        className="text-[10px] font-bold text-orange-600 bg-orange-50 px-2 py-1 rounded hover:bg-orange-100 flex items-center gap-1 transition-colors ml-1"
+                                    >
+                                        Convert to Items
                                     </button>
                                     <div className="flex-1"></div>
                                     <button

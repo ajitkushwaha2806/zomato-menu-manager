@@ -1,7 +1,9 @@
 "use client";
 import MenuItemRow from "../menu-item-card";
+import { useMenu } from "@/store/hooks/useMenu";
 
 export default function AllItemsList({ menuData, updateItem, deleteItem, moveItem }) {
+    const { addItem } = useMenu();
     const allItems = [];
     if (Array.isArray(menuData)) {
         menuData.forEach((cat) => {
@@ -20,6 +22,30 @@ export default function AllItemsList({ menuData, updateItem, deleteItem, moveIte
             }
         });
     }
+
+    const handleConvertVariantsToItems = (itemToConvert, groupIndex) => {
+        if (!itemToConvert._parentSubCategoryId) return;
+        
+        const group = itemToConvert.variants[groupIndex];
+        if (!group || !group.options || group.options.length === 0) return;
+
+        group.options.forEach(option => {
+            if (!option.option_name) return;
+            addItem({
+                subCategoryId: itemToConvert._parentSubCategoryId,
+                item: {
+                    ...itemToConvert,
+                    id: `temp-${crypto.randomUUID()}`,
+                    name: `${option.option_name} ${itemToConvert.name || ''}`.trim(),
+                    base_price: option.price || 0,
+                    variants: [],
+                }
+            });
+        });
+
+        // Delete original item
+        deleteItem(itemToConvert.id);
+    };
 
     return (
         <div className="flex h-full flex-1 flex-col border-x bg-background/50 backdrop-blur-xl">
@@ -41,20 +67,21 @@ export default function AllItemsList({ menuData, updateItem, deleteItem, moveIte
                     <div className="space-y-4">
                         {allItems
                             .map((item) => (
-                                <MenuItemRow
-                                    key={item.id}
-                                    item={item}
-                                    categories={menuData}
-                                    isAllItemsView={true}
-                                    onChange={(updatedItem) => {
-                                        if (updatedItem._parentSubCategoryId && updatedItem._parentSubCategoryId !== item._parentSubCategoryId) {
-                                            moveItem(item.id, updatedItem._parentSubCategoryId);
-                                        } else {
-                                            updateItem(item.id, updatedItem);
-                                        }
-                                    }}
-                                    onDelete={() => deleteItem(item.id)}
-                                />
+                                    <MenuItemRow
+                                        key={item.id}
+                                        item={item}
+                                        categories={menuData}
+                                        isAllItemsView={true}
+                                        onChange={(updatedItem) => {
+                                            if (updatedItem._parentSubCategoryId && updatedItem._parentSubCategoryId !== item._parentSubCategoryId) {
+                                                moveItem(item.id, updatedItem._parentSubCategoryId);
+                                            } else {
+                                                updateItem(item.id, updatedItem);
+                                            }
+                                        }}
+                                        onDelete={() => deleteItem(item.id)}
+                                        onConvertVariantsToItems={handleConvertVariantsToItems}
+                                    />
                             ))}
                     </div>
                 )}
