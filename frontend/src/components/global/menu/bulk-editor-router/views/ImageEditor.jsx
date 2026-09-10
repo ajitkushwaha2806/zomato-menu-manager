@@ -119,6 +119,7 @@ export default function ImageEditor({ allItems, updateItem }) {
     const notify = useNotification();
 
     const [isAutoApplying, setIsAutoApplying] = useState(false);
+    const [autoApplyType, setAutoApplyType] = useState(null); // 'dataset' | 'foodsnap_plus' | 'db' | 'cross_res' | null
     const [autoApplyProgress, setAutoApplyProgress] = useState({ total: 0, completed: 0 });
     const [removeConfirm, setRemoveConfirm] = useState(false);
     const removeConfirmTimer = useRef(null);
@@ -167,6 +168,7 @@ export default function ImageEditor({ allItems, updateItem }) {
         });
 
         setIsAutoApplying(true);
+        setAutoApplyType('dataset');
         setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: 0 });
 
         // Maintain a set of used image URLs to prevent duplicates
@@ -290,17 +292,170 @@ export default function ImageEditor({ allItems, updateItem }) {
                 completedCount += chunk.length;
                 setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: completedCount });
                 
-                // Rate limit: wait 3 seconds between chunks
+                // Rate limit: wait 2 seconds between chunks
                 await new Promise(r => setTimeout(r, 2000));
             }
             
             setIsAutoApplying(false);
+            setAutoApplyType(null);
             notify.success(`Successfully applied images for ${itemsWithoutMedia.length} items!`);
             
         } catch (err) {
             console.error(err);
             notify.error("Failed during auto apply images.");
             setIsAutoApplying(false);
+            setAutoApplyType(null);
+        }
+    };
+
+    const handleAutoApplyFoodsnapPlus = async () => {
+        const itemsWithoutMedia = allItems.filter(item => {
+            const hasMedia = item.media && item.media.length > 0;
+            return !hasMedia;
+        });
+
+        if (itemsWithoutMedia.length === 0) {
+            notify.success("All items already have images!");
+            return;
+        }
+
+        // Inject temporary placeholders
+        itemsWithoutMedia.forEach(item => {
+            updateItem({
+                itemId: item.id,
+                updates: {
+                    media: [{
+                        tempReferenceId: `temp-fsp-${crypto.randomUUID()}`,
+                        url: '',
+                        isUploading: true,
+                        uploadText: 'Searching Foodsnap Plus...'
+                    }]
+                }
+            });
+        });
+
+        setIsAutoApplying(true);
+        setAutoApplyType('foodsnap_plus');
+        setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: 0 });
+
+        // Maintain a set of used image URLs to prevent duplicates
+        const usedImages = new Set();
+        allItems.forEach(item => {
+            if (item.media && item.media.length > 0) {
+                item.media.forEach(m => {
+                    if (m.url) usedImages.add(m.url);
+                    if (m.thumbUrl) usedImages.add(m.thumbUrl);
+                });
+            } else if (item.image_url) {
+                usedImages.add(item.image_url);
+            }
+        });
+
+        try {
+            const chunkSize = 2; // Process 2 images at a time to prevent rate limiting
+            let completedCount = 0;
+            
+            for (let i = 0; i < itemsWithoutMedia.length; i += chunkSize) {
+                const chunk = itemsWithoutMedia.slice(i, i + chunkSize);
+                
+                const fetchPromises = chunk.map(async (item) => {
+                    try {
+                        const res = await api.get(`/api/image/foodsnap-search`, {
+                            params: {
+                                query: item.name,
+                                limit: 6
+                            }
+                        });
+                        const photos = res.data?.data || [];
+
+                        let finalMedia = [];
+
+                        for (let j = 0; j < Math.min(6, photos.length); j++) {
+                            const photo = photos[j];
+                            const imageUrl = photo.image_url || photo.image || photo.url;
+                            
+                            if (!imageUrl) continue;
+
+                            if (usedImages.has(imageUrl)) continue;
+                            usedImages.add(imageUrl);
+
+                            updateItem({
+                                itemId: item.id,
+                                updates: {
+                                    media: [{
+                                        tempReferenceId: `temp-fsp-${crypto.randomUUID()}`,
+                                        url: '',
+                                        isUploading: true,
+                                        uploadText: `Uploading from Foodsnap+ ${j+1}/${Math.min(6, photos.length)}...`
+                                    }]
+                                }
+                            });
+
+                            if (activePlatform !== "swiggy") {
+                                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
+                                if (uploadRes.success && uploadRes.mediaArray) {
+                                    finalMedia = uploadRes.mediaArray.map(m => ({
+                                        ...m,
+                                        entityId: item.originalId || item.id
+                                    }));
+                                    break;
+                                }
+                            } else {
+                                finalMedia = [{
+                                    tempReferenceId: `temp-fsp-${crypto.randomUUID()}`,
+                                    url: imageUrl,
+                                    thumbUrl: photo.thumb_url || photo.thumbUrl || imageUrl,
+                                    mediaType: "PHOTO",
+                                    mediaId: photo.mediaId || imageUrl.split('/').pop() || "image.jpg",
+                                    order: 1,
+                                    usageType: "FOODSHOT",
+                                    entityType: "CATALOGUE",
+                                    entityId: item.originalId || item.id,
+                                    fileDirectory: photo.fileDirectory || "",
+                                    source: "MS_MENU_TOOL",
+                                    fileName: photo.fileName || imageUrl.split('/').pop() || "image.jpg",
+                                    usageTypeEnum: "USAGE_TYPE_FOODSHOT",
+                                    isNewlyUploaded: true,
+                                    isUploading: false,
+                                }];
+                                break;
+                            }
+                        }
+
+                        return { itemId: item.id, media: finalMedia };
+
+                    } catch (e) {
+                        console.error(`Failed to fetch/upload Foodsnap Plus image for ${item.name}`, e);
+                        return { itemId: item.id, media: [] };
+                    }
+                });
+                
+                const results = await Promise.all(fetchPromises);
+                
+                results.forEach(result => {
+                    const { itemId, media } = result;
+                    if (media && media.length > 0) {
+                        updateItem({ itemId, updates: { media } });
+                    } else {
+                        updateItem({ itemId, updates: { media: [] } });
+                    }
+                });
+                
+                completedCount += chunk.length;
+                setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: completedCount });
+                
+                await new Promise(r => setTimeout(r, 2000));
+            }
+            
+            setIsAutoApplying(false);
+            setAutoApplyType(null);
+            notify.success(`Successfully applied Foodsnap Plus images!`);
+            
+        } catch (err) {
+            console.error(err);
+            notify.error("Failed during auto-fill from Foodsnap Plus.");
+            setIsAutoApplying(false);
+            setAutoApplyType(null);
         }
     };
 
@@ -331,6 +486,7 @@ export default function ImageEditor({ allItems, updateItem }) {
         });
 
         setIsAutoApplying(true);
+        setAutoApplyType('db');
         setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: 0 });
 
         // Maintain a set of used image URLs to prevent duplicates
@@ -447,12 +603,14 @@ export default function ImageEditor({ allItems, updateItem }) {
             }
             
             setIsAutoApplying(false);
+            setAutoApplyType(null);
             notify.success(`Successfully applied images from DB for ${itemsWithoutMedia.length} items!`);
             
         } catch (err) {
             console.error(err);
             notify.error("Failed during DB auto apply.");
             setIsAutoApplying(false);
+            setAutoApplyType(null);
         }
     };
 
@@ -599,15 +757,20 @@ export default function ImageEditor({ allItems, updateItem }) {
             }
 
             setIsAutoApplying(false);
-            notify.success(`Successfully applied images from restaurant ${targetResId}!`);
+            setAutoApplyType(null);
+            notify.success(`Copied images for ${completedCount} matching items!`);
 
         } catch (err) {
             console.error(err);
-            notify.error("An error occurred while copying images.");
+            notify.error("Failed during cross-restaurant copy.");
             setIsAutoApplying(false);
+            setAutoApplyType(null);
         }
     };
 
+    const handleDropImage = async (itemId, mediaArray) => {
+        updateItem({ itemId, updates: { media: mediaArray } });
+    };
 
     if (!allItems || allItems.length === 0) {
         return (
@@ -617,10 +780,6 @@ export default function ImageEditor({ allItems, updateItem }) {
             </div>
         );
     }
-
-    const handleDropImage = (itemId, mediaArray) => {
-        updateItem({ itemId, updates: { media: mediaArray } });
-    };
 
     return (
         <div className="flex-1 flex flex-col overflow-hidden relative bg-neutral-50/40">
@@ -636,7 +795,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                             </p>
                         </div>
                         
-                        <div className="flex items-center gap-3 shrink-0">
+                        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
                             <Button
                                 variant="secondary"
                                 onClick={handleRemoveAllImages}
@@ -654,9 +813,9 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 variant="secondary"
                                 onClick={handleAutoApplyImages}
                                 disabled={isAutoApplying}
-                                className="h-9 rounded-lg px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition-colors relative overflow-hidden"
+                                className="h-9 rounded-lg px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition-colors relative overflow-hidden shrink-0"
                             >
-                                {isAutoApplying ? (
+                                {autoApplyType === 'dataset' ? (
                                     <>
                                         <Loader2 className="mr-2 h-4 w-4 animate-spin text-indigo-600" />
                                         <span>Applying ({autoApplyProgress.completed}/{autoApplyProgress.total})</span>
@@ -670,12 +829,39 @@ export default function ImageEditor({ allItems, updateItem }) {
                             </Button>
                             <Button
                                 variant="secondary"
+                                onClick={handleAutoApplyFoodsnapPlus}
+                                disabled={isAutoApplying}
+                                className="h-9 rounded-lg px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition-colors relative overflow-hidden shrink-0"
+                            >
+                                {autoApplyType === 'foodsnap_plus' ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-purple-600" />
+                                        <span>Applying ({autoApplyProgress.completed}/{autoApplyProgress.total})</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Sparkles className="mr-2 h-4 w-4 text-purple-500" />
+                                        <span>Auto-fill from Foodsnap Plus</span>
+                                    </>
+                                )}
+                            </Button>
+                            <Button
+                                variant="secondary"
                                 onClick={handleApplyFromDB}
                                 disabled={isAutoApplying}
-                                className="h-9 rounded-lg px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition-colors relative overflow-hidden"
+                                className="h-9 rounded-lg px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition-colors relative overflow-hidden shrink-0"
                             >
-                                <Database className="mr-2 h-4 w-4 text-emerald-500" />
-                                <span>Auto-fill from DB</span>
+                                {autoApplyType === 'db' ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-emerald-600" />
+                                        <span>Applying ({autoApplyProgress.completed}/{autoApplyProgress.total})</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Database className="mr-2 h-4 w-4 text-emerald-500" />
+                                        <span>Auto-fill from DB</span>
+                                    </>
+                                )}
                             </Button>
                             <Button
                                 variant="secondary"
@@ -683,26 +869,37 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 disabled={isAutoApplying}
                                 className="h-9 rounded-lg px-4 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition-colors relative overflow-hidden shrink-0"
                             >
-                                <Copy className="mr-2 h-4 w-4 text-amber-500" />
-                                <span>Copy from Rest.</span>
+                                {autoApplyType === 'cross_res' ? (
+                                    <>
+                                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-amber-600" />
+                                        <span>Copying ({autoApplyProgress.completed}/{autoApplyProgress.total})</span>
+                                    </>
+                                ) : (
+                                    <>
+                                        <Copy className="mr-2 h-4 w-4 text-amber-500" />
+                                        <span>Copy from Rest.</span>
+                                    </>
+                                )}
                             </Button>
                         </div>
                         
                         {/* Progress Bar under the header */}
                         {isAutoApplying && (
-                            <div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-indigo-100 overflow-hidden">
+                            <div className="absolute -bottom-[1px] left-0 right-0 h-[2px] bg-neutral-100 overflow-hidden">
                                 <div 
-                                    className="h-full bg-indigo-600 transition-all duration-300 ease-out" 
+                                    className={`h-full transition-all duration-300 ease-out ${
+                                        autoApplyType === 'foodsnap_plus' ? 'bg-purple-600' :
+                                        autoApplyType === 'db' ? 'bg-emerald-600' :
+                                        autoApplyType === 'cross_res' ? 'bg-amber-600' :
+                                        'bg-indigo-600'
+                                    }`}
                                     style={{ width: `${Math.min(100, (autoApplyProgress.completed / Math.max(1, autoApplyProgress.total)) * 100)}%` }}
                                 />
                             </div>
                         )}
                     </div>
 
-                    <div className={`grid gap-4 transition-all duration-300 ${isImageSidebarOpen
-                            ? 'grid-cols-2 md:grid-cols-3 xl:grid-cols-4'
-                            : 'grid-cols-2 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8'
-                        }`}>
+                    <div className={`grid gap-4 transition-all duration-300 ${isImageSidebarOpen ? 'grid-cols-4' : 'grid-cols-8'}`}>
                         {allItems.map(item => (
                             <ImageCard
                                 key={item.id}

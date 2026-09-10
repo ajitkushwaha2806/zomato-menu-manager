@@ -101,15 +101,49 @@ class SemanticNormalizationNode:
         import uuid
         import re
         
+        KNOWN_CANONICAL_NAMES = {
+            ("paneer", "shahi"): "Shahi Paneer",
+            ("kadai", "paneer"): "Kadai Paneer",
+            ("kadhai", "paneer"): "Kadai Paneer",
+            ("butter", "chicken"): "Butter Chicken",
+            ("dal", "makhani"): "Dal Makhani",
+            ("matar", "paneer"): "Matar Paneer",
+            ("mutter", "paneer"): "Matar Paneer",
+            ("palak", "paneer"): "Palak Paneer",
+            ("handi", "paneer"): "Handi Paneer",
+            ("lababdar", "paneer"): "Paneer Lababdar",
+            ("do", "paneer", "pyaza"): "Paneer Do Pyaza",
+            ("curry", "egg"): "Egg Curry",
+            ("curry", "chicken"): "Chicken Curry",
+            ("curry", "mutton"): "Mutton Curry",
+            ("paneer", "tikka"): "Paneer Tikka",
+            ("chicken", "tikka"): "Chicken Tikka",
+        }
+
+        def resolve_canonical_name(name: str) -> str:
+            if not name or not isinstance(name, str):
+                return name
+            cleaned = " ".join(name.strip().split())
+            words = tuple(sorted(re.findall(r'\b[a-zA-Z]+\b', cleaned.lower())))
+            if words in KNOWN_CANONICAL_NAMES:
+                return KNOWN_CANONICAL_NAMES[words]
+            return cleaned
+
+        def get_canonical_key(name: str) -> str:
+            resolved = resolve_canonical_name(name)
+            words = sorted(re.findall(r'\b[a-zA-Z0-9]+\b', resolved.lower()))
+            return " ".join(words)
+
         def extract_price(val):
             if isinstance(val, (int, float)):
                 return float(val)
             if not val:
                 return 0.0
-            match = re.search(r'\d+(?:\.\d+)?', str(val).replace(',', ''))
+            cleaned_str = str(val).replace(',', '').replace('/-', '')
+            match = re.search(r'\d+(?:\.\d+)?', cleaned_str)
             return float(match.group()) if match else 0.0
 
-        def prepare_items(items_list, seen_names):
+        def prepare_items(items_list, seen_keys):
             prepared = []
             for item in items_list:
                 raw_price = item.get("base_price") if item.get("base_price") is not None else item.get("price")
@@ -157,8 +191,10 @@ class SemanticNormalizationNode:
                         final_price = min(all_prices)
                         
                 meat_types = item.pop("meat_types", [])
+                item_name = resolve_canonical_name(str(item.get("name", "")))
                 new_item = {
                     **item,
+                    "name": item_name,
                     "id": f"temp-{uuid.uuid4()}",
                     "base_price": final_price,
                     "description": item.get("description", ""),
@@ -174,15 +210,15 @@ class SemanticNormalizationNode:
                 new_item.pop("min_price", None)
                 new_item.pop("max_price", None)
                 
-                # Check for global intra-upload duplicates
-                new_name = str(new_item.get("name", "")).strip().lower()
-                if new_name not in seen_names:
-                    seen_names.add(new_name)
+                # Check for global intra-upload duplicates using canonical key
+                item_key = get_canonical_key(item_name)
+                if item_key not in seen_keys:
+                    seen_keys.add(item_key)
                     prepared.append(new_item)
             return prepared
 
         prepared_categories = []
-        global_seen_names = set()
+        global_seen_keys = set()
         for cat in response_dict.get("category", []):
             sub_categories = cat.get("sub_category", [])
             
@@ -205,7 +241,7 @@ class SemanticNormalizationNode:
                 mapped_sub = {
                     **sub,
                     "id": f"temp-{uuid.uuid4()}",
-                    "items": prepare_items(sub.get("items", []), global_seen_names)
+                    "items": prepare_items(sub.get("items", []), global_seen_keys)
                 }
                 mapped_cat["sub_category"].append(mapped_sub)
                 
@@ -245,10 +281,10 @@ class SemanticNormalizationNode:
                             existing_sub["items"] = []
                             
                         for new_item in new_sub.get("items", []):
-                            new_name = str(new_item.get("name", "")).strip().lower()
+                            new_key = get_canonical_key(str(new_item.get("name", "")))
                             existing_item = next(
                                 (item for item in existing_sub["items"] 
-                                 if str(item.get("name", "")).strip().lower() == new_name
+                                 if get_canonical_key(str(item.get("name", ""))) == new_key
                                  and str(item.get("status", "")) not in ["delete", "deleted"]),
                                 None
                             )

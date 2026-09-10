@@ -37,7 +37,15 @@ class MergeNode:
                 def normalize(text):
                     if not text or not isinstance(text, str):
                         return text
-                    return text.strip().capitalize()
+                    cleaned = " ".join(text.strip().split())
+                    words = cleaned.split(" ")
+                    capitalized_words = []
+                    for w in words:
+                        if w.isupper() and len(w) > 1:
+                            capitalized_words.append(w)
+                        else:
+                            capitalized_words.append(w.capitalize())
+                    return " ".join(capitalized_words)
                     
                 item_dict["name"] = normalize(item_dict.get("name"))
                 item_dict["category"] = normalize(item_dict.get("category"))

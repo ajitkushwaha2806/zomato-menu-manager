@@ -1,0 +1,2433 @@
+{
+  job_id: '457f4553-a31e-4094-8548-41a111a27a50',
+  job_type: 'menu_upload',
+  restaurant_id: '22880802',
+  upload_type: 'images',
+  platform: 'zomato',
+  status: 'completed',
+  files: [
+    {
+      filename: 'Screenshot 2026-09-08 at 4.36.21\u202fPM.png',
+      content_type: 'image/png',
+      s3_key: 'menus/22880802/457f4553-a31e-4094-8548-41a111a27a50/original/Screenshot 2026-09-08 at 4.36.21\u202fPM.png',
+      size: NumberInt('330811')
+    }
+  ],
+  total_files: NumberInt('1'),
+  raw_text: null,
+  proposed_changes: [],
+  created_at: '2026-09-08T11: 06: 30.147102',
+  started_at: null,
+  completed_at: null,
+  error: null,
+  progress: NumberInt('95'),
+  step: 'Semantic Normalization',
+  chain_outputs: {
+    transcriptions: [
+      {
+        markdown: '# POTATO KING\n- FRENCH FRIES | Price: 99\n- CHILLI POTATO | Price: 149\n- HONEY CHILLI POTATO | Price: 199\n\n# ROAD SIDE SPECIAL\n- SPRING ROLL (2 Pcs.) | Price: 99\n- PAV BHAJI | Price: 99\n- CHOLA BHATURA (2 PIECE) | Price: 149\n\n# PASTA\n- WHITE SAUCE PASTA(spaghetti / penne) | Price: 199\n- RED SAUCE PASTA (spaghetti / penne) | Price: 199\n- MIX SAUCE PASTA (spaghetti / penne) | Price: 219\n\n# SANDWICH (GRILLED) SERVED WITH FRIES\n- VEG SANDWICH | Price: 99\n- VEG CHEESE SANDWICH | Price: 119\n- VEG/PANEER/ WRAP | Price: 119/139\n- CORN CHEESE SANDWICH | Price: 149\n- TANDOORI PANEER SANDWICH | Price: 149\n\n# STARTER\n- CRISPY CORN | Price: 199\n- AFGHANI CHAAP | Price: 219\n- ACHAAARI CHAAP | Price: 219\n- MASALA CHAAP | Price: 219\n- HARIYALI CHAAP | Price: 219\n- CHILLI CHAAP DRY | Price: 229\n- MALAI CHAAP | Price: 249\n- VEG MANCHURIAN DRY | Price: 249\n- PANEER TIKKA | Price: 279\n- CHILLI PANEER DRY | Price: 299\n- CHILLI MUSHROOM DRY | Price: 299\n- PANEER 65 | Price: 299\n- PANEER MALAI TIKKA | Price: 299\n- AFGHANI PANEER TIKKA | Price: 299\n- HARIYALI PANEER TIKKA | Price: 299\n- PAHADI PANEER TIKKA | Price: 299\n\n# THAALI\n- DELUXE THAALI - (Daal Fry, Sabji Sukhi, Paneer Sabji, Raita, Rice, Tandoori Roti 2 Pc. / Tawa 3 Pc., Gulab Jamun) | Price: 199\n- SPECIAL THAALI - (Daal Makhani, Kadhal Paneer, Jeera/Matar Rice / Biryani, Mix Veg, Raita, Papad, Gulab Jamun) | Price: 299\n\n# NOODLES\n- VEG NOODLE | Price: 149\n- CHILLI GARLIC NOODLE | Price: 159\n- SCHEZWAN NOODLE | Price: 159\n- PANEER NOODLE / SCHEZWAN PANEER NOODLE | Price: 199\n- MUSHROOM NOODLE | Price: 199\n- BABY MUSHROOM NOODLE | Price: 199\n- HAKKA NOODLE | Price: 219\n- SINGAPURI NOODLE | Price: 229\n- PANEER MUSHROOM NOODLE | Price: 249\n\n# MAGGIE\n- PLAIN MAGGIE | Price: 99\n- VEG MAGGIE | Price: 129\n- PANEER MAGGIE | Price: 149\n- ITALIAN MAGGIE | Price: 149\n\n# BURGER SERVED WITH FRIES\n- VEG BURGER ( ALOO TIKKI) | Price: 99\n- PANEER BURGER | Price: 119\n- CHEESE BURGER | Price: 119\n- PANEER CHEESE BURGER | Price: 149\n- CRUNCHY PANEER BURGER | Price: 149\n\n# MOMOS\n- VEG MOMOS (STEAM/ FRIED/ KURKURA) | Price: 99/129/149\n- PANEER MOMOS (STEAM/ FRIED/ KURKURA) | Price: 119/149/169\n- DRAGON CHILLI MOMO | Price: 199\n\n# PIZZA\n- MARGHERITA PIZZA | Price: 129\n- CHEESE TOMATO PIZZA | Price: 149\n- CHEESE CAPSICUM PIZZA | Price: 149\n- ONION CHEESE PIZZA | Price: 149\n- GOLDEN CORN PIZZA | Price: 149\n- FARMHOUSE PIZZA | Price: 199\n- PANEER TIKKA PIZZA | Price: 249\n- CAFE 99 SPECIAL PIZZA | Price: 299\n\n# SOUP\n- MANCHOW SOUP | Price: 99\n- HOT & SOUR SOUP | Price: 99\n- VEG PEKING SOUP | Price: 99\n- SWEET CORN SOUP | Price: 99\n\n# CHAI/ COFFEE\n- SPECIAL CHAI | Price: 49\n- BLACK COFFEE | Price: 49\n- COFFEE | Price: 99\n',
+        confidence_score: Double('0.98'),
+        confidence_reasoning: 'The menu is clear and well-structured. All items, prices, and categories are legible and have been transcribed accurately. There are no ambiguous elements or missing information.'
+      }
+    ],
+    parsed_menus: [
+      {
+        items: [
+          {
+            name: 'French Fries',
+            category: 'Potato King',
+            sub_category: 'Potato King',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- FRENCH FRIES | Price: 99'
+          },
+          {
+            name: 'Chilli Potato',
+            category: 'Potato King',
+            sub_category: 'Potato King',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- CHILLI POTATO | Price: 149'
+          },
+          {
+            name: 'Honey Chilli Potato',
+            category: 'Potato King',
+            sub_category: 'Potato King',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- HONEY CHILLI POTATO | Price: 199'
+          },
+          {
+            name: 'Spring Roll (2 Pieces)',
+            category: 'Road Side Special',
+            sub_category: 'Road Side Special',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- SPRING ROLL (2 Pcs.) | Price: 99'
+          },
+          {
+            name: 'Pav Bhaji',
+            category: 'Road Side Special',
+            sub_category: 'Road Side Special',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- PAV BHAJI | Price: 99'
+          },
+          {
+            name: 'Chola Bhatura (2 Pieces)',
+            category: 'Road Side Special',
+            sub_category: 'Road Side Special',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- CHOLA BHATURA (2 PIECE) | Price: 149'
+          },
+          {
+            name: 'White Sauce Pasta',
+            category: 'Pasta',
+            sub_category: 'Pasta',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- WHITE SAUCE PASTA(spaghetti / penne) | Price: 199'
+          },
+          {
+            name: 'Red Sauce Pasta',
+            category: 'Pasta',
+            sub_category: 'Pasta',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- RED SAUCE PASTA (spaghetti / penne) | Price: 199'
+          },
+          {
+            name: 'Mix Sauce Pasta',
+            category: 'Pasta',
+            sub_category: 'Pasta',
+            description: null,
+            base_price: '219',
+            variants: [],
+            source_text: '- MIX SAUCE PASTA (spaghetti / penne) | Price: 219'
+          },
+          {
+            name: 'Veg Sandwich',
+            category: 'Sandwich (Grilled) Served With Fries',
+            sub_category: 'Sandwich (Grilled) Served With Fries',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- VEG SANDWICH | Price: 99'
+          },
+          {
+            name: 'Veg Cheese Sandwich',
+            category: 'Sandwich (Grilled) Served With Fries',
+            sub_category: 'Sandwich (Grilled) Served With Fries',
+            description: null,
+            base_price: '119',
+            variants: [],
+            source_text: '- VEG CHEESE SANDWICH | Price: 119'
+          },
+          {
+            name: 'Veg Wrap',
+            category: 'Sandwich (Grilled) Served With Fries',
+            sub_category: 'Sandwich (Grilled) Served With Fries',
+            description: null,
+            base_price: '119',
+            variants: [],
+            source_text: '- VEG/PANEER/ WRAP | Price: 119/139'
+          },
+          {
+            name: 'Paneer Wrap',
+            category: 'Sandwich (Grilled) Served With Fries',
+            sub_category: 'Sandwich (Grilled) Served With Fries',
+            description: null,
+            base_price: '139',
+            variants: [],
+            source_text: '- VEG/PANEER/ WRAP | Price: 119/139'
+          },
+          {
+            name: 'Corn Cheese Sandwich',
+            category: 'Sandwich (Grilled) Served With Fries',
+            sub_category: 'Sandwich (Grilled) Served With Fries',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- CORN CHEESE SANDWICH | Price: 149'
+          },
+          {
+            name: 'Tandoori Paneer Sandwich',
+            category: 'Sandwich (Grilled) Served With Fries',
+            sub_category: 'Sandwich (Grilled) Served With Fries',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- TANDOORI PANEER SANDWICH | Price: 149'
+          },
+          {
+            name: 'Crispy Corn',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- CRISPY CORN | Price: 199'
+          },
+          {
+            name: 'Afghani Chaap',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '219',
+            variants: [],
+            source_text: '- AFGHANI CHAAP | Price: 219'
+          },
+          {
+            name: 'Achaari Chaap',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '219',
+            variants: [],
+            source_text: '- ACHAAARI CHAAP | Price: 219'
+          },
+          {
+            name: 'Masala Chaap',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '219',
+            variants: [],
+            source_text: '- MASALA CHAAP | Price: 219'
+          },
+          {
+            name: 'Hariyali Chaap',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '219',
+            variants: [],
+            source_text: '- HARIYALI CHAAP | Price: 219'
+          },
+          {
+            name: 'Chilli Chaap Dry',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '229',
+            variants: [],
+            source_text: '- CHILLI CHAAP DRY | Price: 229'
+          },
+          {
+            name: 'Malai Chaap',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '249',
+            variants: [],
+            source_text: '- MALAI CHAAP | Price: 249'
+          },
+          {
+            name: 'Veg Manchurian Dry',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '249',
+            variants: [],
+            source_text: '- VEG MANCHURIAN DRY | Price: 249'
+          },
+          {
+            name: 'Paneer Tikka',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '279',
+            variants: [],
+            source_text: '- PANEER TIKKA | Price: 279'
+          },
+          {
+            name: 'Chilli Paneer Dry',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '299',
+            variants: [],
+            source_text: '- CHILLI PANEER DRY | Price: 299'
+          },
+          {
+            name: 'Chilli Mushroom Dry',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '299',
+            variants: [],
+            source_text: '- CHILLI MUSHROOM DRY | Price: 299'
+          },
+          {
+            name: 'Paneer 65',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '299',
+            variants: [],
+            source_text: '- PANEER 65 | Price: 299'
+          },
+          {
+            name: 'Paneer Malai Tikka',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '299',
+            variants: [],
+            source_text: '- PANEER MALAI TIKKA | Price: 299'
+          },
+          {
+            name: 'Afghani Paneer Tikka',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '299',
+            variants: [],
+            source_text: '- AFGHANI PANEER TIKKA | Price: 299'
+          },
+          {
+            name: 'Hariyali Paneer Tikka',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '299',
+            variants: [],
+            source_text: '- HARIYALI PANEER TIKKA | Price: 299'
+          },
+          {
+            name: 'Pahadi Paneer Tikka',
+            category: 'Starter',
+            sub_category: 'Starter',
+            description: null,
+            base_price: '299',
+            variants: [],
+            source_text: '- PAHADI PANEER TIKKA | Price: 299'
+          },
+          {
+            name: 'Deluxe Thaali',
+            category: 'Thaali',
+            sub_category: 'Thaali',
+            description: 'Daal Fry, Sabji Sukhi, Paneer Sabji, Raita, Rice, Tandoori Roti 2 Pc. / Tawa 3 Pc., Gulab Jamun',
+            base_price: '199',
+            variants: [],
+            source_text: '- DELUXE THAALI - (Daal Fry, Sabji Sukhi, Paneer Sabji, Raita, Rice, Tandoori Roti 2 Pc. / Tawa 3 Pc., Gulab Jamun) | Price: 199'
+          },
+          {
+            name: 'Special Thaali',
+            category: 'Thaali',
+            sub_category: 'Thaali',
+            description: 'Daal Makhani, Kadhal Paneer, Jeera/Matar Rice / Biryani, Mix Veg, Raita, Papad, Gulab Jamun',
+            base_price: '299',
+            variants: [],
+            source_text: '- SPECIAL THAALI - (Daal Makhani, Kadhal Paneer, Jeera/Matar Rice / Biryani, Mix Veg, Raita, Papad, Gulab Jamun) | Price: 299'
+          },
+          {
+            name: 'Veg Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- VEG NOODLE | Price: 149'
+          },
+          {
+            name: 'Chilli Garlic Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '159',
+            variants: [],
+            source_text: '- CHILLI GARLIC NOODLE | Price: 159'
+          },
+          {
+            name: 'Schezwan Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '159',
+            variants: [],
+            source_text: '- SCHEZWAN NOODLE | Price: 159'
+          },
+          {
+            name: 'Paneer Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- PANEER NOODLE / SCHEZWAN PANEER NOODLE | Price: 199'
+          },
+          {
+            name: 'Schezwan Paneer Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- PANEER NOODLE / SCHEZWAN PANEER NOODLE | Price: 199'
+          },
+          {
+            name: 'Mushroom Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- MUSHROOM NOODLE | Price: 199'
+          },
+          {
+            name: 'Baby Mushroom Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- BABY MUSHROOM NOODLE | Price: 199'
+          },
+          {
+            name: 'Hakka Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '219',
+            variants: [],
+            source_text: '- HAKKA NOODLE | Price: 219'
+          },
+          {
+            name: 'Singapuri Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '229',
+            variants: [],
+            source_text: '- SINGAPURI NOODLE | Price: 229'
+          },
+          {
+            name: 'Paneer Mushroom Noodle',
+            category: 'Noodles',
+            sub_category: 'Noodles',
+            description: null,
+            base_price: '249',
+            variants: [],
+            source_text: '- PANEER MUSHROOM NOODLE | Price: 249'
+          },
+          {
+            name: 'Plain Maggie',
+            category: 'Maggie',
+            sub_category: 'Maggie',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- PLAIN MAGGIE | Price: 99'
+          },
+          {
+            name: 'Veg Maggie',
+            category: 'Maggie',
+            sub_category: 'Maggie',
+            description: null,
+            base_price: '129',
+            variants: [],
+            source_text: '- VEG MAGGIE | Price: 129'
+          },
+          {
+            name: 'Paneer Maggie',
+            category: 'Maggie',
+            sub_category: 'Maggie',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- PANEER MAGGIE | Price: 149'
+          },
+          {
+            name: 'Italian Maggie',
+            category: 'Maggie',
+            sub_category: 'Maggie',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- ITALIAN MAGGIE | Price: 149'
+          },
+          {
+            name: 'Veg Burger (Aloo Tikki)',
+            category: 'Burger Served With Fries',
+            sub_category: 'Burger Served With Fries',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- VEG BURGER ( ALOO TIKKI) | Price: 99'
+          },
+          {
+            name: 'Paneer Burger',
+            category: 'Burger Served With Fries',
+            sub_category: 'Burger Served With Fries',
+            description: null,
+            base_price: '119',
+            variants: [],
+            source_text: '- PANEER BURGER | Price: 119'
+          },
+          {
+            name: 'Cheese Burger',
+            category: 'Burger Served With Fries',
+            sub_category: 'Burger Served With Fries',
+            description: null,
+            base_price: '119',
+            variants: [],
+            source_text: '- CHEESE BURGER | Price: 119'
+          },
+          {
+            name: 'Paneer Cheese Burger',
+            category: 'Burger Served With Fries',
+            sub_category: 'Burger Served With Fries',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- PANEER CHEESE BURGER | Price: 149'
+          },
+          {
+            name: 'Crunchy Paneer Burger',
+            category: 'Burger Served With Fries',
+            sub_category: 'Burger Served With Fries',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- CRUNCHY PANEER BURGER | Price: 149'
+          },
+          {
+            name: 'Veg Steam Momos',
+            category: 'Momos',
+            sub_category: 'Momos',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- VEG MOMOS (STEAM/ FRIED/ KURKURA) | Price: 99/129/149'
+          },
+          {
+            name: 'Veg Fried Momos',
+            category: 'Momos',
+            sub_category: 'Momos',
+            description: null,
+            base_price: '129',
+            variants: [],
+            source_text: '- VEG MOMOS (STEAM/ FRIED/ KURKURA) | Price: 99/129/149'
+          },
+          {
+            name: 'Veg Kurkura Momos',
+            category: 'Momos',
+            sub_category: 'Momos',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- VEG MOMOS (STEAM/ FRIED/ KURKURA) | Price: 99/129/149'
+          },
+          {
+            name: 'Paneer Steam Momos',
+            category: 'Momos',
+            sub_category: 'Momos',
+            description: null,
+            base_price: '119',
+            variants: [],
+            source_text: '- PANEER MOMOS (STEAM/ FRIED/ KURKURA) | Price: 119/149/169'
+          },
+          {
+            name: 'Paneer Fried Momos',
+            category: 'Momos',
+            sub_category: 'Momos',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- PANEER MOMOS (STEAM/ FRIED/ KURKURA) | Price: 119/149/169'
+          },
+          {
+            name: 'Paneer Kurkura Momos',
+            category: 'Momos',
+            sub_category: 'Momos',
+            description: null,
+            base_price: '169',
+            variants: [],
+            source_text: '- PANEER MOMOS (STEAM/ FRIED/ KURKURA) | Price: 119/149/169'
+          },
+          {
+            name: 'Dragon Chilli Momo',
+            category: 'Momos',
+            sub_category: 'Momos',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- DRAGON CHILLI MOMO | Price: 199'
+          },
+          {
+            name: 'Margherita Pizza',
+            category: 'Pizza',
+            sub_category: 'Pizza',
+            description: null,
+            base_price: '129',
+            variants: [],
+            source_text: '- MARGHERITA PIZZA | Price: 129'
+          },
+          {
+            name: 'Cheese Tomato Pizza',
+            category: 'Pizza',
+            sub_category: 'Pizza',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- CHEESE TOMATO PIZZA | Price: 149'
+          },
+          {
+            name: 'Cheese Capsicum Pizza',
+            category: 'Pizza',
+            sub_category: 'Pizza',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- CHEESE CAPSICUM PIZZA | Price: 149'
+          },
+          {
+            name: 'Onion Cheese Pizza',
+            category: 'Pizza',
+            sub_category: 'Pizza',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- ONION CHEESE PIZZA | Price: 149'
+          },
+          {
+            name: 'Golden Corn Pizza',
+            category: 'Pizza',
+            sub_category: 'Pizza',
+            description: null,
+            base_price: '149',
+            variants: [],
+            source_text: '- GOLDEN CORN PIZZA | Price: 149'
+          },
+          {
+            name: 'Farmhouse Pizza',
+            category: 'Pizza',
+            sub_category: 'Pizza',
+            description: null,
+            base_price: '199',
+            variants: [],
+            source_text: '- FARMHOUSE PIZZA | Price: 199'
+          },
+          {
+            name: 'Paneer Tikka Pizza',
+            category: 'Pizza',
+            sub_category: 'Pizza',
+            description: null,
+            base_price: '249',
+            variants: [],
+            source_text: '- PANEER TIKKA PIZZA | Price: 249'
+          },
+          {
+            name: 'Cafe 99 Special Pizza',
+            category: 'Pizza',
+            sub_category: 'Pizza',
+            description: null,
+            base_price: '299',
+            variants: [],
+            source_text: '- CAFE 99 SPECIAL PIZZA | Price: 299'
+          },
+          {
+            name: 'Manchow Soup',
+            category: 'Soup',
+            sub_category: 'Soup',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- MANCHOW SOUP | Price: 99'
+          },
+          {
+            name: 'Hot & Sour Soup',
+            category: 'Soup',
+            sub_category: 'Soup',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- HOT & SOUR SOUP | Price: 99'
+          },
+          {
+            name: 'Veg Peking Soup',
+            category: 'Soup',
+            sub_category: 'Soup',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- VEG PEKING SOUP | Price: 99'
+          },
+          {
+            name: 'Sweet Corn Soup',
+            category: 'Soup',
+            sub_category: 'Soup',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- SWEET CORN SOUP | Price: 99'
+          },
+          {
+            name: 'Special Chai',
+            category: 'Chai/ Coffee',
+            sub_category: 'Chai/ Coffee',
+            description: null,
+            base_price: '49',
+            variants: [],
+            source_text: '- SPECIAL CHAI | Price: 49'
+          },
+          {
+            name: 'Black Coffee',
+            category: 'Chai/ Coffee',
+            sub_category: 'Chai/ Coffee',
+            description: null,
+            base_price: '49',
+            variants: [],
+            source_text: '- BLACK COFFEE | Price: 49'
+          },
+          {
+            name: 'Coffee',
+            category: 'Chai/ Coffee',
+            sub_category: 'Chai/ Coffee',
+            description: null,
+            base_price: '99',
+            variants: [],
+            source_text: '- COFFEE | Price: 99'
+          }
+        ]
+      }
+    ],
+    merged_items: {
+      items: [
+        {
+          name: 'French fries',
+          category: 'Potato king',
+          sub_category: 'Potato king',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- FRENCH FRIES | Price: 99',
+          id: '1'
+        },
+        {
+          name: 'Chilli potato',
+          category: 'Potato king',
+          sub_category: 'Potato king',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- CHILLI POTATO | Price: 149',
+          id: '2'
+        },
+        {
+          name: 'Honey chilli potato',
+          category: 'Potato king',
+          sub_category: 'Potato king',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- HONEY CHILLI POTATO | Price: 199',
+          id: '3'
+        },
+        {
+          name: 'Spring roll (2 pieces)',
+          category: 'Road side special',
+          sub_category: 'Road side special',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- SPRING ROLL (2 Pcs.) | Price: 99',
+          id: '4'
+        },
+        {
+          name: 'Pav bhaji',
+          category: 'Road side special',
+          sub_category: 'Road side special',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- PAV BHAJI | Price: 99',
+          id: '5'
+        },
+        {
+          name: 'Chola bhatura (2 pieces)',
+          category: 'Road side special',
+          sub_category: 'Road side special',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- CHOLA BHATURA (2 PIECE) | Price: 149',
+          id: '6'
+        },
+        {
+          name: 'White sauce pasta',
+          category: 'Pasta',
+          sub_category: 'Pasta',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- WHITE SAUCE PASTA(spaghetti / penne) | Price: 199',
+          id: '7'
+        },
+        {
+          name: 'Red sauce pasta',
+          category: 'Pasta',
+          sub_category: 'Pasta',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- RED SAUCE PASTA (spaghetti / penne) | Price: 199',
+          id: '8'
+        },
+        {
+          name: 'Mix sauce pasta',
+          category: 'Pasta',
+          sub_category: 'Pasta',
+          description: null,
+          base_price: '219',
+          variants: [],
+          source_text: '- MIX SAUCE PASTA (spaghetti / penne) | Price: 219',
+          id: '9'
+        },
+        {
+          name: 'Veg sandwich',
+          category: 'Sandwich (grilled) served with fries',
+          sub_category: 'Sandwich (grilled) served with fries',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- VEG SANDWICH | Price: 99',
+          id: '10'
+        },
+        {
+          name: 'Veg cheese sandwich',
+          category: 'Sandwich (grilled) served with fries',
+          sub_category: 'Sandwich (grilled) served with fries',
+          description: null,
+          base_price: '119',
+          variants: [],
+          source_text: '- VEG CHEESE SANDWICH | Price: 119',
+          id: '11'
+        },
+        {
+          name: 'Veg wrap',
+          category: 'Sandwich (grilled) served with fries',
+          sub_category: 'Sandwich (grilled) served with fries',
+          description: null,
+          base_price: '119',
+          variants: [],
+          source_text: '- VEG/PANEER/ WRAP | Price: 119/139',
+          id: '12'
+        },
+        {
+          name: 'Paneer wrap',
+          category: 'Sandwich (grilled) served with fries',
+          sub_category: 'Sandwich (grilled) served with fries',
+          description: null,
+          base_price: '139',
+          variants: [],
+          source_text: '- VEG/PANEER/ WRAP | Price: 119/139',
+          id: '13'
+        },
+        {
+          name: 'Corn cheese sandwich',
+          category: 'Sandwich (grilled) served with fries',
+          sub_category: 'Sandwich (grilled) served with fries',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- CORN CHEESE SANDWICH | Price: 149',
+          id: '14'
+        },
+        {
+          name: 'Tandoori paneer sandwich',
+          category: 'Sandwich (grilled) served with fries',
+          sub_category: 'Sandwich (grilled) served with fries',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- TANDOORI PANEER SANDWICH | Price: 149',
+          id: '15'
+        },
+        {
+          name: 'Crispy corn',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- CRISPY CORN | Price: 199',
+          id: '16'
+        },
+        {
+          name: 'Afghani chaap',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '219',
+          variants: [],
+          source_text: '- AFGHANI CHAAP | Price: 219',
+          id: '17'
+        },
+        {
+          name: 'Achaari chaap',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '219',
+          variants: [],
+          source_text: '- ACHAAARI CHAAP | Price: 219',
+          id: '18'
+        },
+        {
+          name: 'Masala chaap',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '219',
+          variants: [],
+          source_text: '- MASALA CHAAP | Price: 219',
+          id: '19'
+        },
+        {
+          name: 'Hariyali chaap',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '219',
+          variants: [],
+          source_text: '- HARIYALI CHAAP | Price: 219',
+          id: '20'
+        },
+        {
+          name: 'Chilli chaap dry',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '229',
+          variants: [],
+          source_text: '- CHILLI CHAAP DRY | Price: 229',
+          id: '21'
+        },
+        {
+          name: 'Malai chaap',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '249',
+          variants: [],
+          source_text: '- MALAI CHAAP | Price: 249',
+          id: '22'
+        },
+        {
+          name: 'Veg manchurian dry',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '249',
+          variants: [],
+          source_text: '- VEG MANCHURIAN DRY | Price: 249',
+          id: '23'
+        },
+        {
+          name: 'Paneer tikka',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '279',
+          variants: [],
+          source_text: '- PANEER TIKKA | Price: 279',
+          id: '24'
+        },
+        {
+          name: 'Chilli paneer dry',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '299',
+          variants: [],
+          source_text: '- CHILLI PANEER DRY | Price: 299',
+          id: '25'
+        },
+        {
+          name: 'Chilli mushroom dry',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '299',
+          variants: [],
+          source_text: '- CHILLI MUSHROOM DRY | Price: 299',
+          id: '26'
+        },
+        {
+          name: 'Paneer 65',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '299',
+          variants: [],
+          source_text: '- PANEER 65 | Price: 299',
+          id: '27'
+        },
+        {
+          name: 'Paneer malai tikka',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '299',
+          variants: [],
+          source_text: '- PANEER MALAI TIKKA | Price: 299',
+          id: '28'
+        },
+        {
+          name: 'Afghani paneer tikka',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '299',
+          variants: [],
+          source_text: '- AFGHANI PANEER TIKKA | Price: 299',
+          id: '29'
+        },
+        {
+          name: 'Hariyali paneer tikka',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '299',
+          variants: [],
+          source_text: '- HARIYALI PANEER TIKKA | Price: 299',
+          id: '30'
+        },
+        {
+          name: 'Pahadi paneer tikka',
+          category: 'Starter',
+          sub_category: 'Starter',
+          description: null,
+          base_price: '299',
+          variants: [],
+          source_text: '- PAHADI PANEER TIKKA | Price: 299',
+          id: '31'
+        },
+        {
+          name: 'Deluxe thaali',
+          category: 'Thaali',
+          sub_category: 'Thaali',
+          description: 'Daal Fry, Sabji Sukhi, Paneer Sabji, Raita, Rice, Tandoori Roti 2 Pc. / Tawa 3 Pc., Gulab Jamun',
+          base_price: '199',
+          variants: [],
+          source_text: '- DELUXE THAALI - (Daal Fry, Sabji Sukhi, Paneer Sabji, Raita, Rice, Tandoori Roti 2 Pc. / Tawa 3 Pc., Gulab Jamun) | Price: 199',
+          id: '32'
+        },
+        {
+          name: 'Special thaali',
+          category: 'Thaali',
+          sub_category: 'Thaali',
+          description: 'Daal Makhani, Kadhal Paneer, Jeera/Matar Rice / Biryani, Mix Veg, Raita, Papad, Gulab Jamun',
+          base_price: '299',
+          variants: [],
+          source_text: '- SPECIAL THAALI - (Daal Makhani, Kadhal Paneer, Jeera/Matar Rice / Biryani, Mix Veg, Raita, Papad, Gulab Jamun) | Price: 299',
+          id: '33'
+        },
+        {
+          name: 'Veg noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- VEG NOODLE | Price: 149',
+          id: '34'
+        },
+        {
+          name: 'Chilli garlic noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '159',
+          variants: [],
+          source_text: '- CHILLI GARLIC NOODLE | Price: 159',
+          id: '35'
+        },
+        {
+          name: 'Schezwan noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '159',
+          variants: [],
+          source_text: '- SCHEZWAN NOODLE | Price: 159',
+          id: '36'
+        },
+        {
+          name: 'Paneer noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- PANEER NOODLE / SCHEZWAN PANEER NOODLE | Price: 199',
+          id: '37'
+        },
+        {
+          name: 'Schezwan paneer noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- PANEER NOODLE / SCHEZWAN PANEER NOODLE | Price: 199',
+          id: '38'
+        },
+        {
+          name: 'Mushroom noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- MUSHROOM NOODLE | Price: 199',
+          id: '39'
+        },
+        {
+          name: 'Baby mushroom noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- BABY MUSHROOM NOODLE | Price: 199',
+          id: '40'
+        },
+        {
+          name: 'Hakka noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '219',
+          variants: [],
+          source_text: '- HAKKA NOODLE | Price: 219',
+          id: '41'
+        },
+        {
+          name: 'Singapuri noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '229',
+          variants: [],
+          source_text: '- SINGAPURI NOODLE | Price: 229',
+          id: '42'
+        },
+        {
+          name: 'Paneer mushroom noodle',
+          category: 'Noodles',
+          sub_category: 'Noodles',
+          description: null,
+          base_price: '249',
+          variants: [],
+          source_text: '- PANEER MUSHROOM NOODLE | Price: 249',
+          id: '43'
+        },
+        {
+          name: 'Plain maggie',
+          category: 'Maggie',
+          sub_category: 'Maggie',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- PLAIN MAGGIE | Price: 99',
+          id: '44'
+        },
+        {
+          name: 'Veg maggie',
+          category: 'Maggie',
+          sub_category: 'Maggie',
+          description: null,
+          base_price: '129',
+          variants: [],
+          source_text: '- VEG MAGGIE | Price: 129',
+          id: '45'
+        },
+        {
+          name: 'Paneer maggie',
+          category: 'Maggie',
+          sub_category: 'Maggie',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- PANEER MAGGIE | Price: 149',
+          id: '46'
+        },
+        {
+          name: 'Italian maggie',
+          category: 'Maggie',
+          sub_category: 'Maggie',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- ITALIAN MAGGIE | Price: 149',
+          id: '47'
+        },
+        {
+          name: 'Veg burger (aloo tikki)',
+          category: 'Burger served with fries',
+          sub_category: 'Burger served with fries',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- VEG BURGER ( ALOO TIKKI) | Price: 99',
+          id: '48'
+        },
+        {
+          name: 'Paneer burger',
+          category: 'Burger served with fries',
+          sub_category: 'Burger served with fries',
+          description: null,
+          base_price: '119',
+          variants: [],
+          source_text: '- PANEER BURGER | Price: 119',
+          id: '49'
+        },
+        {
+          name: 'Cheese burger',
+          category: 'Burger served with fries',
+          sub_category: 'Burger served with fries',
+          description: null,
+          base_price: '119',
+          variants: [],
+          source_text: '- CHEESE BURGER | Price: 119',
+          id: '50'
+        },
+        {
+          name: 'Paneer cheese burger',
+          category: 'Burger served with fries',
+          sub_category: 'Burger served with fries',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- PANEER CHEESE BURGER | Price: 149',
+          id: '51'
+        },
+        {
+          name: 'Crunchy paneer burger',
+          category: 'Burger served with fries',
+          sub_category: 'Burger served with fries',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- CRUNCHY PANEER BURGER | Price: 149',
+          id: '52'
+        },
+        {
+          name: 'Veg steam momos',
+          category: 'Momos',
+          sub_category: 'Momos',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- VEG MOMOS (STEAM/ FRIED/ KURKURA) | Price: 99/129/149',
+          id: '53'
+        },
+        {
+          name: 'Veg fried momos',
+          category: 'Momos',
+          sub_category: 'Momos',
+          description: null,
+          base_price: '129',
+          variants: [],
+          source_text: '- VEG MOMOS (STEAM/ FRIED/ KURKURA) | Price: 99/129/149',
+          id: '54'
+        },
+        {
+          name: 'Veg kurkura momos',
+          category: 'Momos',
+          sub_category: 'Momos',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- VEG MOMOS (STEAM/ FRIED/ KURKURA) | Price: 99/129/149',
+          id: '55'
+        },
+        {
+          name: 'Paneer steam momos',
+          category: 'Momos',
+          sub_category: 'Momos',
+          description: null,
+          base_price: '119',
+          variants: [],
+          source_text: '- PANEER MOMOS (STEAM/ FRIED/ KURKURA) | Price: 119/149/169',
+          id: '56'
+        },
+        {
+          name: 'Paneer fried momos',
+          category: 'Momos',
+          sub_category: 'Momos',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- PANEER MOMOS (STEAM/ FRIED/ KURKURA) | Price: 119/149/169',
+          id: '57'
+        },
+        {
+          name: 'Paneer kurkura momos',
+          category: 'Momos',
+          sub_category: 'Momos',
+          description: null,
+          base_price: '169',
+          variants: [],
+          source_text: '- PANEER MOMOS (STEAM/ FRIED/ KURKURA) | Price: 119/149/169',
+          id: '58'
+        },
+        {
+          name: 'Dragon chilli momo',
+          category: 'Momos',
+          sub_category: 'Momos',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- DRAGON CHILLI MOMO | Price: 199',
+          id: '59'
+        },
+        {
+          name: 'Margherita pizza',
+          category: 'Pizza',
+          sub_category: 'Pizza',
+          description: null,
+          base_price: '129',
+          variants: [],
+          source_text: '- MARGHERITA PIZZA | Price: 129',
+          id: '60'
+        },
+        {
+          name: 'Cheese tomato pizza',
+          category: 'Pizza',
+          sub_category: 'Pizza',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- CHEESE TOMATO PIZZA | Price: 149',
+          id: '61'
+        },
+        {
+          name: 'Cheese capsicum pizza',
+          category: 'Pizza',
+          sub_category: 'Pizza',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- CHEESE CAPSICUM PIZZA | Price: 149',
+          id: '62'
+        },
+        {
+          name: 'Onion cheese pizza',
+          category: 'Pizza',
+          sub_category: 'Pizza',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- ONION CHEESE PIZZA | Price: 149',
+          id: '63'
+        },
+        {
+          name: 'Golden corn pizza',
+          category: 'Pizza',
+          sub_category: 'Pizza',
+          description: null,
+          base_price: '149',
+          variants: [],
+          source_text: '- GOLDEN CORN PIZZA | Price: 149',
+          id: '64'
+        },
+        {
+          name: 'Farmhouse pizza',
+          category: 'Pizza',
+          sub_category: 'Pizza',
+          description: null,
+          base_price: '199',
+          variants: [],
+          source_text: '- FARMHOUSE PIZZA | Price: 199',
+          id: '65'
+        },
+        {
+          name: 'Paneer tikka pizza',
+          category: 'Pizza',
+          sub_category: 'Pizza',
+          description: null,
+          base_price: '249',
+          variants: [],
+          source_text: '- PANEER TIKKA PIZZA | Price: 249',
+          id: '66'
+        },
+        {
+          name: 'Cafe 99 special pizza',
+          category: 'Pizza',
+          sub_category: 'Pizza',
+          description: null,
+          base_price: '299',
+          variants: [],
+          source_text: '- CAFE 99 SPECIAL PIZZA | Price: 299',
+          id: '67'
+        },
+        {
+          name: 'Manchow soup',
+          category: 'Soup',
+          sub_category: 'Soup',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- MANCHOW SOUP | Price: 99',
+          id: '68'
+        },
+        {
+          name: 'Hot & sour soup',
+          category: 'Soup',
+          sub_category: 'Soup',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- HOT & SOUR SOUP | Price: 99',
+          id: '69'
+        },
+        {
+          name: 'Veg peking soup',
+          category: 'Soup',
+          sub_category: 'Soup',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- VEG PEKING SOUP | Price: 99',
+          id: '70'
+        },
+        {
+          name: 'Sweet corn soup',
+          category: 'Soup',
+          sub_category: 'Soup',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- SWEET CORN SOUP | Price: 99',
+          id: '71'
+        },
+        {
+          name: 'Special chai',
+          category: 'Chai/ coffee',
+          sub_category: 'Chai/ coffee',
+          description: null,
+          base_price: '49',
+          variants: [],
+          source_text: '- SPECIAL CHAI | Price: 49',
+          id: '72'
+        },
+        {
+          name: 'Black coffee',
+          category: 'Chai/ coffee',
+          sub_category: 'Chai/ coffee',
+          description: null,
+          base_price: '49',
+          variants: [],
+          source_text: '- BLACK COFFEE | Price: 49',
+          id: '73'
+        },
+        {
+          name: 'Coffee',
+          category: 'Chai/ coffee',
+          sub_category: 'Chai/ coffee',
+          description: null,
+          base_price: '99',
+          variants: [],
+          source_text: '- COFFEE | Price: 99',
+          id: '74'
+        }
+      ]
+    },
+    normalized_menu: {
+      category: [
+        {
+          name: 'Snacks',
+          sub_category: [
+            {
+              name: 'Potato',
+              items: [
+                {
+                  id: '1',
+                  name: 'French Fries',
+                  category: 'Snacks',
+                  sub_category: 'Potato',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '2',
+                  name: 'Chilli Potato',
+                  category: 'Snacks',
+                  sub_category: 'Potato',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '3',
+                  name: 'Honey Chilli Potato',
+                  category: 'Snacks',
+                  sub_category: 'Potato',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Street Food',
+          sub_category: [
+            {
+              name: 'Street Food',
+              items: [
+                {
+                  id: '4',
+                  name: 'Spring Roll (2 Pieces)',
+                  category: 'Street Food',
+                  sub_category: 'Street Food',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '5',
+                  name: 'Pav Bhaji',
+                  category: 'Street Food',
+                  sub_category: 'Street Food',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '6',
+                  name: 'Chole Bhature (2 Pieces)',
+                  category: 'Street Food',
+                  sub_category: 'Street Food',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Pasta',
+          sub_category: [
+            {
+              name: 'Pasta',
+              items: [
+                {
+                  id: '7',
+                  name: 'White Sauce Pasta',
+                  category: 'Pasta',
+                  sub_category: 'Pasta',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '8',
+                  name: 'Red Sauce Pasta',
+                  category: 'Pasta',
+                  sub_category: 'Pasta',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '9',
+                  name: 'Mix Sauce Pasta',
+                  category: 'Pasta',
+                  sub_category: 'Pasta',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '219',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Sandwiches',
+          sub_category: [
+            {
+              name: 'Sandwiches',
+              items: [
+                {
+                  id: '10',
+                  name: 'Veg Sandwich',
+                  category: 'Sandwiches',
+                  sub_category: 'Sandwiches',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '11',
+                  name: 'Veg Cheese Sandwich',
+                  category: 'Sandwiches',
+                  sub_category: 'Sandwiches',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '119',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '14',
+                  name: 'Corn Cheese Sandwich',
+                  category: 'Sandwiches',
+                  sub_category: 'Sandwiches',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '15',
+                  name: 'Tandoori Paneer Sandwich',
+                  category: 'Sandwiches',
+                  sub_category: 'Sandwiches',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Wraps',
+          sub_category: [
+            {
+              name: 'Wraps',
+              items: [
+                {
+                  id: '12',
+                  name: 'Veg Wrap',
+                  category: 'Wraps',
+                  sub_category: 'Wraps',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '119',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '13',
+                  name: 'Paneer Wrap',
+                  category: 'Wraps',
+                  sub_category: 'Wraps',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '139',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Starters',
+          sub_category: [
+            {
+              name: 'Starters',
+              items: [
+                {
+                  id: '16',
+                  name: 'Crispy Corn',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '17',
+                  name: 'Afghani Chaap',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '219',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '18',
+                  name: 'Achaari Chaap',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '219',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '19',
+                  name: 'Masala Chaap',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '219',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '20',
+                  name: 'Hariyali Chaap',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '219',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '21',
+                  name: 'Chilli Chaap Dry',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '229',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '22',
+                  name: 'Malai Chaap',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '249',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '23',
+                  name: 'Veg Manchurian Dry',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '249',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '24',
+                  name: 'Paneer Tikka',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '279',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '25',
+                  name: 'Chilli Paneer Dry',
+                  category: 'Starters',
+                  sub_category: 'Starters',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '299',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Starters',
+          sub_category: [
+            {
+              name: 'Mushroom',
+              items: [
+                {
+                  id: '26',
+                  name: 'Chilli Mushroom Dry',
+                  category: 'Starters',
+                  sub_category: 'Mushroom',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '299',
+                  description: null,
+                  variants: []
+                }
+              ]
+            },
+            {
+              name: 'Paneer',
+              items: [
+                {
+                  id: '27',
+                  name: 'Paneer 65',
+                  category: 'Starters',
+                  sub_category: 'Paneer',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '299',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '28',
+                  name: 'Paneer Malai Tikka',
+                  category: 'Starters',
+                  sub_category: 'Paneer',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '299',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '29',
+                  name: 'Afghani Paneer Tikka',
+                  category: 'Starters',
+                  sub_category: 'Paneer',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '299',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '30',
+                  name: 'Hariyali Paneer Tikka',
+                  category: 'Starters',
+                  sub_category: 'Paneer',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '299',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '31',
+                  name: 'Pahadi Paneer Tikka',
+                  category: 'Starters',
+                  sub_category: 'Paneer',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '299',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Thalis',
+          sub_category: [
+            {
+              name: 'Thalis',
+              items: [
+                {
+                  id: '32',
+                  name: 'Deluxe Thali',
+                  category: 'Thalis',
+                  sub_category: 'Thalis',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: 'Daal Fry, Sabji Sukhi, Paneer Sabji, Raita, Rice, Tandoori Roti 2 Pc. / Tawa 3 Pc., Gulab Jamun',
+                  variants: []
+                },
+                {
+                  id: '33',
+                  name: 'Special Thali',
+                  category: 'Thalis',
+                  sub_category: 'Thalis',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '299',
+                  description: 'Daal Makhani, Kadhal Paneer, Jeera/Matar Rice / Biryani, Mix Veg, Raita, Papad, Gulab Jamun',
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Noodles',
+          sub_category: [
+            {
+              name: 'Noodles',
+              items: [
+                {
+                  id: '34',
+                  name: 'Veg Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '35',
+                  name: 'Chilli Garlic Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '159',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '36',
+                  name: 'Schezwan Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '159',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '37',
+                  name: 'Paneer Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '38',
+                  name: 'Paneer Schezwan Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '39',
+                  name: 'Mushroom Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '40',
+                  name: 'Baby Mushroom Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '41',
+                  name: 'Hakka Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '219',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '42',
+                  name: 'Singapuri Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '229',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '43',
+                  name: 'Paneer Mushroom Noodles',
+                  category: 'Noodles',
+                  sub_category: 'Noodles',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '249',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Snacks',
+          sub_category: [
+            {
+              name: 'Maggie',
+              items: [
+                {
+                  id: '44',
+                  name: 'Plain Maggi',
+                  category: 'Snacks',
+                  sub_category: 'Maggie',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '45',
+                  name: 'Veg Maggi',
+                  category: 'Snacks',
+                  sub_category: 'Maggie',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '129',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '46',
+                  name: 'Paneer Maggi',
+                  category: 'Snacks',
+                  sub_category: 'Maggie',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '47',
+                  name: 'Italian Maggi',
+                  category: 'Snacks',
+                  sub_category: 'Maggie',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Burgers',
+          sub_category: [
+            {
+              name: 'Burgers',
+              items: [
+                {
+                  id: '48',
+                  name: 'Aloo Tikki Veg Burger',
+                  category: 'Burgers',
+                  sub_category: 'Burgers',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '49',
+                  name: 'Paneer Burger',
+                  category: 'Burgers',
+                  sub_category: 'Burgers',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '119',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '50',
+                  name: 'Cheese Burger',
+                  category: 'Burgers',
+                  sub_category: 'Burgers',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '119',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Burgers',
+          sub_category: [
+            {
+              name: 'Burgers',
+              items: [
+                {
+                  id: '51',
+                  name: 'Paneer Cheese Burger',
+                  category: 'Burgers',
+                  sub_category: 'Burgers',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '52',
+                  name: 'Crunchy Paneer Burger',
+                  category: 'Burgers',
+                  sub_category: 'Burgers',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Momos',
+          sub_category: [
+            {
+              name: 'Momos',
+              items: [
+                {
+                  id: '53',
+                  name: 'Veg Steamed Momos',
+                  category: 'Momos',
+                  sub_category: 'Momos',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '54',
+                  name: 'Veg Fried Momos',
+                  category: 'Momos',
+                  sub_category: 'Momos',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '129',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '55',
+                  name: 'Veg Kurkure Momos',
+                  category: 'Momos',
+                  sub_category: 'Momos',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '56',
+                  name: 'Paneer Steamed Momos',
+                  category: 'Momos',
+                  sub_category: 'Momos',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '119',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '57',
+                  name: 'Paneer Fried Momos',
+                  category: 'Momos',
+                  sub_category: 'Momos',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '58',
+                  name: 'Paneer Kurkure Momos',
+                  category: 'Momos',
+                  sub_category: 'Momos',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '169',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '59',
+                  name: 'Dragon Chilli Momos',
+                  category: 'Momos',
+                  sub_category: 'Momos',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Pizza',
+          sub_category: [
+            {
+              name: 'Pizza',
+              items: [
+                {
+                  id: '60',
+                  name: 'Margherita Pizza',
+                  category: 'Pizza',
+                  sub_category: 'Pizza',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '129',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '61',
+                  name: 'Cheese Tomato Pizza',
+                  category: 'Pizza',
+                  sub_category: 'Pizza',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '62',
+                  name: 'Cheese Capsicum Pizza',
+                  category: 'Pizza',
+                  sub_category: 'Pizza',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '63',
+                  name: 'Onion Cheese Pizza',
+                  category: 'Pizza',
+                  sub_category: 'Pizza',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '64',
+                  name: 'Golden Corn Pizza',
+                  category: 'Pizza',
+                  sub_category: 'Pizza',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '149',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '65',
+                  name: 'Farmhouse Pizza',
+                  category: 'Pizza',
+                  sub_category: 'Pizza',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '199',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '66',
+                  name: 'Paneer Tikka Pizza',
+                  category: 'Pizza',
+                  sub_category: 'Pizza',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '249',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '67',
+                  name: 'Cafe 99 Special Pizza',
+                  category: 'Pizza',
+                  sub_category: 'Pizza',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '299',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Soups',
+          sub_category: [
+            {
+              name: 'Soups',
+              items: [
+                {
+                  id: '68',
+                  name: 'Manchow Soup',
+                  category: 'Soups',
+                  sub_category: 'Soups',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '69',
+                  name: 'Hot and Sour Soup',
+                  category: 'Soups',
+                  sub_category: 'Soups',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '70',
+                  name: 'Veg Peking Soup',
+                  category: 'Soups',
+                  sub_category: 'Soups',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '71',
+                  name: 'Sweet Corn Soup',
+                  category: 'Soups',
+                  sub_category: 'Soups',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        },
+        {
+          name: 'Beverages',
+          sub_category: [
+            {
+              name: 'Beverages',
+              items: [
+                {
+                  id: '72',
+                  name: 'Special Chai',
+                  category: 'Beverages',
+                  sub_category: 'Beverages',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '49',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '73',
+                  name: 'Black Coffee',
+                  category: 'Beverages',
+                  sub_category: 'Beverages',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '49',
+                  description: null,
+                  variants: []
+                },
+                {
+                  id: '74',
+                  name: 'Coffee',
+                  category: 'Beverages',
+                  sub_category: 'Beverages',
+                  is_veg: 'VEG',
+                  meat_types: [],
+                  base_price: '99',
+                  description: null,
+                  variants: []
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

@@ -187,22 +187,31 @@ export default function UploadMenuEditor() {
                         Upload PDF/Images or directly paste raw text of your physical menu to let our AI parse it.
                     </p>
                 </div>
-                {!uploadStatus && (
-                    <div className="flex bg-gray-200/50 p-1 rounded-lg border border-gray-200">
-                        <button 
-                            onClick={() => setInputType("file")}
-                            className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${inputType === "file" ? "bg-white text-gray-800 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
-                        >
-                            Files
-                        </button>
-                        <button 
-                            onClick={() => setInputType("text")}
-                            className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${inputType === "text" ? "bg-white text-gray-800 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
-                        >
-                            Text
-                        </button>
-                    </div>
-                )}
+                <div className="flex items-center gap-3">
+                    <a
+                        href="/jobs"
+                        className="px-3.5 py-1.5 text-xs font-bold rounded-lg border border-slate-300 bg-white text-slate-700 hover:bg-slate-50 transition-colors shadow-2xs flex items-center gap-1.5"
+                    >
+                        <span>View All Queues</span>
+                        <span className="text-slate-400">→</span>
+                    </a>
+                    {!uploadStatus && (
+                        <div className="flex bg-gray-200/50 p-1 rounded-lg border border-gray-200">
+                            <button 
+                                onClick={() => setInputType("file")}
+                                className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${inputType === "file" ? "bg-white text-gray-800 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                            >
+                                Files
+                            </button>
+                            <button 
+                                onClick={() => setInputType("text")}
+                                className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors ${inputType === "text" ? "bg-white text-gray-800 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                            >
+                                Text
+                            </button>
+                        </div>
+                    )}
+                </div>
             </div>
 
             {/* If we are actively processing the UI is locked to show progress */}

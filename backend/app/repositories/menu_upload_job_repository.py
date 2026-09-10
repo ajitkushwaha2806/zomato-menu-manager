@@ -107,3 +107,21 @@ class MenuUploadJobRepository:
             document.pop("_id", None)
             jobs.append(MenuUploadJob(**document))
         return jobs
+
+    def get_all_jobs(self, limit: int = 100, status: str | None = None, restaurant_id: str | None = None) -> list[MenuUploadJob]:
+        query = {}
+        if status and status != "all":
+            query["status"] = status
+        if restaurant_id:
+            query["restaurant_id"] = restaurant_id
+
+        cursor = self.collection.find(query).sort("created_at", -1).limit(limit)
+        jobs = []
+        for document in cursor:
+            document.pop("_id", None)
+            jobs.append(MenuUploadJob(**document))
+        return jobs
+
+    def delete_job(self, job_id: str) -> bool:
+        result = self.collection.delete_one({"job_id": job_id})
+        return result.deleted_count > 0

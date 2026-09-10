@@ -80,6 +80,26 @@ async def get_failed_jobs():
         data=[job.model_dump(mode="json") for job in jobs],
     )
 
+@router.get("/jobs", status_code=200)
+async def get_all_jobs(status: str | None = None, restaurant_id: str | None = None, limit: int = 100):
+    repository = MenuUploadJobRepository()
+    jobs = repository.get_all_jobs(limit=limit, status=status, restaurant_id=restaurant_id)
+    return SuccessResponse(
+        message="All queue jobs retrieved successfully.",
+        data=[job.model_dump(mode="json") for job in jobs],
+    )
+
+@router.delete("/jobs/{job_id}", status_code=200)
+async def delete_job(job_id: str):
+    repository = MenuUploadJobRepository()
+    deleted = repository.delete_job(job_id)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Job not found")
+    return SuccessResponse(
+        message="Job deleted successfully.",
+        data={"job_id": job_id},
+    )
+
 @router.post("/upload/{job_id}/resume", status_code=202)
 async def resume_upload_job(job_id: str, background_tasks: BackgroundTasks):
     from app.services.queue.sqs import SQSService
