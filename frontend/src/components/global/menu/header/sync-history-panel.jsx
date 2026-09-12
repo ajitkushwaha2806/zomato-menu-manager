@@ -2,9 +2,178 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, RefreshCcw, CheckCircle2, Clock, AlertCircle, FileJson, ChevronDown, ChevronUp } from "lucide-react";
+import { X, RefreshCcw, CheckCircle2, Clock, AlertCircle, FileJson, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import api from "@/lib/api/axios";
 import useNotification from "@/store/hooks/useNotification";
+
+const generateTempId = () => {
+    if (typeof window !== "undefined" && window.crypto && window.crypto.randomUUID) {
+        return `temp-${window.crypto.randomUUID()}`;
+    }
+    return `temp-${Math.random().toString(36).substring(2, 11)}-${Date.now().toString(36)}`;
+};
+
+export const transformMenuAsNew = (updatedMenu) => {
+    if (!updatedMenu) return { categories: [], sub_categories: [], items: [] };
+
+    const categoryIdMap = new Map();
+    const categoryNameMap = new Map();
+    const subCategoryIdMap = new Map();
+    const subCategoryNameMap = new Map();
+
+    const originalCategories = updatedMenu.categories || [];
+    const originalSubCategories = updatedMenu.sub_categories || [];
+    const originalItems = updatedMenu.items || [];
+
+    // 1. Transform Categories
+    const categories = originalCategories.map((cat) => {
+        const newCatId = generateTempId();
+        if (cat.id) {
+            categoryIdMap.set(String(cat.id), newCatId);
+        }
+        if (cat.name) {
+            categoryNameMap.set(cat.name.trim().toLowerCase(), newCatId);
+        }
+        const { status, error, ...restCat } = cat;
+        return {
+            ...restCat,
+            id: newCatId,
+            action: "create",
+        };
+    });
+
+    // 2. Transform SubCategories
+    const sub_categories = originalSubCategories.map((sub) => {
+        const newSubId = generateTempId();
+        if (sub.id) {
+            subCategoryIdMap.set(String(sub.id), newSubId);
+        }
+        if (sub.name) {
+            subCategoryNameMap.set(sub.name.trim().toLowerCase(), newSubId);
+        }
+
+        let mappedCatId = sub.categoryId ? categoryIdMap.get(String(sub.categoryId)) : null;
+        if (!mappedCatId && sub.categoryName) {
+            mappedCatId = categoryNameMap.get(sub.categoryName.trim().toLowerCase());
+        }
+        if (!mappedCatId) {
+            mappedCatId = (sub.categoryId && String(sub.categoryId).startsWith("temp-")) ? sub.categoryId : generateTempId();
+        }
+
+        const { status, error, ...restSub } = sub;
+        return {
+            ...restSub,
+            id: newSubId,
+            categoryId: mappedCatId,
+            action: "create",
+        };
+    });
+
+    // 3. Transform Items
+    const items = originalItems.map((item) => {
+        const newItemId = generateTempId();
+
+        let mappedCatId = item.categoryId ? categoryIdMap.get(String(item.categoryId)) : null;
+        if (!mappedCatId && item.categoryName) {
+            mappedCatId = categoryNameMap.get(item.categoryName.trim().toLowerCase());
+        }
+        if (!mappedCatId && item.categoryId && String(item.categoryId).startsWith("temp-")) {
+            mappedCatId = item.categoryId;
+        }
+
+        let mappedSubCatId = item.subCategoryId ? subCategoryIdMap.get(String(item.subCategoryId)) : null;
+        if (!mappedSubCatId && item.subCategoryName) {
+            mappedSubCatId = subCategoryNameMap.get(item.subCategoryName.trim().toLowerCase());
+        }
+        if (!mappedSubCatId && item.subCategoryId && String(item.subCategoryId).startsWith("temp-")) {
+            mappedSubCatId = item.subCategoryId;
+        }
+
+        // Transform variants
+        const transformedVariants = Array.isArray(item.variants)
+            ? item.variants.map((vg) => {
+                  const newPropId = generateTempId();
+                  return {
+                      ...vg,
+                      id: newPropId,
+                      property_id: newPropId,
+                      status: undefined,
+                      error: undefined,
+                      options: Array.isArray(vg.options)
+                          ? vg.options.map((opt) => {
+                                const newOptId = generateTempId();
+                                return {
+                                    ...opt,
+                                    id: newOptId,
+                                    option_id: newOptId,
+                                    status: undefined,
+                                    error: undefined,
+                                };
+                            })
+                          : [],
+                  };
+              })
+            : item.variants;
+
+        // Transform addon groups if present
+        const transformedAddonGroups = Array.isArray(item.addonGroups || item.addon_groups)
+            ? (item.addonGroups || item.addon_groups).map((ag) => {
+                  const newAgId = generateTempId();
+                  return {
+                      ...ag,
+                      id: newAgId,
+                      group_id: newAgId,
+                      status: undefined,
+                      error: undefined,
+                      options: Array.isArray(ag.options || ag.addons)
+                          ? (ag.options || ag.addons).map((opt) => {
+                                const newOptId = generateTempId();
+                                return {
+                                    ...opt,
+                                    id: newOptId,
+                                    addon_id: newOptId,
+                                    status: undefined,
+                                    error: undefined,
+                                };
+                            })
+                          : [],
+                  };
+              })
+            : (item.addonGroups || item.addon_groups);
+
+        // Transform media
+        const transformedMedia = Array.isArray(item.media)
+            ? item.media.map((m) => {
+                  if (typeof m === "object" && m !== null) {
+                      return {
+                          ...m,
+                          tempReferenceId: generateTempId(),
+                          id: undefined,
+                      };
+                  }
+                  return m;
+              })
+            : item.media;
+
+        const { status, error, ...restItem } = item;
+        return {
+            ...restItem,
+            id: newItemId,
+            ...(mappedCatId ? { categoryId: mappedCatId } : {}),
+            ...(mappedSubCatId ? { subCategoryId: mappedSubCatId } : {}),
+            ...(transformedVariants ? { variants: transformedVariants } : {}),
+            ...(transformedAddonGroups ? { addonGroups: transformedAddonGroups } : {}),
+            ...(transformedMedia ? { media: transformedMedia } : {}),
+            action: "create",
+        };
+    });
+
+    return {
+        categories,
+        sub_categories,
+        items,
+    };
+};
 
 const StatusBadge = ({ status }) => {
 // ... existing code for StatusBadge ...
@@ -93,7 +262,7 @@ const SyncItem = ({ label, items, type }) => {
     );
 };
 
-const JobCard = ({ job, onRetry, onRetryFailed, isRetrying }) => {
+const JobCard = ({ job, onRetry, onRetryFailed, onRetryAllAsNew, isRetrying }) => {
     const [expanded, setExpanded] = useState(false);
     
     const categories = job.updated_menu?.categories || [];
@@ -124,7 +293,7 @@ const JobCard = ({ job, onRetry, onRetryFailed, isRetrying }) => {
                     </p>
                     <p className="text-xs text-gray-500 font-mono mt-0.5">ID: {job._id}</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     {hasFailedItems && (
                         <button
                             onClick={(e) => {
@@ -132,7 +301,8 @@ const JobCard = ({ job, onRetry, onRetryFailed, isRetrying }) => {
                                 onRetryFailed(job);
                             }}
                             disabled={isRetrying}
-                            className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors disabled:opacity-50"
+                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-amber-50 text-amber-700 rounded-md hover:bg-amber-100 transition-colors disabled:opacity-50"
+                            title="Retry only failed items"
                         >
                             <RefreshCcw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
                             Retry Failed
@@ -144,12 +314,25 @@ const JobCard = ({ job, onRetry, onRetryFailed, isRetrying }) => {
                             onRetry(job);
                         }}
                         disabled={isRetrying}
-                        className="flex items-center gap-1 px-3 py-1.5 text-xs font-medium bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors disabled:opacity-50"
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-blue-50 text-blue-600 rounded-md hover:bg-blue-100 transition-colors disabled:opacity-50"
+                        title="Retry all changes with existing IDs"
                     >
                         <RefreshCcw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
                         Retry All
                     </button>
-                    <div className="text-gray-400">
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onRetryAllAsNew(job);
+                        }}
+                        disabled={isRetrying}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-purple-50 text-purple-700 rounded-md hover:bg-purple-100 transition-colors disabled:opacity-50 shadow-sm border border-purple-200/60"
+                        title="Regenerate all IDs as temp- and upload menu as new"
+                    >
+                        <Sparkles className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
+                        Retry All as New
+                    </button>
+                    <div className="text-gray-400 ml-1">
                         {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                     </div>
                 </div>
@@ -257,6 +440,26 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
         }
     };
 
+    const handleRetryAllAsNew = async (job) => {
+        try {
+            setRetryingId(job._id);
+            const transformedMenu = transformMenuAsNew(job.updated_menu);
+            const payload = { updated_menu: transformedMenu };
+            const res = await api.post(`/api/menu/${resId}/swiggy/queue-changes`, payload);
+            if (res.data?.success) {
+                notify.success("All items queued for retry as new entities!");
+                fetchHistory(); // refresh the list
+            } else {
+                notify.error(res.data?.message || "Failed to retry sync job as new.");
+            }
+        } catch (error) {
+            console.error("Failed to retry job as new", error);
+            notify.error("Failed to retry sync job as new.");
+        } finally {
+            setRetryingId(null);
+        }
+    };
+
     useEffect(() => {
         if (isOpen && resId) {
             fetchHistory();
@@ -331,6 +534,7 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
                                             job={job} 
                                             onRetry={handleRetry}
                                             onRetryFailed={handleRetryFailed}
+                                            onRetryAllAsNew={handleRetryAllAsNew}
                                             isRetrying={retryingId === job._id}
                                         />
                                     ))}

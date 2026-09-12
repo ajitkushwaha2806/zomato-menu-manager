@@ -37,6 +37,44 @@ export async function POST(req, { params }) {
                 );
             }
             updated_menu = menuDoc.menu;
+        } else if (Array.isArray(updated_menu.categories) && updated_menu.categories.length > 0) {
+            const newMenuData = updated_menu.categories.map((cat) => {
+                const catSubs = (updated_menu.sub_categories || []).filter(
+                    (s) => String(s.categoryId) === String(cat.id)
+                );
+                return {
+                    id: cat.id,
+                    name: cat.name,
+                    sub_category: catSubs.map((sub) => {
+                        const subItems = (updated_menu.items || []).filter(
+                            (i) => String(i.subCategoryId) === String(sub.id)
+                        );
+                        return {
+                            id: sub.id,
+                            categoryId: cat.id,
+                            name: sub.name,
+                            items: subItems.map((item) => {
+                                const { action, status, error, ...cleanItem } = item;
+                                return cleanItem;
+                            }),
+                        };
+                    }),
+                };
+            });
+
+            if (newMenuData.length > 0) {
+                if (menuDoc) {
+                    menuDoc.menu = newMenuData;
+                    menuDoc.markModified("menu");
+                    await menuDoc.save();
+                } else {
+                    await Menu.create({
+                        resId,
+                        platform: "swiggy",
+                        menu: newMenuData,
+                    });
+                }
+            }
         }
 
         if (!resId) {
