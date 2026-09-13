@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import useNotification from "@/store/hooks/useNotification";
-import { FileUp, Loader2, CheckCircle2, AlertCircle, X, Image as ImageIcon } from "lucide-react";
+import { insertFullCategory as dispatchInsertFullCategory } from "@/store/slice/menuSlice";
+import { FileUp, Loader2, CheckCircle2, AlertCircle, X, Image as ImageIcon, Code2 } from "lucide-react";
 import axios from "axios";
 let pdfjsLib = null;
 if (typeof window !== "undefined") {
@@ -13,10 +14,13 @@ if (typeof window !== "undefined") {
 
 export default function UploadMenuEditor() {
     const { activeResId, activePlatform } = useSelector((state) => state.menu);
+    const dispatch = useDispatch();
     const notification = useNotification();
     
     // UI States
-    const [inputType, setInputType] = useState("file"); // 'file' or 'text'
+    const [inputType, setInputType] = useState("file"); // 'file', 'text', or 'json'
+    const [jsonText, setJsonText] = useState("");
+    const [jsonImportCount, setJsonImportCount] = useState(null);
     const [rawText, setRawText] = useState("");
     const [imagesToUpload, setImagesToUpload] = useState([]); // Array of { id, file, url }
     const [isProcessingLocalFiles, setIsProcessingLocalFiles] = useState(false);
@@ -209,6 +213,13 @@ export default function UploadMenuEditor() {
                             >
                                 Text
                             </button>
+                            <button 
+                                onClick={() => setInputType("json")}
+                                className={`px-4 py-1.5 text-sm font-semibold rounded-md transition-colors flex items-center gap-1.5 ${inputType === "json" ? "bg-white text-gray-800 shadow-sm" : "text-gray-500 hover:text-gray-700"}`}
+                            >
+                                <Code2 className="w-3.5 h-3.5" />
+                                JSON
+                            </button>
                         </div>
                     )}
                 </div>
@@ -346,7 +357,7 @@ export default function UploadMenuEditor() {
                                 </div>
                             )}
                         </>
-                    ) : (
+                    ) : inputType === "text" ? (
                         <div className="flex flex-col flex-1 h-full gap-4">
                             <textarea 
                                 className="flex-1 w-full p-4 border border-gray-300 rounded-xl resize-none focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-white text-sm"
@@ -366,6 +377,263 @@ export default function UploadMenuEditor() {
                                 </button>
                             </div>
                         </div>
+                    ) : (
+                        <div className="flex flex-col flex-1 h-full gap-4 overflow-y-auto">
+                            {/* Step 1: Copy Prompt */}
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm space-y-3">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">1</span>
+                                        <h3 className="text-sm font-bold text-gray-800">Copy the AI Prompt</h3>
+                                    </div>
+                                    <button
+                                        onClick={() => {
+                                            const prompt = `You are an expert restaurant menu parser. I will upload a restaurant menu (image or PDF).
+
+Your task is to extract ALL items from the menu and return them as a JSON array of categories.
+
+RULES:
+1. Each category must have a "name" and a "sub_category" array.
+2. Each sub_category must have a "name" and an "items" array.
+3. If no clear sub-categories exist, set sub_category name same as category name.
+4. Each item must have:
+   - "name": Item name (proper title case, e.g. "Paneer Tikka" not "PANEER TIKKA")
+   - "base_price": Number (e.g. 249). If item has variants, set base_price to the lowest variant price.
+   - "description": Description if present, otherwise empty string ""
+   - "is_veg": "VEG", "NON_VEG", or "EGG"
+   - "variants": Array of variant groups. Only if the item has multiple sizes/portions.
+
+5. VARIANT RULES:
+   - Only create variants when an item has 2+ options (e.g. Half/Full, Small/Medium/Large, 2 Pcs/4 Pcs).
+   - Each variant group must have "property_name" (e.g. "Portion", "Size") and "options" array.
+   - Each option must have "name" and "price" (as number).
+   - If an item has only ONE size (e.g. "6 Pcs 249"), do NOT create variants. Just put it in the item name like "Chicken Tikka - [6 Pcs]" with base_price 249.
+   - For Momos: variants should only be based on pieces (2 pcs/4 pcs) or portion (half/full). Do NOT club fry/steam/tandoori as variants — keep them as separate items.
+
+6. CATEGORY RULES:
+   - Use categories exactly as printed on the menu.
+   - If the menu lacks clear category headers (just a flat list), group the items into logical standard categories (e.g., "Starters", "Main Course", "Breads", "Beverages", "Desserts").
+   - DO NOT group everything under a single generic category like "Menu" or "Food".
+   - Never use item names as category names.
+   - "Combo 1", "Combo 2" etc. are ITEMS under a "Combos" category, not separate categories.
+
+7. Chaap items (Soya Chaap, Malai Chaap, Afghani Chaap) are always "VEG".
+8. Never confuse item serial numbers, codes, or calorie counts with prices.
+9. Preserve natural dish name order: "Shahi Paneer" not "Paneer Shahi", "Butter Chicken" not "Chicken Butter".
+
+RETURN ONLY a valid JSON array. No explanation, no markdown. Example:
+
+[
+  {
+    "name": "Starters",
+    "sub_category": [
+      {
+        "name": "Veg Starters",
+        "items": [
+          {
+            "name": "Paneer Tikka",
+            "base_price": 249,
+            "description": "Cottage cheese marinated in spices",
+            "is_veg": "VEG",
+            "variants": []
+          },
+          {
+            "name": "Hara Bhara Kebab",
+            "base_price": 120,
+            "description": "",
+            "is_veg": "VEG",
+            "variants": [
+              {
+                "property_name": "Portion",
+                "options": [
+                  { "name": "Half", "price": 120 },
+                  { "name": "Full", "price": 220 }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  }
+]`;
+                                            navigator.clipboard.writeText(prompt);
+                                            notification.success("Prompt copied to clipboard!");
+                                        }}
+                                        className="px-3 py-1.5 text-xs font-bold rounded-lg border border-primary/30 bg-primary/5 text-primary hover:bg-primary/10 transition-colors flex items-center gap-1.5"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                                        Copy Prompt
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500">
+                                    Click "Copy Prompt" to copy a pre-built prompt that tells Gemini exactly how to format the menu JSON. The prompt includes all rules for categories, items, variants, pricing, and veg/non-veg classification.
+                                </p>
+                            </div>
+
+                            {/* Step 2: Open Gemini */}
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center gap-2">
+                                        <span className="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">2</span>
+                                        <h3 className="text-sm font-bold text-gray-800">Upload menu to Gemini</h3>
+                                    </div>
+                                    <button
+                                        onClick={() => window.open("https://gemini.google.com/app", "_blank")}
+                                        className="px-3 py-1.5 text-xs font-bold rounded-lg border border-blue-300 bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors flex items-center gap-1.5"
+                                    >
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+                                        Open Gemini
+                                    </button>
+                                </div>
+                                <p className="text-xs text-gray-500 mt-2">
+                                    Paste the prompt in Gemini, upload your menu image/PDF, and let it generate the JSON. Then copy the JSON output.
+                                </p>
+                            </div>
+
+                            {/* Step 3: Paste JSON */}
+                            <div className="bg-white border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col flex-1 gap-3">
+                                <div className="flex items-center gap-2">
+                                    <span className="w-6 h-6 rounded-full bg-primary text-white text-xs font-bold flex items-center justify-center">3</span>
+                                    <h3 className="text-sm font-bold text-gray-800">Paste the JSON output</h3>
+                                </div>
+                                <textarea 
+                                    className="flex-1 w-full p-3 border border-gray-300 rounded-xl resize-none focus:ring-2 focus:ring-primary focus:border-transparent outline-none bg-gray-50 text-xs font-mono min-h-[120px]"
+                                    placeholder="Paste the JSON output from Gemini here..."
+                                    value={jsonText}
+                                    onChange={(e) => setJsonText(e.target.value)}
+                                />
+                            {jsonImportCount !== null && (
+                                <div className="bg-green-50 border border-green-200 rounded-xl p-3 text-xs text-green-700 flex items-center gap-2">
+                                    <CheckCircle2 className="w-4 h-4" />
+                                    <span>Successfully imported <strong>{jsonImportCount.categories}</strong> categories with <strong>{jsonImportCount.items}</strong> items into your menu.</span>
+                                </div>
+                            )}
+                            <div className="flex justify-end">
+                                <button
+                                    onClick={() => {
+                                        if (!jsonText.trim()) {
+                                            notification.error("Please paste JSON content first.");
+                                            return;
+                                        }
+
+                                        try {
+                                            let json = JSON.parse(jsonText);
+                                            let categories = [];
+
+                                            // Parse various JSON formats into a normalized category array
+                                            if (Array.isArray(json)) {
+                                                if (json.length > 0 && (json[0].sub_category || json[0].items)) {
+                                                    // Already a category array
+                                                    categories = json;
+                                                } else {
+                                                    // Flat items array — group by category
+                                                    const catMap = {};
+                                                    json.forEach((item) => {
+                                                        const catName = item.category || "Uncategorized";
+                                                        const subName = item.sub_category || catName;
+                                                        if (!catMap[catName]) catMap[catName] = {};
+                                                        if (!catMap[catName][subName]) catMap[catName][subName] = [];
+                                                        catMap[catName][subName].push(item);
+                                                    });
+                                                    categories = Object.entries(catMap).map(([catName, subs]) => ({
+                                                        name: catName,
+                                                        sub_category: Object.entries(subs).map(([subName, items]) => ({
+                                                            name: subName,
+                                                            items: items
+                                                        }))
+                                                    }));
+                                                }
+                                            } else if (json.menu && Array.isArray(json.menu)) {
+                                                categories = json.menu;
+                                            } else if (json.categories && Array.isArray(json.categories)) {
+                                                categories = json.categories;
+                                            } else if (json.items && Array.isArray(json.items)) {
+                                                // Flat items in an object
+                                                const catMap = {};
+                                                json.items.forEach((item) => {
+                                                    const catName = item.category || "Uncategorized";
+                                                    const subName = item.sub_category || catName;
+                                                    if (!catMap[catName]) catMap[catName] = {};
+                                                    if (!catMap[catName][subName]) catMap[catName][subName] = [];
+                                                    catMap[catName][subName].push(item);
+                                                });
+                                                categories = Object.entries(catMap).map(([catName, subs]) => ({
+                                                    name: catName,
+                                                    sub_category: Object.entries(subs).map(([subName, items]) => ({
+                                                        name: subName,
+                                                        items: items
+                                                    }))
+                                                }));
+                                            } else if (json.chain_outputs?.normalized_menu?.category) {
+                                                categories = json.chain_outputs.normalized_menu.category;
+                                            }
+
+                                            if (categories.length === 0) {
+                                                notification.error("No categories/items found in the JSON. Check the format.");
+                                                return;
+                                            }
+
+                                            // Generate temp IDs for everything and insert into store
+                                            let totalItems = 0;
+                                            const genId = () => `temp-${crypto.randomUUID()}`;
+
+                                            categories.forEach((cat) => {
+                                                const mappedCat = {
+                                                    ...cat,
+                                                    id: genId(),
+                                                    sub_category: (cat.sub_category || []).map((sub) => {
+                                                        const mappedSub = {
+                                                            ...sub,
+                                                            id: genId(),
+                                                            items: (sub.items || []).map((item) => {
+                                                                totalItems++;
+                                                                return {
+                                                                    ...item,
+                                                                    id: genId(),
+                                                                    base_price: item.base_price ?? item.price ?? 0,
+                                                                    is_veg: item.is_veg || "VEG",
+                                                                    description: item.description || "",
+                                                                    variants: (item.variants || []).map((v) => ({
+                                                                        ...v,
+                                                                        property_id: genId(),
+                                                                        options: (v.options || []).map((opt) => ({
+                                                                            ...opt,
+                                                                            option_name: opt.option_name || opt.name || "",
+                                                                            option_id: genId(),
+                                                                            variant_id: genId(),
+                                                                            price: opt.price ?? 0
+                                                                        }))
+                                                                    })),
+                                                                    addons: item.addons || [],
+                                                                    media: item.media || [],
+                                                                    packing_charges: item.packing_charges ?? 0
+                                                                };
+                                                            })
+                                                        };
+                                                        return mappedSub;
+                                                    })
+                                                };
+                                                dispatch(dispatchInsertFullCategory(mappedCat));
+                                            });
+
+                                            setJsonImportCount({ categories: categories.length, items: totalItems });
+                                            notification.success(`Imported ${categories.length} categories with ${totalItems} items.`);
+                                            setJsonText("");
+                                        } catch (err) {
+                                            console.error("JSON parse error:", err);
+                                            notification.error("Invalid JSON. Please check the format and try again.");
+                                        }
+                                    }}
+                                    disabled={!jsonText.trim()}
+                                    className="bg-emerald-600 text-white px-5 py-2.5 rounded-lg text-sm font-bold flex items-center gap-2 hover:bg-emerald-700 disabled:opacity-50 transition-colors shadow-sm"
+                                >
+                                    <Code2 className="w-4 h-4" />
+                                    Import JSON to Menu
+                                </button>
+                            </div>
+                        </div>
+                    </div>
                     )}
                 </div>
             )}
