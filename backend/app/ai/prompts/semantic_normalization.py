@@ -35,6 +35,8 @@ Responsibilities:
      * Starters, Appetizers, Main Course, Biryani, Rice, Noodles, Momos, Pizza, Burgers, Sandwiches, Wraps & Rolls, Pasta, Tacos, Shawarma, Kebabs, Grills & BBQ, Breads, South Indian, North Indian, Chinese, Street Food & Chaat, Breakfast, Snacks, Soups, Salads & Raita, Sides, Dips & Sauces, Combos, Desserts, Beverages.
    - DO NOT OVER-CATEGORIZE: Do not invent excessive micro-subcategories for every 1 or 2 items. If no explicit sub-category exists in the menu, simply set `sub_category` equal to the `category`.
    - DO NOT use generic diet labels like "Veg", "Non-Veg", or "Egg" as sub-categories.
+   - NEVER use an item name as a category name. A category groups MULTIPLE items together. If you find yourself creating a category with only 1 item, that is WRONG — merge it into a broader category.
+   - NUMBERED ITEMS MUST BE GROUPED: Items like "Combo 1", "Combo 2", "Combo 3" or "Thali 1", "Thali 2" are separate ITEMS that belong under ONE shared category (e.g. "Combos" or "Thali"). NEVER create a separate category for each numbered item.
 
 4. Classify diet type (is_veg):
    - Must be one of: VEG, NON_VEG, or EGG.

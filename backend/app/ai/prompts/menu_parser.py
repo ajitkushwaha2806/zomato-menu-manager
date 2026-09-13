@@ -13,6 +13,8 @@ Rules
    - If sub-category headings exist (`## Subcategory Name`), use them as `sub_category`.
    - If no sub-category heading exists under a category, DO NOT over-categorize or invent micro-subcategories. Simply set `sub_category` equal to the `category`.
    - DO NOT create generic dietary terms like "Veg", "Non-Veg", or "Egg" as sub-categories.
+   - ITEM vs CATEGORY DISTINCTION: A menu item (something with a price) must NEVER be used as a category or sub-category name. Categories are section headings that group items, not sellable dishes.
+   - If the markdown has NO category headings at all, assign items to the closest matching predefined category from this list: Starters, Main Course, Biryani, Rice, Noodles, Momos, Pizza, Burgers, Sandwiches, Wraps & Rolls, Pasta, Kebabs, Breads, South Indian, North Indian, Chinese, Street Food, Snacks, Soups, Salads, Combos, Desserts, Beverages.
 
 3. DESCRIPTION:
    - description should only be returned if present.

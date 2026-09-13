@@ -545,9 +545,9 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                                 <div className="space-y-4">
                                     <div
                                         onClick={() => fileInputRef.current?.click()}
-                                        className="border-2 border-dashed border-slate-300 hover:border-primary/60 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-slate-50/50 hover:bg-white"
+                                        className="border-2 border-dashed border-slate-300 hover:border-primary/60 rounded-xl p-6 flex flex-col items-center justify-center text-center cursor-pointer transition-colors bg-slate-50/50 hover:bg-white"
                                     >
-                                        <UploadCloud className="w-10 h-10 text-slate-400 mb-3" />
+                                        <UploadCloud className="w-8 h-8 text-slate-400 mb-2" />
                                         <p className="text-sm font-bold text-slate-700">
                                             {uploadedFileName ? uploadedFileName : "Click to select or drop a Menu JSON / CSV file"}
                                         </p>
@@ -561,6 +561,93 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                                             onChange={handleFileUpload}
                                             className="hidden"
                                         />
+                                    </div>
+
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex-1 h-px bg-slate-200" />
+                                        <span className="text-xs font-bold text-slate-400 uppercase">or paste JSON</span>
+                                        <div className="flex-1 h-px bg-slate-200" />
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <textarea
+                                            placeholder='Paste your menu JSON here...&#10;&#10;e.g. [{"name": "Paneer Tikka", "base_price": 249, ...}]'
+                                            className="w-full h-32 p-3 border rounded-xl text-xs font-mono bg-slate-50/50 resize-y focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary/60 placeholder:text-slate-400"
+                                            onChange={(e) => {
+                                                // Store the raw text for the compare button
+                                                e.target.dataset.jsonText = e.target.value;
+                                            }}
+                                            id="paste-json-textarea"
+                                        />
+                                        <Button
+                                            size="sm"
+                                            variant="outline"
+                                            className="w-full text-xs font-bold h-8"
+                                            disabled={isFetching}
+                                            onClick={() => {
+                                                const textarea = document.getElementById("paste-json-textarea");
+                                                const text = textarea?.value?.trim();
+                                                if (!text) {
+                                                    notification.error("Please paste JSON content first.");
+                                                    return;
+                                                }
+                                                setIsFetching(true);
+                                                try {
+                                                    let parsedItems = [];
+                                                    let json = JSON.parse(text);
+
+                                                    if (Array.isArray(json)) {
+                                                        // Check if it's a flat array of items or a menu structure
+                                                        if (json[0]?.sub_category || json[0]?.items) {
+                                                            // It's a menu category array
+                                                            json.forEach((cat) => {
+                                                                (cat.sub_category || []).forEach((sub) => {
+                                                                    (sub.items || []).forEach((item) => parsedItems.push(item));
+                                                                });
+                                                                // Also check direct items
+                                                                (cat.items || []).forEach((item) => parsedItems.push(item));
+                                                            });
+                                                        } else {
+                                                            parsedItems = json;
+                                                        }
+                                                    } else if (json.menu && Array.isArray(json.menu)) {
+                                                        json.menu.forEach((cat) => {
+                                                            (cat.sub_category || []).forEach((sub) => {
+                                                                (sub.items || []).forEach((item) => parsedItems.push(item));
+                                                            });
+                                                        });
+                                                    } else if (json.chain_outputs?.normalized_menu?.category) {
+                                                        json.chain_outputs.normalized_menu.category.forEach((cat) => {
+                                                            (cat.sub_category || []).forEach((sub) => {
+                                                                (sub.items || []).forEach((item) => parsedItems.push(item));
+                                                            });
+                                                        });
+                                                    } else if (json.chain_outputs?.merged_items?.items) {
+                                                        parsedItems = json.chain_outputs.merged_items.items;
+                                                    } else if (json.items && Array.isArray(json.items)) {
+                                                        parsedItems = json.items;
+                                                    } else if (json.categories && Array.isArray(json.categories)) {
+                                                        json.categories.forEach((cat) => {
+                                                            (cat.sub_category || []).forEach((sub) => {
+                                                                (sub.items || []).forEach((item) => parsedItems.push(item));
+                                                            });
+                                                        });
+                                                    }
+
+                                                    setUploadedFileName("Pasted JSON");
+                                                    setUploadedFileItems(parsedItems);
+                                                    processTargetItems(parsedItems);
+                                                } catch (err) {
+                                                    console.error("JSON parse error:", err);
+                                                    notification.error("Invalid JSON. Please check the format and try again.");
+                                                } finally {
+                                                    setIsFetching(false);
+                                                }
+                                            }}
+                                        >
+                                            {isFetching ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+                                            Parse & Compare Pasted JSON
+                                        </Button>
                                     </div>
                                 </div>
                             )}

@@ -143,6 +143,24 @@ class SemanticNormalizationNode:
             match = re.search(r'\d+(?:\.\d+)?', cleaned_str)
             return float(match.group()) if match else 0.0
 
+        def title_case(text):
+            """Proper title case: first letter cap, rest lowercase for each word."""
+            if not text or not isinstance(text, str):
+                return text
+            cleaned = " ".join(text.strip().split())
+            return " ".join(w.capitalize() for w in cleaned.split(" "))
+
+        def normalize_option_name(name: str) -> str:
+            """Normalize variant option names for dedup (e.g. '6 piece' == '6 pieces' == '6 pcs')."""
+            if not name:
+                return ""
+            n = name.lower().strip()
+            n = re.sub(r'\s+', ' ', n)
+            # Normalize piece/pieces/pcs variations
+            n = re.sub(r'\bpieces?\b', 'pcs', n)
+            n = re.sub(r'\bpcs\.?\b', 'pcs', n)
+            return n
+
         def prepare_items(items_list, seen_keys):
             prepared = []
             for item in items_list:
@@ -152,13 +170,20 @@ class SemanticNormalizationNode:
                 prepared_variants = []
                 for v in item.get("variants", []):
                     options = []
+                    seen_option_names = set()
                     for opt in v.get("options", []):
                         opt_price = extract_price(opt.get("price"))
                         opt_name = opt.get("name") or opt.get("option_name") or ""
                         
+                        # Deduplicate options by normalized name (e.g. "6 piece" and "6 pieces")
+                        norm_name = normalize_option_name(opt_name)
+                        if norm_name in seen_option_names:
+                            continue
+                        seen_option_names.add(norm_name)
+                        
                         new_opt = {
                             **opt,
-                            "option_name": opt_name,
+                            "option_name": title_case(opt_name),
                             "option_id": f"temp-{uuid.uuid4()}",
                             "variant_id": f"temp-{uuid.uuid4()}",
                             "price": opt_price
@@ -175,11 +200,24 @@ class SemanticNormalizationNode:
                     for i, opt in enumerate(options):
                         opt["is_default"] = (i == 0)
                         
-                    prepared_variants.append({
-                        **v,
-                        "property_id": f"temp-{uuid.uuid4()}",
-                        "options": options
-                    })
+                    # Only keep variant groups with 2+ unique options
+                    if len(options) >= 2:
+                        prepared_variants.append({
+                            **v,
+                            "property_name": title_case(v.get("property_name", "")),
+                            "property_id": f"temp-{uuid.uuid4()}",
+                            "options": options
+                        })
+                    elif len(options) == 1:
+                        # Single-option variant: collapse into item name + base_price
+                        single_opt = options[0]
+                        opt_label = single_opt.get("option_name", "")
+                        item_name_str = str(item.get("name", ""))
+                        if opt_label and opt_label.lower() not in item_name_str.lower():
+                            item["name"] = f"{item_name_str} - [{opt_label}]"
+                        if single_opt.get("price"):
+                            item["base_price"] = single_opt["price"]
+                            final_price = single_opt["price"]
 
                 if prepared_variants:
                     all_prices = []
@@ -205,6 +243,11 @@ class SemanticNormalizationNode:
                 
                 if "is_veg" not in new_item:
                     new_item["is_veg"] = "VEG"
+
+                # Force chaap items to always be VEG (soy chaap, malai chaap, etc.)
+                if re.search(r'\bchaap\b', item_name, re.IGNORECASE):
+                    new_item["is_veg"] = "VEG"
+                    new_item["meatTypes"] = []
                     
                 new_item.pop("price", None)
                 new_item.pop("min_price", None)
@@ -232,6 +275,7 @@ class SemanticNormalizationNode:
                 
             mapped_cat = {
                 **cat,
+                "name": title_case(cat.get("name", "")),
                 "id": f"temp-{uuid.uuid4()}",
                 "sub_category": [],
                 "items": []
@@ -240,12 +284,92 @@ class SemanticNormalizationNode:
             for sub in sub_categories:
                 mapped_sub = {
                     **sub,
+                    "name": title_case(sub.get("name", "")),
                     "id": f"temp-{uuid.uuid4()}",
                     "items": prepare_items(sub.get("items", []), global_seen_keys)
                 }
                 mapped_cat["sub_category"].append(mapped_sub)
                 
             prepared_categories.append(mapped_cat)
+
+        # POST-PROCESSING: Merge orphan single-item categories
+        # If a category has only 1 subcategory with only 1 item, and the category name
+        # looks like an item name (same as the item or the subcategory), it's likely
+        # the AI treated an item as its own category. Merge such orphans into a shared parent.
+        def count_items_in_cat(cat):
+            return sum(len(s.get("items", [])) for s in cat.get("sub_category", []))
+
+        final_categories = []
+        orphan_items = []  # items from orphan categories to be merged
+
+        for cat in prepared_categories:
+            total_items = count_items_in_cat(cat)
+            subs = cat.get("sub_category", [])
+
+            if total_items <= 1 and len(subs) <= 1:
+                # This is an orphan category (1 sub, 1 item) — collect its items
+                for sub in subs:
+                    for item in sub.get("items", []):
+                        # Preserve the original category/sub_category from the item for grouping
+                        item["_original_category"] = cat.get("name", "")
+                        orphan_items.append(item)
+            else:
+                final_categories.append(cat)
+
+        if orphan_items:
+            # Group orphans by their original parser-assigned category if available,
+            # otherwise try to find a common prefix pattern
+            from collections import defaultdict
+            orphan_groups = defaultdict(list)
+
+            for item in orphan_items:
+                # Use the item's original category from the parser (before normalization mangled it)
+                orig_cat = item.get("category", "") or item.get("_original_category", "")
+                # Strip trailing digits/numbers to find common base name
+                # e.g. "Combo 1", "Combo 2" -> "Combo"
+                base_name = re.sub(r'\s*\d+\s*$', '', orig_cat).strip()
+                if not base_name:
+                    base_name = "Uncategorized"
+                # Clean up the marker
+                item.pop("_original_category", None)
+                orphan_groups[base_name].append(item)
+
+            for group_name, items in orphan_groups.items():
+                # Check if a matching category already exists
+                cat_name = title_case(group_name)
+                # Pluralize simple names (Combo -> Combos) if not already plural
+                if not cat_name.endswith("s") and len(items) > 1:
+                    cat_name = cat_name + "s"
+
+                existing_cat = next(
+                    (c for c in final_categories if c.get("name", "").lower() == cat_name.lower()),
+                    None
+                )
+
+                if existing_cat:
+                    # Merge into existing category's first subcategory
+                    if existing_cat["sub_category"]:
+                        existing_cat["sub_category"][0]["items"].extend(items)
+                    else:
+                        existing_cat["sub_category"].append({
+                            "name": cat_name,
+                            "id": f"temp-{uuid.uuid4()}",
+                            "items": items
+                        })
+                else:
+                    # Create new category with all orphans grouped
+                    final_categories.append({
+                        "name": cat_name,
+                        "id": f"temp-{uuid.uuid4()}",
+                        "sub_category": [{
+                            "name": cat_name,
+                            "id": f"temp-{uuid.uuid4()}",
+                            "items": items
+                        }],
+                        "items": []
+                    })
+
+        prepared_categories = final_categories
 
         from app.repositories.menu_repository import MenuRepository
         menu_repo = MenuRepository()

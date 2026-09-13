@@ -26,6 +26,10 @@ RULES
    - Preserve every category heading exactly as printed on the menu image using markdown headers (`# Category Name`).
    - If there are sub-headings or sub-sections under a category (e.g., under Chinese there are Rice, Noodles), preserve them as `## Subcategory Name`.
    - Keep all items under their respective category and subcategory headings.
+   - CATEGORY vs ITEM DISTINCTION: A category/section heading is a title that groups MULTIPLE items below it. It is typically printed in larger/bolder/different font, has NO price next to it, and has multiple items listed underneath.
+   - A single dish name with a price is ALWAYS an item, NEVER a category — even if it appears on its own line in a larger font.
+   - If a line has a price next to it, it is an ITEM, not a heading. Do NOT use it as `#` or `##`.
+   - If the menu has NO clear section headings at all, do NOT invent categories. Just list all items without any `#` headings.
 
 2. ACCURATE PRICE ASSOCIATION - CRITICAL:
    - Attach every price to its EXACT corresponding menu item on the same line.
