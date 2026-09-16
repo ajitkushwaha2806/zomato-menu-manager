@@ -11,6 +11,7 @@ import HoldItemsEditor from "./views/HoldItemsEditor";
 import SwiggyTicketsViewer from "./views/tickets/SwiggyTicketsViewer";
 import ExportCsvEditor from "./views/ExportCsvEditor";
 import AllItemsEditor from "./views/AllItemsEditor";
+import ZomatoImportEditor from "./views/ZomatoImportEditor";
 
 export default function BulkEditorRouter({
     activeBulkMode,
@@ -78,6 +79,8 @@ export default function BulkEditorRouter({
             return <AllItemsEditor allItems={allItems} deleteItem={deleteItem} />;
         case "TICKETS":
             return <SwiggyTicketsViewer resId={activeResId} />;
+        case "ZOMATO_IMPORT":
+            return <ZomatoImportEditor />;
         default:
             return null;
     }

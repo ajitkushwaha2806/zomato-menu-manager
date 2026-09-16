@@ -17,6 +17,7 @@ import {
   ClipboardPaste,
   Ticket,
   Table,
+  Download,
 } from "lucide-react";
 
 import { useMenu } from "@/store/hooks/useMenu";
@@ -279,6 +280,15 @@ export function AppSidebar({ ...props }) {
             >
                 <Share className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "TRANSFER" ? "scale-110" : ""}`} /> 
                 <span className="group-data-[collapsible=icon]:hidden">Transfer Menu</span>
+            </button>
+            <button
+                onClick={() => setActiveBulkMode("ZOMATO_IMPORT")}
+                title="Import Zomato Menu"
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "ZOMATO_IMPORT" ? "bg-red-600 text-white font-bold shadow-md scale-[1.01]" : "text-slate-600 hover:bg-red-50 hover:text-red-700 hover:scale-[1.01]"
+                    }`}
+            >
+                <Download className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "ZOMATO_IMPORT" ? "scale-110" : ""}`} /> 
+                <span className="group-data-[collapsible=icon]:hidden">Import Zomato Menu</span>
             </button>
             <button
                 onClick={() => setActiveBulkMode("EXPORT_IMAGES")}

@@ -3,6 +3,10 @@ import Menu from "@/model/menu";
 import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
 
+import crypto from "crypto";
+
+const generateTempId = () => `temp-${crypto.randomUUID()}`;
+
 const parseVariantGroups = (groups) => {
     if (!Array.isArray(groups) || groups.length === 0) {
         return [];
@@ -16,7 +20,7 @@ const parseVariantGroups = (groups) => {
 
             return {
                 property_name: group?.name || group?.label || "",
-                property_id: group?.id?.replace("p_", "") || "",
+                property_id: generateTempId(),
 
                 options: Array.isArray(group?.items)
                     ? group.items.map((itemWrapper) => {
@@ -24,10 +28,8 @@ const parseVariantGroups = (groups) => {
 
                         return {
                             option_name: option?.name || "",
-                            option_id:
-                                option?.id?.replace("pv_", "") || "",
-                            variant_id:
-                                option?.variant_id?.replace("v_", "") || "",
+                            option_id: generateTempId(),
+                            variant_id: generateTempId(),
                             price: option?.price || 0,
                             is_default: !!option?.is_default,
                         };
@@ -55,17 +57,37 @@ export const GET = async (req, { params }) => {
         }
 
 
-        const pageUrl = "/ncr/scoopman-ice-creams-cafe-rohini-new-delhi/order";
-
-        if (!pageUrl) {
+        const pageUrlParam = searchParams.get("pageUrl");
+        if (!pageUrlParam) {
             return NextResponse.json(
                 {
                     success: false,
-                    message: "page_url is required",
+                    message: "pageUrl is required",
                 },
                 { status: 400 }
             );
         }
+
+        const getNomalisedUrl = (url) => {
+            url = url.trim();
+            if (!/^https?:\/\//i.test(url)) {
+                url = `https://${url}`;
+            }
+
+            const parsed = new URL(url);
+            const domain = `${parsed.protocol}//${parsed.host}`;
+            const parts = parsed.pathname.split("/").filter(Boolean);
+
+            if (parts.length < 2) {
+                throw new Error("Invalid URL: city and outlet_name are required");
+            }
+
+            const city = parts[0];
+            const outletName = parts[1];
+            return `${domain}/${city}/${outletName}/order`;
+        }
+
+        const pageUrl = getNomalisedUrl(pageUrlParam);
 
         const response = await axios.get(
             "https://www.zomato.com/webroutes/getPage",
@@ -92,7 +114,7 @@ export const GET = async (req, { params }) => {
             const menu = menuWrapper?.menu || {};
 
             return {
-                id: menu?.id?.replace("ctg_", "") || "",
+                id: generateTempId(),
                 name: menu?.name || "",
                 temp_id: "",
 
@@ -102,12 +124,7 @@ export const GET = async (req, { params }) => {
                             categoryWrapper?.category || {};
 
                         return {
-                            id:
-                                category?.id?.replace(
-                                    "s_ctg_",
-                                    ""
-                                ) || "",
-
+                            id: generateTempId(),
                             temp_id: "",
 
                             name:
@@ -120,12 +137,7 @@ export const GET = async (req, { params }) => {
                                         itemWrapper?.item || {};
 
                                     return {
-                                        id:
-                                            item?.id?.replace(
-                                                "ctl_",
-                                                ""
-                                            ) || "",
-
+                                        id: generateTempId(),
                                         temp_id: "",
 
                                         name:
@@ -156,10 +168,7 @@ export const GET = async (req, { params }) => {
 
                                         packing_charges: 0,
 
-
-
                                         media: item?.media,
-
 
                                         variants:
                                             parseVariantGroups(
