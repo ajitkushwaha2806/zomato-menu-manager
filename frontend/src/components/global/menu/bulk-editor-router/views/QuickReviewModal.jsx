@@ -21,10 +21,10 @@ import axios from "axios";
 const cleanQuery = (name) => {
     if (!name) return "";
     let cleaned = name;
-    cleaned = cleaned.replace(/-\s*\[.*?\]/g, ''); 
-    cleaned = cleaned.replace(/-\s*\(.*?\)/g, ''); 
-    cleaned = cleaned.replace(/\[.*?\]/g, ''); 
-    cleaned = cleaned.replace(/\(.*?\)/g, ''); 
+    cleaned = cleaned.replace(/-\s*\[.*?\]/g, '');
+    cleaned = cleaned.replace(/-\s*\(.*?\)/g, '');
+    cleaned = cleaned.replace(/\[.*?\]/g, '');
+    cleaned = cleaned.replace(/\(.*?\)/g, '');
     cleaned = cleaned.replace(/\b([0-9]+\s*(pcs|inch|pieces|piece|ml|gm|kg|plate|plates))\b/gi, '');
     cleaned = cleaned.replace(/\bserves\s*[0-9]+\b/gi, '');
     cleaned = cleaned.replace(/\b(half|full|regular|large|small|medium|size)\b/gi, '');
@@ -33,11 +33,11 @@ const cleanQuery = (name) => {
     return cleaned;
 };
 
-export default function QuickReviewModal({ 
-    isOpen, 
-    onClose, 
-    items, 
-    currentIndex, 
+export default function QuickReviewModal({
+    isOpen,
+    onClose,
+    items,
+    currentIndex,
     onNavigate, // function(newIndex)
     activeResId,
     updateItem
@@ -57,9 +57,9 @@ export default function QuickReviewModal({
     const [customQuery, setCustomQuery] = useState("");
     const [triggerTaskId, setTriggerTaskId] = useState("");
     const [isTriggerPopoverOpen, setIsTriggerPopoverOpen] = useState(false);
-    
+
     const { saveMenuByResId, syncZomatoMenu, isSyncing, isSaving, taskId: dbTaskId, setTaskId } = useMenu();
-    
+
     useEffect(() => {
         if (isOpen && dbTaskId) {
             setTriggerTaskId(dbTaskId);
@@ -78,20 +78,26 @@ export default function QuickReviewModal({
     const [noTaskId, setNoTaskId] = useState(false);
     const [isRequestingTaskId, setIsRequestingTaskId] = useState(false);
     const [requestName, setRequestName] = useState("");
+    const [requestReason, setRequestReason] = useState("");
 
     const resList = activePlatform === 'swiggy' ? swiggyRestaurants : zomatoRestaurants;
     const safeResList = Array.isArray(resList) ? resList : (Array.isArray(resList?.entities) ? resList.entities : (Array.isArray(resList?.data) ? resList.data : []));
     const currentRes = safeResList.find(r => String(r.id) === String(activeResId) || String(r._id) === String(activeResId));
     const activeResName = currentRes?.name || currentRes?.restaurant_name || "Unknown Restaurant";
+    const isWhitelistedRes = String(activeResId) === '21047451';
 
     const handleRequestTaskId = async () => {
         if (!requestName.trim()) {
             toast.error("Please enter your name/who is requesting.");
             return;
         }
+        if (!requestReason.trim()) {
+            toast.error("Please enter a reason for bypassing.");
+            return;
+        }
         try {
             setIsRequestingTaskId(true);
-            
+
             const response = await fetch('/api/request-task-id', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -99,7 +105,8 @@ export default function QuickReviewModal({
                     resName: activeResName,
                     resId: activeResId,
                     userEmail: user?.email || user?.user?.email,
-                    userName: requestName
+                    userName: requestName,
+                    reason: requestReason
                 })
             });
 
@@ -144,31 +151,31 @@ export default function QuickReviewModal({
             toast.error("Restaurant ID is missing");
             return;
         }
-        
+
         if (!bypassTaskValidation) {
             if (!triggerTaskId.trim()) {
                 toast.error("Task ID is required to trigger the menu");
                 return;
             }
-        
-        try {
-            const validationRes = await fetch(`/api/validate-task?taskId=${triggerTaskId}`);
-            if (validationRes.ok) {
-                const result = await validationRes.json();
-                if (result.success) {
-                    const validationData = result.data;
-                    if (!validationData.restIds || (!validationData.restIds.includes(activeResId) && !validationData.restIds.includes(String(activeResId)))) {
-                        toast.error("This Task ID is not assigned to this restaurant.", { duration: 5000 });
+
+            try {
+                const validationRes = await fetch(`/api/validate-task?taskId=${triggerTaskId}`);
+                if (validationRes.ok) {
+                    const result = await validationRes.json();
+                    if (result.success) {
+                        const validationData = result.data;
+                        if (!validationData.restIds || (!validationData.restIds.includes(activeResId) && !validationData.restIds.includes(String(activeResId)))) {
+                            toast.error("This Task ID is not assigned to this restaurant.", { duration: 5000 });
+                            return;
+                        }
+                    } else {
+                        toast.error("Failed to validate Task ID with CRM.");
                         return;
                     }
                 } else {
                     toast.error("Failed to validate Task ID with CRM.");
                     return;
                 }
-            } else {
-                toast.error("Failed to validate Task ID with CRM.");
-                return;
-            }
             } catch (err) {
                 console.error("Task validation failed", err);
                 toast.error("Failed to validate Task ID with CRM.");
@@ -277,7 +284,7 @@ export default function QuickReviewModal({
 
     const loadMoreImages = async () => {
         if (isLoadingMore || (!hasMoreDataset && !hasMoreSwiggy) || !customQuery) return;
-        
+
         setIsLoadingMore(true);
         const nextPage = page + 1;
         setPage(nextPage);
@@ -379,7 +386,7 @@ export default function QuickReviewModal({
 
             const getNextValidIndex = (startIndex, step) => {
                 let idx = startIndex + step;
-                while(idx >= 0 && idx < images.length) {
+                while (idx >= 0 && idx < images.length) {
                     if (images[idx]) return idx;
                     idx += step;
                 }
@@ -438,7 +445,7 @@ export default function QuickReviewModal({
         // Optimistic update
         updateItem({
             itemId: itemIdToUpdate,
-            updates: { 
+            updates: {
                 media: [{
                     tempReferenceId: tempId,
                     url: imageUrl,
@@ -460,14 +467,14 @@ export default function QuickReviewModal({
         if (activePlatform === "swiggy") {
             updateItem({
                 itemId: itemIdToUpdate,
-                updates: { 
+                updates: {
                     media: [{
                         tempReferenceId: tempId,
                         url: imageUrl,
                         thumbUrl: imageUrl,
                         isNewlyUploaded: true,
                         isUploading: false,
-                    }] 
+                    }]
                 }
             });
             toast.success(`Image applied for ${itemName}!`);
@@ -504,7 +511,7 @@ export default function QuickReviewModal({
     return (
         <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm animate-in fade-in duration-200">
             <div className="bg-white w-full h-full flex flex-col overflow-hidden relative">
-                
+
                 {/* Header */}
                 <div className="flex items-center justify-between p-5 border-b border-border/60 bg-slate-50/50">
                     <div className="flex flex-col">
@@ -514,7 +521,7 @@ export default function QuickReviewModal({
                             </span>
                             <div className="flex items-center gap-2 group">
                                 <div className="relative flex items-center">
-                                    <Input 
+                                    <Input
                                         value={customQuery}
                                         onChange={(e) => setCustomQuery(e.target.value)}
                                         className="h-auto px-1 py-0 border-transparent hover:border-border focus-visible:border-primary bg-transparent text-2xl font-bold tracking-tight text-neutral-900 focus-visible:ring-0 shadow-none rounded-sm min-w-[400px] transition-colors"
@@ -544,7 +551,7 @@ export default function QuickReviewModal({
                             <Button variant="ghost" size="sm" onClick={handleSync} disabled={isSyncing} className="h-7 px-2 text-xs">
                                 {isSyncing ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RefreshCw className="w-3 h-3 mr-1" />} Sync
                             </Button>
-                            
+
                             <Popover open={isTriggerPopoverOpen} onOpenChange={setIsTriggerPopoverOpen}>
                                 <PopoverTrigger asChild>
                                     <Button variant="default" size="sm" disabled={isTriggering} className="h-7 px-2 text-xs bg-red-600 hover:bg-red-700 text-white">
@@ -553,75 +560,102 @@ export default function QuickReviewModal({
                                 </PopoverTrigger>
                                 <PopoverContent className="w-80" align="end" side="top">
                                     <div className="grid gap-4">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <div className="space-y-2">
-                                                <h4 className="font-medium leading-none">Trigger Menu</h4>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {noTaskId ? "Request a Task ID to proceed." : "Enter a Task ID to proceed with triggering."}
-                                                </p>
-                                            </div>
-                                            <div className="flex flex-col items-center gap-1.5 shrink-0 pt-0.5">
-                                                <Label htmlFor="review-no-task-id" className="text-[10px] uppercase font-semibold text-muted-foreground cursor-pointer">Request ID</Label>
-                                                <Switch
-                                                    id="review-no-task-id"
-                                                    checked={noTaskId}
-                                                    onCheckedChange={setNoTaskId}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {!noTaskId ? (
-                                            <>
-                                                <div className="grid gap-2">
-                                                    <Label htmlFor="reviewTaskId">Task ID <span className="text-destructive">*</span></Label>
-                                                    <Input
-                                                        id="reviewTaskId"
-                                                        placeholder="Enter task ID"
-                                                        value={triggerTaskId}
-                                                        onChange={(e) => setTriggerTaskId(e.target.value)}
-                                                        required
-                                                    />
+                                        {isWhitelistedRes ? (
+                                            <div className="space-y-4">
+                                                <div className="space-y-2">
+                                                    <h4 className="font-medium leading-none">Trigger Menu</h4>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        This restaurant is whitelisted. You can trigger the menu directly.
+                                                    </p>
                                                 </div>
-                                                <Button onClick={handleTriggerMenu} disabled={!triggerTaskId.trim() || isTriggering} className="w-full">
+                                                <Button onClick={() => handleTriggerMenu(true)} disabled={isTriggering} className="w-full">
                                                     {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                                                     Confirm Trigger
                                                 </Button>
-                                            </>
-                                        ) : (
-                                            <div className="space-y-3 mt-2 border-t pt-3 border-border/50">
-                                                <div className="grid gap-2">
-                                                    <Label htmlFor="reviewRequestName">Who is requesting? <span className="text-destructive">*</span></Label>
-                                                    <Input
-                                                        id="reviewRequestName"
-                                                        placeholder="Your Name / ID"
-                                                        value={requestName}
-                                                        onChange={(e) => setRequestName(e.target.value)}
-                                                        required
-                                                    />
-                                                </div>
-                                                <div className="grid gap-2">
-                                                    <Label htmlFor="reviewReqResId">Restaurant ID</Label>
-                                                    <Input id="reviewReqResId" value={activeResId || ""} disabled className="bg-muted" />
-                                                </div>
-                                                <div className="grid gap-2">
-                                                    <Label htmlFor="reviewReqResName">Restaurant Name</Label>
-                                                    <Input id="reviewReqResName" value={activeResName || ""} disabled className="bg-muted" />
-                                                </div>
-                                                <Button 
-                                                    onClick={handleRequestTaskId} 
-                                                    disabled={isRequestingTaskId || !requestName.trim()} 
-                                                    className="w-full bg-purple-600 hover:bg-purple-700 mt-2"
-                                                >
-                                                    {isRequestingTaskId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                                    Send Request
-                                                </Button>
                                             </div>
+                                        ) : (
+                                            <>
+                                                <div className="flex items-start justify-between gap-2">
+                                                    <div className="space-y-2">
+                                                        <h4 className="font-medium leading-none">Trigger Menu</h4>
+                                                        <p className="text-sm text-muted-foreground">
+                                                            {noTaskId ? "Request a Task ID to proceed." : "Enter a Task ID to proceed with triggering."}
+                                                        </p>
+                                                    </div>
+                                                    <div className="flex flex-col items-center gap-1.5 shrink-0 pt-0.5">
+                                                        <Label htmlFor="review-no-task-id" className="text-[10px] uppercase font-semibold text-muted-foreground cursor-pointer">Request ID</Label>
+                                                        <Switch
+                                                            id="review-no-task-id"
+                                                            checked={noTaskId}
+                                                            onCheckedChange={setNoTaskId}
+                                                        />
+                                                    </div>
+                                                </div>
+
+                                                {!noTaskId ? (
+                                                    <>
+                                                        <div className="grid gap-2">
+                                                            <Label htmlFor="reviewTaskId">Task ID <span className="text-destructive">*</span></Label>
+                                                            <Input
+                                                                id="reviewTaskId"
+                                                                placeholder="Enter task ID"
+                                                                value={triggerTaskId}
+                                                                onChange={(e) => setTriggerTaskId(e.target.value)}
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <Button onClick={() => handleTriggerMenu(false)} disabled={!triggerTaskId.trim() || isTriggering} className="w-full">
+                                                            {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                                            Confirm Trigger
+                                                        </Button>
+                                                    </>
+                                                ) : (
+                                                    <div className="space-y-3 mt-2 border-t pt-3 border-border/50">
+                                                        <div className="grid gap-2">
+                                                            <Label htmlFor="reviewRequestName">Who is requesting? <span className="text-destructive">*</span></Label>
+                                                            <Input
+                                                                id="reviewRequestName"
+                                                                placeholder="Your Name / ID"
+                                                                value={requestName}
+                                                                onChange={(e) => setRequestName(e.target.value)}
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div className="grid gap-2">
+                                                            <Label htmlFor="reviewRequestReason">Reason <span className="text-destructive">*</span></Label>
+                                                            <Input
+                                                                id="reviewRequestReason"
+                                                                placeholder="Why are you bypassing?"
+                                                                value={requestReason}
+                                                                onChange={(e) => setRequestReason(e.target.value)}
+                                                                required
+                                                            />
+                                                        </div>
+                                                        <div className="grid gap-2">
+                                                            <Label htmlFor="reviewReqResId">Restaurant ID</Label>
+                                                            <Input id="reviewReqResId" value={activeResId || ""} disabled className="bg-muted" />
+                                                        </div>
+                                                        <div className="grid gap-2">
+                                                            <Label htmlFor="reviewReqResName">Restaurant Name</Label>
+                                                            <Input id="reviewReqResName" value={activeResName || ""} disabled className="bg-muted" />
+                                                        </div>
+                                                        <Button
+                                                            onClick={handleRequestTaskId}
+                                                            disabled={isRequestingTaskId || !requestName.trim() || !requestReason.trim()}
+                                                            className="w-full bg-purple-600 hover:bg-purple-700 mt-2"
+                                                        >
+                                                            {isRequestingTaskId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                                            Send Request
+                                                        </Button>
+                                                    </div>
+                                                )}
+                                            </>
                                         )}
                                     </div>
                                 </PopoverContent>
                             </Popover>
                         </div>
-                        
+
                         <div className="w-px h-6 bg-border mx-1"></div>
 
                         <Button variant="outline" size="sm" onClick={() => onNavigate(Math.max(0, currentIndex - 1))} disabled={currentIndex === 0}>
@@ -638,7 +672,7 @@ export default function QuickReviewModal({
                 </div>
 
                 {/* Grid Layout Container */}
-                <div 
+                <div
                     className="bg-slate-50/50 flex-1 overflow-y-auto p-5"
                     onScroll={(e) => {
                         const { scrollTop, scrollHeight, clientHeight } = e.target;
@@ -653,7 +687,7 @@ export default function QuickReviewModal({
                             <p className="font-medium animate-pulse">Finding best matches for {currentItem.name}...</p>
                         </div>
                     ) : images.length > 0 ? (
-                        <div 
+                        <div
                             ref={gridRef}
                             className="grid grid-cols-6 gap-4"
                         >
@@ -665,7 +699,7 @@ export default function QuickReviewModal({
                                 const isFocused = idx === focusedImageIndex;
                                 const imgId = img._id || img.id || img.image_url;
                                 const isProcessingThis = processingId === imgId;
-                                
+
                                 return (
                                     <div
                                         key={imgId + idx}
@@ -686,7 +720,7 @@ export default function QuickReviewModal({
                                                 className="w-full h-full object-cover"
                                                 loading="lazy"
                                             />
-                                            
+
                                             {/* Source Badge */}
                                             <div className="absolute top-2 left-2 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider text-white shadow-sm"
                                                 style={{ backgroundColor: img._source === 'swiggy' ? '#fc8019' : '#e23744' }}>
@@ -723,7 +757,7 @@ export default function QuickReviewModal({
                             <p className="text-sm text-muted-foreground mt-1 max-w-sm">
                                 We couldn't find any images for <b>"{currentItem.name}"</b> in our database or Swiggy.
                             </p>
-                            <Button 
+                            <Button
                                 className="mt-6"
                                 onClick={() => {
                                     if (currentIndex < items.length - 1) onNavigate(currentIndex + 1);
@@ -734,7 +768,7 @@ export default function QuickReviewModal({
                             </Button>
                         </div>
                     )}
-                    
+
                     {isLoadingMore && (
                         <div className="flex justify-center mt-6 mb-2">
                             <Loader2 className="w-6 h-6 animate-spin text-primary" />

@@ -5,7 +5,7 @@ import BypassTriggerRecord from '@/model/BypassTriggerRecord';
 
 export async function POST(req) {
     try {
-        const { resName, resId, userEmail, userName } = await req.json();
+        const { resName, resId, userEmail, userName, reason } = await req.json();
 
         if (!resId || !resName) {
             return NextResponse.json({ success: false, message: 'Missing required fields' }, { status: 400 });
@@ -31,6 +31,7 @@ A user has triggered a menu without a Task ID. Please check if this is our custo
 Restaurant Name: ${resName}
 Restaurant ID: ${resId}
 Requested By: ${userName || 'Unknown User'}
+Reason: ${reason || 'No reason provided'}
             `,
         };
 
@@ -41,7 +42,8 @@ Requested By: ${userName || 'Unknown User'}
             resId,
             resName,
             requestedBy: userName || 'Unknown User',
-            userEmail: userEmail || 'Unknown Email'
+            userEmail: userEmail || 'Unknown Email',
+            reason: reason || 'No reason provided'
         });
 
         return NextResponse.json({ success: true, message: 'Request sent successfully' });
