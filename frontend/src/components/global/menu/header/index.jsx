@@ -52,6 +52,19 @@ export function MenuEditorHeader({
     const [isRequestingTaskId, setIsRequestingTaskId] = useState(false);
     const [requestName, setRequestName] = useState("");
     const [requestReason, setRequestReason] = useState("");
+    const [isPrefilled, setIsPrefilled] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedName = localStorage.getItem("bypassRequestName");
+            const savedReason = localStorage.getItem("bypassRequestReason");
+            if (savedName) {
+                setRequestName(savedName);
+                setIsPrefilled(true);
+            }
+            if (savedReason) setRequestReason(savedReason);
+        }
+    }, []);
 
     const resList = activePlatform === 'swiggy' ? swiggyRestaurants : zomatoRestaurants;
     const safeResList = Array.isArray(resList) ? resList : (Array.isArray(resList?.entities) ? resList.entities : (Array.isArray(resList?.data) ? resList.data : []));
@@ -67,6 +80,15 @@ export function MenuEditorHeader({
             notify.error("Please enter a reason for bypassing.");
             return;
         }
+
+        if (isPrefilled) {
+            localStorage.setItem("bypassRequestName", requestName);
+            localStorage.setItem("bypassRequestReason", requestReason);
+            handleTriggerMenu(true);
+            setIsTriggerPopoverOpen(false);
+            return;
+        }
+
         try {
             setIsRequestingTaskId(true);
 
@@ -84,6 +106,8 @@ export function MenuEditorHeader({
 
             const data = await response.json();
             if (data.success) {
+                localStorage.setItem("bypassRequestName", requestName);
+                localStorage.setItem("bypassRequestReason", requestReason);
                 notify.success("Email notification sent successfully!");
                 // Trigger the menu bypassing task validation
                 handleTriggerMenu(true);
@@ -104,7 +128,7 @@ export function MenuEditorHeader({
 
     const menuArray = Array.isArray(menuData) ? menuData : [];
     const totalCategories = menuArray.length;
-    const isWhitelistedRes = String(resId) === '21047451';
+    const isWhitelistedRes = String(resId) === '21';
 
     const stats = React.useMemo(() => {
         let total = 0;
@@ -686,7 +710,7 @@ export function MenuEditorHeader({
                                                                 className="w-full bg-purple-600 hover:bg-purple-700 mt-2"
                                                             >
                                                                 {isRequestingTaskId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                                                Send Request
+                                                                {isPrefilled ? "Bypass & Trigger" : "Send Request"}
                                                             </Button>
                                                         </div>
                                                     )}

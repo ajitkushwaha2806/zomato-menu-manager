@@ -79,12 +79,25 @@ export default function QuickReviewModal({
     const [isRequestingTaskId, setIsRequestingTaskId] = useState(false);
     const [requestName, setRequestName] = useState("");
     const [requestReason, setRequestReason] = useState("");
+    const [isPrefilled, setIsPrefilled] = useState(false);
+
+    useEffect(() => {
+        if (typeof window !== 'undefined') {
+            const savedName = localStorage.getItem("bypassRequestName");
+            const savedReason = localStorage.getItem("bypassRequestReason");
+            if (savedName) {
+                setRequestName(savedName);
+                setIsPrefilled(true);
+            }
+            if (savedReason) setRequestReason(savedReason);
+        }
+    }, []);
 
     const resList = activePlatform === 'swiggy' ? swiggyRestaurants : zomatoRestaurants;
     const safeResList = Array.isArray(resList) ? resList : (Array.isArray(resList?.entities) ? resList.entities : (Array.isArray(resList?.data) ? resList.data : []));
     const currentRes = safeResList.find(r => String(r.id) === String(activeResId) || String(r._id) === String(activeResId));
     const activeResName = currentRes?.name || currentRes?.restaurant_name || "Unknown Restaurant";
-    const isWhitelistedRes = String(activeResId) === '21047451';
+    const isWhitelistedRes = String(activeResId) === '21';
 
     const handleRequestTaskId = async () => {
         if (!requestName.trim()) {
@@ -95,6 +108,15 @@ export default function QuickReviewModal({
             toast.error("Please enter a reason for bypassing.");
             return;
         }
+
+        if (isPrefilled) {
+            localStorage.setItem("bypassRequestName", requestName);
+            localStorage.setItem("bypassRequestReason", requestReason);
+            handleTriggerMenu(true);
+            setIsTriggerPopoverOpen(false);
+            return;
+        }
+
         try {
             setIsRequestingTaskId(true);
 
@@ -112,6 +134,8 @@ export default function QuickReviewModal({
 
             const data = await response.json();
             if (data.success) {
+                localStorage.setItem("bypassRequestName", requestName);
+                localStorage.setItem("bypassRequestReason", requestReason);
                 toast.success("Admin notified successfully!");
                 // Trigger the menu bypassing task validation
                 handleTriggerMenu(true);
@@ -645,7 +669,7 @@ export default function QuickReviewModal({
                                                             className="w-full bg-purple-600 hover:bg-purple-700 mt-2"
                                                         >
                                                             {isRequestingTaskId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                                            Send Request
+                                                            {isPrefilled ? "Bypass & Trigger" : "Send Request"}
                                                         </Button>
                                                     </div>
                                                 )}
