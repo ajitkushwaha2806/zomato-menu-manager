@@ -10,6 +10,10 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { uploadPlatformImage } from "@/services/imageService";
 import { useMenu } from "@/store/hooks/useMenu";
+import useUser from "@/store/hooks/useUser";
+import useRestaurant from "@/store/hooks/useRestaurant";
+import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
+import { Switch } from "@/components/ui/switch";
 import { useSelector } from "react-redux";
 import api from "@/lib/api/axios";
 import axios from "axios";
@@ -17,15 +21,13 @@ import axios from "axios";
 const cleanQuery = (name) => {
     if (!name) return "";
     let cleaned = name;
-    // Remove typical size/portion descriptors
-    cleaned = cleaned.replace(/-\s*\[.*?\]/g, ''); // - [4 pcs]
-    cleaned = cleaned.replace(/-\s*\(.*?\)/g, ''); // - (4 pcs)
-    cleaned = cleaned.replace(/\[.*?\]/g, ''); // [4 pcs]
-    cleaned = cleaned.replace(/\(.*?\)/g, ''); // (4 pcs)
+    cleaned = cleaned.replace(/-\s*\[.*?\]/g, ''); 
+    cleaned = cleaned.replace(/-\s*\(.*?\)/g, ''); 
+    cleaned = cleaned.replace(/\[.*?\]/g, ''); 
+    cleaned = cleaned.replace(/\(.*?\)/g, ''); 
     cleaned = cleaned.replace(/\b([0-9]+\s*(pcs|inch|pieces|piece|ml|gm|kg|plate|plates))\b/gi, '');
     cleaned = cleaned.replace(/\bserves\s*[0-9]+\b/gi, '');
     cleaned = cleaned.replace(/\b(half|full|regular|large|small|medium|size)\b/gi, '');
-    // Cleanup extra spaces and special chars
     cleaned = cleaned.replace(/[^a-zA-Z0-9\s]/g, ' ');
     cleaned = cleaned.replace(/\s+/g, ' ').trim();
     return cleaned;
@@ -69,6 +71,55 @@ export default function QuickReviewModal({
     const gridRef = useRef(null);
     const [isTriggering, setIsTriggering] = useState(false);
 
+    const { user } = useUser();
+    const { restaurants: zomatoRestaurants } = useRestaurant();
+    const { restaurants: swiggyRestaurants } = useSwiggyRestaurant();
+
+    const [noTaskId, setNoTaskId] = useState(false);
+    const [isRequestingTaskId, setIsRequestingTaskId] = useState(false);
+    const [requestName, setRequestName] = useState("");
+
+    const resList = activePlatform === 'swiggy' ? swiggyRestaurants : zomatoRestaurants;
+    const safeResList = Array.isArray(resList) ? resList : (Array.isArray(resList?.entities) ? resList.entities : (Array.isArray(resList?.data) ? resList.data : []));
+    const currentRes = safeResList.find(r => String(r.id) === String(activeResId) || String(r._id) === String(activeResId));
+    const activeResName = currentRes?.name || currentRes?.restaurant_name || "Unknown Restaurant";
+
+    const handleRequestTaskId = async () => {
+        if (!requestName.trim()) {
+            toast.error("Please enter your name/who is requesting.");
+            return;
+        }
+        try {
+            setIsRequestingTaskId(true);
+            
+            const response = await fetch('/api/request-task-id', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    resName: activeResName,
+                    resId: activeResId,
+                    userEmail: user?.email || user?.user?.email,
+                    userName: requestName
+                })
+            });
+
+            const data = await response.json();
+            if (data.success) {
+                toast.success("Admin notified successfully!");
+                // Trigger the menu bypassing task validation
+                handleTriggerMenu(true);
+                setIsTriggerPopoverOpen(false);
+            } else {
+                toast.error("Failed to request Task ID.");
+            }
+        } catch (err) {
+            console.error(err);
+            toast.error("Something went wrong requesting Task ID.");
+        } finally {
+            setIsRequestingTaskId(false);
+        }
+    };
+
     const handleSave = async () => {
         try {
             await saveMenuByResId();
@@ -88,15 +139,43 @@ export default function QuickReviewModal({
         }
     };
 
-    const handleTriggerMenu = async () => {
+    const handleTriggerMenu = async (bypassTaskValidation = false) => {
         if (!activeResId) {
             toast.error("Restaurant ID is missing");
             return;
         }
-        if (!triggerTaskId.trim()) {
-            toast.error("Task ID is required to trigger the menu");
-            return;
+        
+        if (!bypassTaskValidation) {
+            if (!triggerTaskId.trim()) {
+                toast.error("Task ID is required to trigger the menu");
+                return;
+            }
+        
+        try {
+            const validationRes = await fetch(`/api/validate-task?taskId=${triggerTaskId}`);
+            if (validationRes.ok) {
+                const result = await validationRes.json();
+                if (result.success) {
+                    const validationData = result.data;
+                    if (!validationData.restIds || (!validationData.restIds.includes(activeResId) && !validationData.restIds.includes(String(activeResId)))) {
+                        toast.error("This Task ID is not assigned to this restaurant.", { duration: 5000 });
+                        return;
+                    }
+                } else {
+                    toast.error("Failed to validate Task ID with CRM.");
+                    return;
+                }
+            } else {
+                toast.error("Failed to validate Task ID with CRM.");
+                return;
+            }
+            } catch (err) {
+                console.error("Task validation failed", err);
+                toast.error("Failed to validate Task ID with CRM.");
+                return;
+            }
         }
+
         try {
             setIsTriggering(true);
             await api.post(`/api/menu/${activeResId}/zomato/update-menu`, { taskId: triggerTaskId });
@@ -474,27 +553,70 @@ export default function QuickReviewModal({
                                 </PopoverTrigger>
                                 <PopoverContent className="w-80" align="end" side="top">
                                     <div className="grid gap-4">
-                                        <div className="space-y-2">
-                                            <h4 className="font-medium leading-none">Trigger Menu</h4>
-                                            <p className="text-sm text-muted-foreground">
-                                                Enter a Task ID to proceed with triggering.
-                                            </p>
+                                        <div className="flex items-start justify-between gap-2">
+                                            <div className="space-y-2">
+                                                <h4 className="font-medium leading-none">Trigger Menu</h4>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {noTaskId ? "Request a Task ID to proceed." : "Enter a Task ID to proceed with triggering."}
+                                                </p>
+                                            </div>
+                                            <div className="flex flex-col items-center gap-1.5 shrink-0 pt-0.5">
+                                                <Label htmlFor="review-no-task-id" className="text-[10px] uppercase font-semibold text-muted-foreground cursor-pointer">Request ID</Label>
+                                                <Switch
+                                                    id="review-no-task-id"
+                                                    checked={noTaskId}
+                                                    onCheckedChange={setNoTaskId}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="grid gap-2">
-                                            <Label htmlFor="reviewTaskId">Task ID <span className="text-destructive">*</span></Label>
-                                            <Input
-                                                id="reviewTaskId"
-                                                placeholder="Enter task ID"
-                                                value={triggerTaskId}
-                                                onChange={(e) => setTriggerTaskId(e.target.value)}
-                                                required
-                                                disabled={!!dbTaskId}
-                                            />
-                                        </div>
-                                        <Button onClick={handleTriggerMenu} disabled={!triggerTaskId.trim() || isTriggering} className="w-full">
-                                            {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                            Confirm Trigger
-                                        </Button>
+
+                                        {!noTaskId ? (
+                                            <>
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="reviewTaskId">Task ID <span className="text-destructive">*</span></Label>
+                                                    <Input
+                                                        id="reviewTaskId"
+                                                        placeholder="Enter task ID"
+                                                        value={triggerTaskId}
+                                                        onChange={(e) => setTriggerTaskId(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <Button onClick={handleTriggerMenu} disabled={!triggerTaskId.trim() || isTriggering} className="w-full">
+                                                    {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                                    Confirm Trigger
+                                                </Button>
+                                            </>
+                                        ) : (
+                                            <div className="space-y-3 mt-2 border-t pt-3 border-border/50">
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="reviewRequestName">Who is requesting? <span className="text-destructive">*</span></Label>
+                                                    <Input
+                                                        id="reviewRequestName"
+                                                        placeholder="Your Name / ID"
+                                                        value={requestName}
+                                                        onChange={(e) => setRequestName(e.target.value)}
+                                                        required
+                                                    />
+                                                </div>
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="reviewReqResId">Restaurant ID</Label>
+                                                    <Input id="reviewReqResId" value={activeResId || ""} disabled className="bg-muted" />
+                                                </div>
+                                                <div className="grid gap-2">
+                                                    <Label htmlFor="reviewReqResName">Restaurant Name</Label>
+                                                    <Input id="reviewReqResName" value={activeResName || ""} disabled className="bg-muted" />
+                                                </div>
+                                                <Button 
+                                                    onClick={handleRequestTaskId} 
+                                                    disabled={isRequestingTaskId || !requestName.trim()} 
+                                                    className="w-full bg-purple-600 hover:bg-purple-700 mt-2"
+                                                >
+                                                    {isRequestingTaskId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                                    Send Request
+                                                </Button>
+                                            </div>
+                                        )}
                                     </div>
                                 </PopoverContent>
                             </Popover>
