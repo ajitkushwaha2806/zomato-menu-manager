@@ -19,6 +19,9 @@ const BypassTriggerRecordSchema = new mongoose.Schema(
         },
         reason: {
             type: String,
+        },
+        user: {
+            type: String,
         }
     },
     { timestamps: true }

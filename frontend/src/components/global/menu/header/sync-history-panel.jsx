@@ -2,15 +2,203 @@
 
 import React, { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, RefreshCcw, CheckCircle2, Clock, AlertCircle, FileJson, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
+import { X, RefreshCcw, CheckCircle2, Clock, AlertCircle, FileJson, ChevronDown, ChevronUp, Sparkles, Download } from "lucide-react";
 import api from "@/lib/api/axios";
 import useNotification from "@/store/hooks/useNotification";
+import { useMenu } from "@/store/hooks/useMenu";
 
 const generateTempId = () => {
     if (typeof window !== "undefined" && window.crypto && window.crypto.randomUUID) {
         return `temp-${window.crypto.randomUUID()}`;
     }
     return `temp-${Math.random().toString(36).substring(2, 11)}-${Date.now().toString(36)}`;
+};
+
+export const importSwiggyPayloadToLocalMenu = (job, localMenu) => {
+    const originalCategories = job.updated_menu?.categories || [];
+    const originalSubCategories = job.updated_menu?.sub_categories || [];
+    const originalItems = job.updated_menu?.items || [];
+    
+    let newMenu = JSON.parse(JSON.stringify(localMenu || []));
+    
+    const existingCatMap = new Map();
+    const existingSubCatMap = new Map();
+    
+    newMenu.forEach(c => {
+        if (c.name) existingCatMap.set(c.name.trim().toLowerCase(), c.id);
+        (c.sub_category || []).forEach(s => {
+            if (c.name && s.name) {
+                existingSubCatMap.set(`${c.name.trim().toLowerCase()}::${s.name.trim().toLowerCase()}`, s.id);
+            }
+        });
+    });
+
+    const categoryIdMap = new Map();
+    const subCategoryIdMap = new Map();
+
+    originalCategories.forEach(cat => {
+        const catName = cat.name || cat.category_name || cat.category;
+        if (!catName) return;
+        const nameKey = catName.trim().toLowerCase();
+        let targetCatId = existingCatMap.get(nameKey);
+        
+        const { status, error, action, id, name, category_name, category, sub_category, ...cleanCat } = cat;
+
+        if (!targetCatId) {
+            targetCatId = generateTempId();
+            existingCatMap.set(nameKey, targetCatId);
+            newMenu.push({
+                ...cleanCat,
+                id: targetCatId,
+                name: catName,
+                sub_category: []
+            });
+        } else {
+            // Update existing category
+            const existingCat = newMenu.find(c => c.id === targetCatId);
+            if (existingCat) {
+                Object.assign(existingCat, cleanCat);
+            }
+        }
+        if (cat.id) categoryIdMap.set(String(cat.id), targetCatId);
+    });
+
+    originalSubCategories.forEach(sub => {
+        const subName = sub.name || sub.sub_category_name || sub.sub_category;
+        if (!subName) return;
+        
+        let parentCatId = sub.categoryId ? categoryIdMap.get(String(sub.categoryId)) : null;
+        if (!parentCatId && sub.categoryName) {
+            parentCatId = existingCatMap.get(sub.categoryName.trim().toLowerCase());
+        }
+        if (!parentCatId && sub.category) {
+            parentCatId = existingCatMap.get(sub.category.trim().toLowerCase());
+        }
+        const parentCat = newMenu.find(c => c.id === parentCatId);
+        if (!parentCat) return;
+
+        const { status, error, action, id, name, sub_category_name, sub_category, categoryId, categoryName, category, items, ...cleanSub } = sub;
+
+        const subKey = `${parentCat.name.trim().toLowerCase()}::${subName.trim().toLowerCase()}`;
+        let targetSubId = existingSubCatMap.get(subKey);
+        if (!targetSubId) {
+            targetSubId = generateTempId();
+            existingSubCatMap.set(subKey, targetSubId);
+            parentCat.sub_category.push({
+                ...cleanSub,
+                id: targetSubId,
+                categoryId: parentCat.id,
+                name: subName,
+                items: []
+            });
+        } else {
+            // Update existing subcategory
+            const existingSub = parentCat.sub_category.find(s => s.id === targetSubId);
+            if (existingSub) {
+                Object.assign(existingSub, cleanSub);
+            }
+        }
+        if (sub.id) subCategoryIdMap.set(String(sub.id), targetSubId);
+    });
+
+    originalItems.forEach(item => {
+        let parentCatId = item.categoryId ? categoryIdMap.get(String(item.categoryId)) : null;
+        if (!parentCatId && item.categoryName) {
+            parentCatId = existingCatMap.get(item.categoryName.trim().toLowerCase());
+        }
+        if (!parentCatId && item.category) {
+            parentCatId = existingCatMap.get(item.category.trim().toLowerCase());
+        }
+        if (!parentCatId && item.categoryId && Array.from(existingCatMap.values()).includes(String(item.categoryId))) {
+            parentCatId = String(item.categoryId);
+        }
+
+        let parentSubId = item.subCategoryId ? subCategoryIdMap.get(String(item.subCategoryId)) : null;
+        if (!parentSubId && item.subCategoryName && parentCatId) {
+            const parentCat = newMenu.find(c => c.id === parentCatId);
+            if (parentCat) {
+                const subKey = `${parentCat.name.trim().toLowerCase()}::${item.subCategoryName.trim().toLowerCase()}`;
+                parentSubId = existingSubCatMap.get(subKey);
+            }
+        }
+        if (!parentSubId && item.sub_category && parentCatId) {
+            const parentCat = newMenu.find(c => c.id === parentCatId);
+            if (parentCat) {
+                const subKey = `${parentCat.name.trim().toLowerCase()}::${item.sub_category.trim().toLowerCase()}`;
+                parentSubId = existingSubCatMap.get(subKey);
+            }
+        }
+        if (!parentSubId && item.subCategoryId) {
+            // Check if subCategoryId is already a target ID
+            const foundParentCat = newMenu.find(c => c.sub_category?.some(s => s.id === String(item.subCategoryId)));
+            if (foundParentCat) parentSubId = String(item.subCategoryId);
+        }
+
+        if (!parentCatId && parentSubId) {
+            const parentCat = newMenu.find(c => c.sub_category?.some(s => s.id === parentSubId));
+            if (parentCat) {
+                parentCatId = parentCat.id;
+            }
+        }
+
+        if (!parentCatId && (item.categoryName || item.category)) {
+            const catName = item.categoryName || item.category;
+            parentCatId = generateTempId();
+            existingCatMap.set(catName.trim().toLowerCase(), parentCatId);
+            newMenu.push({
+                id: parentCatId,
+                name: catName,
+                sub_category: []
+            });
+        }
+        
+        if (parentCatId && !parentSubId && (item.subCategoryName || item.sub_category)) {
+            const subName = item.subCategoryName || item.sub_category;
+            const parentCat = newMenu.find(c => c.id === parentCatId);
+            if (parentCat) {
+                parentSubId = generateTempId();
+                const subKey = `${parentCat.name.trim().toLowerCase()}::${subName.trim().toLowerCase()}`;
+                existingSubCatMap.set(subKey, parentSubId);
+                parentCat.sub_category.push({
+                    id: parentSubId,
+                    categoryId: parentCatId,
+                    name: subName,
+                    items: []
+                });
+            }
+        }
+
+        if (parentCatId && parentSubId) {
+            const parentCat = newMenu.find(c => c.id === parentCatId);
+            if (parentCat) {
+                const parentSub = parentCat.sub_category.find(s => s.id === parentSubId);
+                if (parentSub) {
+                    const newItemId = generateTempId();
+                    const { status, error, action, id, ...cleanItem } = item;
+                    
+                    const transformedMedia = Array.isArray(cleanItem.media)
+                        ? cleanItem.media.map((m) => {
+                              if (typeof m === "object" && m !== null) {
+                                  return { ...m, tempReferenceId: generateTempId(), id: undefined };
+                              }
+                              return m;
+                          })
+                        : cleanItem.media;
+
+                    parentSub.items = parentSub.items || [];
+                    parentSub.items.push({
+                        ...cleanItem,
+                        id: newItemId,
+                        categoryId: parentCatId,
+                        subCategoryId: parentSubId,
+                        ...(transformedMedia ? { media: transformedMedia } : {})
+                    });
+                }
+            }
+        }
+    });
+
+    return newMenu;
 };
 
 export const transformMenuAsNew = (updatedMenu) => {
@@ -25,7 +213,6 @@ export const transformMenuAsNew = (updatedMenu) => {
     const originalSubCategories = updatedMenu.sub_categories || [];
     const originalItems = updatedMenu.items || [];
 
-    // 1. Transform Categories
     const categories = originalCategories.map((cat) => {
         const newCatId = generateTempId();
         if (cat.id) {
@@ -262,7 +449,7 @@ const SyncItem = ({ label, items, type }) => {
     );
 };
 
-const JobCard = ({ job, onRetry, onRetryFailed, onRetryAllAsNew, isRetrying }) => {
+const JobCard = ({ job, onRetry, onRetryFailed, onRetryAllAsNew, onImportToLocal, isRetrying }) => {
     const [expanded, setExpanded] = useState(false);
     
     const categories = job.updated_menu?.categories || [];
@@ -332,6 +519,18 @@ const JobCard = ({ job, onRetry, onRetryFailed, onRetryAllAsNew, isRetrying }) =
                         <Sparkles className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
                         Retry All as New
                     </button>
+                    <button
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            onImportToLocal(job);
+                        }}
+                        disabled={isRetrying}
+                        className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-emerald-50 text-emerald-700 rounded-md hover:bg-emerald-100 transition-colors disabled:opacity-50 shadow-sm border border-emerald-200/60"
+                        title="Add these items to the existing local menu"
+                    >
+                        <Download className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
+                        Add to Local Menu
+                    </button>
                     <div className="text-gray-400 ml-1">
                         {expanded ? <ChevronUp className="w-5 h-5" /> : <ChevronDown className="w-5 h-5" />}
                     </div>
@@ -376,6 +575,7 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
     const [loading, setLoading] = useState(true);
     const [retryingId, setRetryingId] = useState(null);
     const notify = useNotification();
+    const { activePlatform } = useMenu();
 
     const fetchHistory = async () => {
         try {
@@ -460,6 +660,31 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
         }
     };
 
+    const handleImportToLocalMenu = async (job) => {
+        try {
+            setRetryingId(job._id);
+            const platform = activePlatform || "zomato";
+            const res = await api.get(`/api/menu/${resId}?platform=${platform}`);
+            if (!res.data?.success) throw new Error("Failed to fetch local menu");
+            
+            const localMenu = res.data.data.menu || [];
+            const mergedMenu = importSwiggyPayloadToLocalMenu(job, localMenu);
+            
+            const saveRes = await api.put(`/api/menu/${resId}?platform=${platform}`, { menu: mergedMenu });
+            if (saveRes.data?.success) {
+                notify.success(`Items successfully added to ${platform} local menu!`);
+                setTimeout(() => window.location.reload(), 1500);
+            } else {
+                notify.error(saveRes.data?.message || "Failed to update local menu.");
+            }
+        } catch (error) {
+            console.error("Failed to import job to local menu", error);
+            notify.error("Failed to add sync job items to local menu.");
+        } finally {
+            setRetryingId(null);
+        }
+    };
+
     useEffect(() => {
         if (isOpen && resId) {
             fetchHistory();
@@ -535,6 +760,7 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
                                             onRetry={handleRetry}
                                             onRetryFailed={handleRetryFailed}
                                             onRetryAllAsNew={handleRetryAllAsNew}
+                                            onImportToLocal={handleImportToLocalMenu}
                                             isRetrying={retryingId === job._id}
                                         />
                                     ))}

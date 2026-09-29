@@ -55,16 +55,23 @@ export function MenuEditorHeader({
     const [isPrefilled, setIsPrefilled] = useState(false);
 
     useEffect(() => {
-        if (typeof window !== 'undefined') {
-            const savedName = localStorage.getItem("bypassRequestName");
-            const savedReason = localStorage.getItem("bypassRequestReason");
-            if (savedName) {
-                setRequestName(savedName);
-                setIsPrefilled(true);
-            }
-            if (savedReason) setRequestReason(savedReason);
+        if (typeof window !== 'undefined' && resId) {
+            setRequestName("");
+            setRequestReason("");
+            setIsPrefilled(false);
+            
+            fetch(`/api/request-task-id?resId=${resId}`)
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success && data.data) {
+                        setRequestName(data.data.requestedBy || "");
+                        setRequestReason(data.data.reason || "");
+                        setIsPrefilled(true);
+                    }
+                })
+                .catch(err => console.error("Error fetching bypass info", err));
         }
-    }, []);
+    }, [resId]);
 
     const resList = activePlatform === 'swiggy' ? swiggyRestaurants : zomatoRestaurants;
     const safeResList = Array.isArray(resList) ? resList : (Array.isArray(resList?.entities) ? resList.entities : (Array.isArray(resList?.data) ? resList.data : []));
@@ -82,8 +89,6 @@ export function MenuEditorHeader({
         }
 
         if (isPrefilled) {
-            localStorage.setItem("bypassRequestName", requestName);
-            localStorage.setItem("bypassRequestReason", requestReason);
             handleTriggerMenu(true);
             setIsTriggerPopoverOpen(false);
             return;
@@ -106,8 +111,6 @@ export function MenuEditorHeader({
 
             const data = await response.json();
             if (data.success) {
-                localStorage.setItem("bypassRequestName", requestName);
-                localStorage.setItem("bypassRequestReason", requestReason);
                 notify.success("Email notification sent successfully!");
                 // Trigger the menu bypassing task validation
                 handleTriggerMenu(true);
@@ -684,6 +687,7 @@ export function MenuEditorHeader({
                                                                     value={requestName}
                                                                     onChange={(e) => setRequestName(e.target.value)}
                                                                     required
+                                                                    disabled={isPrefilled}
                                                                 />
                                                             </div>
                                                             <div className="grid gap-2">
@@ -694,6 +698,7 @@ export function MenuEditorHeader({
                                                                     value={requestReason}
                                                                     onChange={(e) => setRequestReason(e.target.value)}
                                                                     required
+                                                                    disabled={isPrefilled}
                                                                 />
                                                             </div>
                                                             <div className="grid gap-2">

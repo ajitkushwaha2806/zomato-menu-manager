@@ -143,7 +143,6 @@ export const useMenu = () => {
     const hasCopiedCategory = typeof window !== 'undefined' && !!localStorage.getItem('menuManager_copiedCategory');
 
     return {
-        // Data States
         menuData,
         addonsData,
         restaurantName,
@@ -159,7 +158,6 @@ export const useMenu = () => {
         error,
         updated_menu,
 
-        // Core Layout Setters
         setActiveResId: useCallback((idOrObj) => {
             if (typeof window !== 'undefined') {
                 const id = typeof idOrObj === 'object' ? idOrObj.id : idOrObj;
@@ -177,7 +175,6 @@ export const useMenu = () => {
         globalSearchQuery,
         setGlobalSearchQuery,
 
-        // Menu Modifiers (CRUD)
         addCategory,
         updateCategory,
         deleteCategory,
@@ -188,7 +185,6 @@ export const useMenu = () => {
         updateSubCategory,
         deleteSubCategory,
 
-        // Item Modifiers
         addItem: (payload) => {
             if (payload && payload.subCategoryId && payload.item) {
                 return dispatch(dispatchAddItem(payload));
@@ -229,13 +225,11 @@ export const useMenu = () => {
         syncSwiggyMenu: (resId) => dispatch(dispatchSyncSwiggyMenu(resId)),
         syncPetpoojaMenu: (resId) => dispatch(dispatchSyncPetpoojaMenu(resId)),
         
-        // Swiggy specific actions
         markMenuUpdatesDone: () => dispatch(dispatchMarkMenuUpdatesDone()),
         queueAll: () => dispatch(dispatchQueueAll()),
         queuePriceUpdates: () => dispatch(dispatchQueuePriceUpdates()),
         queueDescriptionUpdates: () => dispatch(dispatchQueueDescriptionUpdates()),
         
-        // Petpooja HTML support
         petpoojaHtml,
         clearPetpoojaHtml: () => dispatch(dispatchClearPetpoojaHtml()),
         taskId,
