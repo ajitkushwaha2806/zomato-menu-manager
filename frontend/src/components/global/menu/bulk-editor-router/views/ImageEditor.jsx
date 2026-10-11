@@ -112,6 +112,93 @@ const ImageCard = ({ item, onClick, onDrop, isActive }) => {
     );
 };
 
+const cleanTitle = (str) => {
+    if (!str || typeof str !== "string") return "";
+    return str
+        .replace(/\s*\([^)]*\)/g, "")
+        .replace(/\s*\[[^\]]*\]/g, "")
+        .trim();
+};
+
+const normalizeTitle = (str) => {
+    if (!str || typeof str !== "string") return "";
+    return str
+        .toLowerCase()
+        .trim()
+        .replace(/['"’]/g, "")
+        .replace(/[^a-z0-9]/gi, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+};
+
+const levenshteinDistance = (s1, s2) => {
+    const m = s1.length;
+    const n = s2.length;
+    const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));
+
+    for (let i = 0; i <= m; i++) dp[i][0] = i;
+    for (let j = 0; j <= n; j++) dp[0][j] = j;
+
+    for (let i = 1; i <= m; i++) {
+        for (let j = 1; j <= n; j++) {
+            if (s1[i - 1] === s2[j - 1]) {
+                dp[i][j] = dp[i - 1][j - 1];
+            } else {
+                dp[i][j] = 1 + Math.min(dp[i - 1][j], dp[i][j - 1], dp[i - 1][j - 1]);
+            }
+        }
+    }
+    return dp[m][n];
+};
+
+const getMatchScore = (itemName, candidateTitle) => {
+    if (!itemName || !candidateTitle) return 0;
+    const s1 = String(itemName).toLowerCase().trim();
+    const s2 = String(candidateTitle).toLowerCase().trim();
+
+    // 100% exact match
+    if (s1 === s2) return 1.0;
+
+    const norm1 = normalizeTitle(s1);
+    const norm2 = normalizeTitle(s2);
+
+    if (norm1 === norm2) return 1.0;
+
+    // Check with portion / size notes in parentheses removed (e.g. "Cold Coffee (300ml)" vs "Cold Coffee")
+    const cleanNorm1 = normalizeTitle(cleanTitle(s1));
+    const cleanNorm2 = normalizeTitle(cleanTitle(s2));
+    if (cleanNorm1 && cleanNorm2 && cleanNorm1 === cleanNorm2) return 0.98;
+
+    // Evaluate edit distance and similarity on full normalized titles
+    const maxLen = Math.max(norm1.length, norm2.length);
+    if (maxLen === 0) return 0;
+
+    const distance = levenshteinDistance(norm1, norm2);
+    const similarity = (maxLen - distance) / maxLen;
+
+    // Strict rule: Allow if up to 2 alphabets are different (for words length >= 4) or similarity is >= 95% (0.95), never less
+    const allowedByDistance = maxLen >= 4 && distance <= 2;
+    const allowedByRatio = similarity >= 0.95;
+
+    if (allowedByDistance || allowedByRatio) {
+        return similarity;
+    }
+
+    // Also check on cleaned strings (e.g. minor typo with parentheses stripped)
+    if (cleanNorm1 && cleanNorm2 && (cleanNorm1 !== norm1 || cleanNorm2 !== norm2)) {
+        const cleanMaxLen = Math.max(cleanNorm1.length, cleanNorm2.length);
+        if (cleanMaxLen >= 4) {
+            const cleanDistance = levenshteinDistance(cleanNorm1, cleanNorm2);
+            const cleanSim = (cleanMaxLen - cleanDistance) / cleanMaxLen;
+            if (cleanDistance <= 2 || cleanSim >= 0.95) {
+                return cleanSim * 0.96;
+            }
+        }
+    }
+
+    return 0; // Less than allowed threshold - never match
+};
+
 export default function ImageEditor({ allItems, updateItem }) {
     const dispatch = useDispatch();
     const notification = useNotification();
@@ -187,13 +274,13 @@ export default function ImageEditor({ allItems, updateItem }) {
         try {
             const chunkSize = 3;
             let completedCount = 0;
+            let appliedCount = 0;
             
             for (let i = 0; i < itemsWithoutMedia.length; i += chunkSize) {
                 const chunk = itemsWithoutMedia.slice(i, i + chunkSize);
                 
                 const fetchPromises = chunk.map(async (item) => {
                     try {
-                        // Map is_veg to food_type expected by the match API
                         const foodTypeMap = {
                             VEG: "veg",
                             NON_VEG: "non_veg",
@@ -201,19 +288,41 @@ export default function ImageEditor({ allItems, updateItem }) {
                         };
                         const food_type = foodTypeMap[item.is_veg] || "veg";
 
-                        // Hit local search proxy to avoid CORS, passing param premium = true
+                        const query = (item.name || "").toLowerCase().trim();
+
+                        // Hit local search proxy to avoid CORS, passing lowercased query and higher limit
                         const res = await api.get(`/api/image/search`, {
                             params: {
-                                q: item.name,
+                                q: query,
+                                limit: 30,
                                 premium: true
                             }
                         });
                         const photos = res.data?.data || [];
 
+                        // Rank candidates by match score: allows up to 2 alphabets difference or >=95% similarity, never less
+                        const candidatePhotos = photos
+                            .map((photo) => {
+                                const photoTitle = photo.title || photo.dish_name || photo.name || photo.item_name || photo.dishName || "";
+                                if (item.is_veg === "VEG" && (photo.food_type === "non_veg" || photo.is_veg === "NON_VEG" || photo.is_veg === false)) {
+                                    return null;
+                                }
+                                const score = getMatchScore(item.name, photoTitle);
+                                if (score <= 0) return null;
+                                return { photo, score };
+                            })
+                            .filter(Boolean)
+                            .sort((a, b) => b.score - a.score)
+                            .map((entry) => entry.photo);
+
+                        if (candidatePhotos.length === 0) {
+                            return { itemId: item.id, media: [] };
+                        }
+
                         let finalMedia = [];
 
-                        for (let j = 0; j < Math.min(6, photos.length); j++) {
-                            const photo = photos[j];
+                        for (let j = 0; j < Math.min(6, candidatePhotos.length); j++) {
+                            const photo = candidatePhotos[j];
                             const imageUrl = photo.image_url || photo.image || photo.url;
                             if (!imageUrl) continue;
 
@@ -230,7 +339,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                                         tempReferenceId: `temp-auto-${crypto.randomUUID()}`,
                                         url: '',
                                         isUploading: true,
-                                        uploadText: `Trying ${j+1}/${Math.min(6, photos.length)}`
+                                        uploadText: `Trying best match ${j+1}/${candidatePhotos.length}`
                                     }]
                                 }
                             });
@@ -282,9 +391,10 @@ export default function ImageEditor({ allItems, updateItem }) {
                 results.forEach(result => {
                     const { itemId, media } = result;
                     if (media && media.length > 0) {
+                        appliedCount++;
                         updateItem({ itemId, updates: { media } });
                     } else {
-                        // No image found — reset to empty so card shows "No Image" cleanly
+                        // No exact match found — reset to empty so card shows "No Image" cleanly
                         updateItem({ itemId, updates: { media: [] } });
                     }
                 });
@@ -298,7 +408,11 @@ export default function ImageEditor({ allItems, updateItem }) {
             
             setIsAutoApplying(false);
             setAutoApplyType(null);
-            notify.success(`Successfully applied images for ${itemsWithoutMedia.length} items!`);
+            if (appliedCount > 0) {
+                notify.success(`Successfully applied 100% matched images for ${appliedCount} items!`);
+            } else {
+                notify.info("No 100% exact matched images found for the items.");
+            }
             
         } catch (err) {
             console.error(err);
@@ -354,24 +468,45 @@ export default function ImageEditor({ allItems, updateItem }) {
         try {
             const chunkSize = 2; // Process 2 images at a time to prevent rate limiting
             let completedCount = 0;
+            let appliedCount = 0;
             
             for (let i = 0; i < itemsWithoutMedia.length; i += chunkSize) {
                 const chunk = itemsWithoutMedia.slice(i, i + chunkSize);
                 
                 const fetchPromises = chunk.map(async (item) => {
                     try {
+                        const query = (item.name || "").toLowerCase().trim();
                         const res = await api.get(`/api/image/foodsnap-search`, {
                             params: {
-                                query: item.name,
-                                limit: 6
+                                query: query,
+                                limit: 30
                             }
                         });
                         const photos = res.data?.data || [];
 
+                        // Rank candidates by match score: allows up to 2 alphabets difference or >=95% similarity, never less
+                        const candidatePhotos = photos
+                            .map((photo) => {
+                                const photoTitle = photo.title || photo.dish_name || photo.name || photo.item_name || photo.dishName || "";
+                                if (item.is_veg === "VEG" && (photo.food_type === "non_veg" || photo.is_veg === "NON_VEG" || photo.is_veg === false)) {
+                                    return null;
+                                }
+                                const score = getMatchScore(item.name, photoTitle);
+                                if (score <= 0) return null;
+                                return { photo, score };
+                            })
+                            .filter(Boolean)
+                            .sort((a, b) => b.score - a.score)
+                            .map((entry) => entry.photo);
+
+                        if (candidatePhotos.length === 0) {
+                            return { itemId: item.id, media: [] };
+                        }
+
                         let finalMedia = [];
 
-                        for (let j = 0; j < Math.min(6, photos.length); j++) {
-                            const photo = photos[j];
+                        for (let j = 0; j < Math.min(6, candidatePhotos.length); j++) {
+                            const photo = candidatePhotos[j];
                             const imageUrl = photo.image_url || photo.image || photo.url;
                             
                             if (!imageUrl) continue;
@@ -386,7 +521,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                                         tempReferenceId: `temp-fsp-${crypto.randomUUID()}`,
                                         url: '',
                                         isUploading: true,
-                                        uploadText: `Uploading from Foodsnap+ ${j+1}/${Math.min(6, photos.length)}...`
+                                        uploadText: `Uploading from Foodsnap+ ${j+1}/${candidatePhotos.length}...`
                                     }]
                                 }
                             });
@@ -435,6 +570,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                 results.forEach(result => {
                     const { itemId, media } = result;
                     if (media && media.length > 0) {
+                        appliedCount++;
                         updateItem({ itemId, updates: { media } });
                     } else {
                         updateItem({ itemId, updates: { media: [] } });
@@ -449,7 +585,11 @@ export default function ImageEditor({ allItems, updateItem }) {
             
             setIsAutoApplying(false);
             setAutoApplyType(null);
-            notify.success(`Successfully applied Foodsnap Plus images!`);
+            if (appliedCount > 0) {
+                notify.success(`Successfully applied Foodsnap Plus images for ${appliedCount} items!`);
+            } else {
+                notify.info("No 100% exact matched images found in Foodsnap Plus.");
+            }
             
         } catch (err) {
             console.error(err);
@@ -505,24 +645,45 @@ export default function ImageEditor({ allItems, updateItem }) {
         try {
             const chunkSize = 2; // Process 2 images at a time to prevent rate limiting
             let completedCount = 0;
+            let appliedCount = 0;
             
             for (let i = 0; i < itemsWithoutMedia.length; i += chunkSize) {
                 const chunk = itemsWithoutMedia.slice(i, i + chunkSize);
                 
                 const fetchPromises = chunk.map(async (item) => {
                     try {
+                        const query = (item.name || "").toLowerCase().trim();
                         const res = await api.get(`/api/image/internal-search`, {
                             params: {
-                                q: item.name,
-                                limit: 6
+                                q: query,
+                                limit: 30
                             }
                         });
                         const photos = res.data?.data || [];
 
+                        // Rank candidates by match score: allows up to 2 alphabets difference or >=95% similarity, never less
+                        const candidatePhotos = photos
+                            .map((photo) => {
+                                const photoTitle = photo.title || photo.dish_name || photo.name || photo.item_name || photo.dishName || "";
+                                if (item.is_veg === "VEG" && (photo.food_type === "non_veg" || photo.is_veg === "NON_VEG" || photo.is_veg === false)) {
+                                    return null;
+                                }
+                                const score = getMatchScore(item.name, photoTitle);
+                                if (score <= 0) return null;
+                                return { photo, score };
+                            })
+                            .filter(Boolean)
+                            .sort((a, b) => b.score - a.score)
+                            .map((entry) => entry.photo);
+
+                        if (candidatePhotos.length === 0) {
+                            return { itemId: item.id, media: [] };
+                        }
+
                         let finalMedia = [];
 
-                        for (let j = 0; j < Math.min(6, photos.length); j++) {
-                            const photo = photos[j];
+                        for (let j = 0; j < Math.min(6, candidatePhotos.length); j++) {
+                            const photo = candidatePhotos[j];
                             const imageUrl = photo.image_url || photo.image || photo.url;
                             
                             if (!imageUrl) continue;
@@ -537,7 +698,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                                         tempReferenceId: `temp-db-${crypto.randomUUID()}`,
                                         url: '',
                                         isUploading: true,
-                                        uploadText: `Uploading from DB ${j+1}/${Math.min(6, photos.length)}...`
+                                        uploadText: `Uploading from DB ${j+1}/${candidatePhotos.length}...`
                                     }]
                                 }
                             });
@@ -589,6 +750,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                 results.forEach(result => {
                     const { itemId, media } = result;
                     if (media && media.length > 0) {
+                        appliedCount++;
                         updateItem({ itemId, updates: { media } });
                     } else {
                         updateItem({ itemId, updates: { media: [] } });
@@ -604,7 +766,11 @@ export default function ImageEditor({ allItems, updateItem }) {
             
             setIsAutoApplying(false);
             setAutoApplyType(null);
-            notify.success(`Successfully applied images from DB for ${itemsWithoutMedia.length} items!`);
+            if (appliedCount > 0) {
+                notify.success(`Successfully applied images from DB for ${appliedCount} items!`);
+            } else {
+                notify.info("No 100% exact matched images found in internal database.");
+            }
             
         } catch (err) {
             console.error(err);
@@ -674,7 +840,23 @@ export default function ImageEditor({ allItems, updateItem }) {
                 const fetchPromises = chunk.map(async (item) => {
                     try {
                         const nameKey = item.name?.trim().toLowerCase();
-                        const sourceMediaArray = targetMediaMap[nameKey];
+                        let sourceMediaArray = targetMediaMap[nameKey];
+
+                        if (!sourceMediaArray || sourceMediaArray.length === 0) {
+                            // Find closest match adhering to <=2 edit distance or >=95% similarity
+                            let bestScore = 0;
+                            let bestKey = null;
+                            for (const targetName of Object.keys(targetMediaMap)) {
+                                const score = getMatchScore(item.name, targetName);
+                                if (score > 0 && score > bestScore) {
+                                    bestScore = score;
+                                    bestKey = targetName;
+                                }
+                            }
+                            if (bestKey) {
+                                sourceMediaArray = targetMediaMap[bestKey];
+                            }
+                        }
 
                         if (!sourceMediaArray || sourceMediaArray.length === 0) {
                             return { itemId: item.id, media: [] };

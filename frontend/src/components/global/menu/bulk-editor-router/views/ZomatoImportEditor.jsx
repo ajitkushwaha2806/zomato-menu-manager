@@ -31,7 +31,7 @@ export default function ZomatoImportEditor() {
         setStats(null);
 
         try {
-            const { data } = await axios.get(`/api/menu/${activeResId}/zomato/scrape`, {
+            const { data } = await axios.get(`/api/menu/${activeResId}/zomato/import`, {
                 params: { pageUrl: pageUrl.trim() }
             });
 

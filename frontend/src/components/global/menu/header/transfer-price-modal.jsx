@@ -22,7 +22,9 @@ import {
     FileText,
     Store,
     Layers,
-    Equal
+    Equal,
+    Sparkles,
+    Target
 } from "lucide-react";
 import { MenuService } from "@/services/menu";
 import { useMenu } from "@/store/hooks/useMenu";
@@ -60,10 +62,25 @@ const normalizeString = (str) => {
     return (str || "").toString().toLowerCase().replace(/[^a-z0-9]/g, "");
 };
 
-// Fuzzy match function, returns the best match from targetItems
-const findBestMatch = (localItemName, targetItems, threshold = 0.4) => {
+// Fuzzy / Exact match function, returns the best match from targetItems
+const findBestMatch = (localItemName, targetItems, mode = "fuzzy", threshold = 0.4) => {
     const localNorm = normalizeString(localItemName);
     if (!localNorm) return null;
+
+    // Check for exact normalized match first
+    for (const tItem of targetItems) {
+        const targetNorm = normalizeString(tItem.name);
+        if (!targetNorm) continue;
+
+        if (localNorm === targetNorm) {
+            return { item: tItem, score: 0, isExact: true };
+        }
+    }
+
+    // In exact mode, stop here and do not perform fuzzy matching
+    if (mode === "exact") {
+        return null;
+    }
 
     let bestMatch = null;
     let bestScore = Infinity;
@@ -71,10 +88,6 @@ const findBestMatch = (localItemName, targetItems, threshold = 0.4) => {
     for (const tItem of targetItems) {
         const targetNorm = normalizeString(tItem.name);
         if (!targetNorm) continue;
-
-        if (localNorm === targetNorm) {
-            return { item: tItem, score: 0 };
-        }
 
         const distance = levenshteinDistance(localNorm, targetNorm);
         const maxLen = Math.max(localNorm.length, targetNorm.length);
@@ -91,7 +104,7 @@ const findBestMatch = (localItemName, targetItems, threshold = 0.4) => {
     }
 
     if (bestScore <= threshold) {
-        return { item: bestMatch, score: bestScore };
+        return { item: bestMatch, score: bestScore, isExact: false };
     }
 
     return null;
@@ -131,8 +144,11 @@ export default function TransferPriceModal({ isOpen, onClose }) {
     const [sourceType, setSourceType] = useState("restaurant"); // 'restaurant' or 'file'
     const [targetResId, setTargetResId] = useState("");
     const [targetPlatform, setTargetPlatform] = useState("swiggy");
+    const [matchMode, setMatchMode] = useState("fuzzy"); // 'exact' or 'fuzzy'
+    const [matchTypeFilter, setMatchTypeFilter] = useState("all"); // 'all', 'exact', 'fuzzy'
     const [uploadedFileName, setUploadedFileName] = useState("");
     const [uploadedFileItems, setUploadedFileItems] = useState([]);
+    const [rawTargetItems, setRawTargetItems] = useState([]);
     const [isFetching, setIsFetching] = useState(false);
 
     const [matchedItems, setMatchedItems] = useState([]);
@@ -165,18 +181,20 @@ export default function TransferPriceModal({ isOpen, onClose }) {
         return items;
     }, [menuData]);
 
-    const processTargetItems = (tItems) => {
-        if (tItems.length === 0) {
+    const processTargetItems = (tItems, currentMatchMode = matchMode) => {
+        if (!tItems || tItems.length === 0) {
             notification.error("No items found in the target source.");
             setIsFetching(false);
             return;
         }
 
+        setRawTargetItems(tItems);
+
         const matches = [];
         const initiallySelected = new Set();
 
         localItems.forEach((localItem) => {
-            const matchResult = findBestMatch(localItem.name, tItems, 0.4);
+            const matchResult = findBestMatch(localItem.name, tItems, currentMatchMode, 0.4);
             if (matchResult) {
                 const tItem = matchResult.item;
 
@@ -204,8 +222,30 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                     ? JSON.parse(JSON.stringify(localItem.variants))
                     : [];
                 let variantDiffs = [];
+                let isNewVariantsAdded = false;
 
-                if (localItem.variants && tItem.variants && Array.isArray(tItem.variants)) {
+                if ((!localItem.variants || localItem.variants.length === 0) && tItem.variants && Array.isArray(tItem.variants) && tItem.variants.length > 0) {
+                    newVariants = tItem.variants.map((tvg, i) => ({
+                        property_id: tvg.property_id || tvg.id || tvg.group_id || `temp-${Math.random().toString(36).substring(7)}`,
+                        property_name: tvg.property_name || tvg.name || tvg.group_name || `Group ${i + 1}`,
+                        options: (tvg.options || []).map((tOpt, j) => ({
+                            option_id: tOpt.option_id || tOpt.id || `temp-${Math.random().toString(36).substring(7)}`,
+                            option_name: tOpt.option_name || tOpt.name || `Option ${j + 1}`,
+                            price: cleanPrice(tOpt.price)
+                        }))
+                    }));
+                    hasPriceDiff = true;
+                    isNewVariantsAdded = true;
+                    newVariants.forEach(vg => {
+                        (vg.options || []).forEach(opt => {
+                            variantDiffs.push({
+                                name: `Added: ${opt.option_name}`,
+                                oldPrice: 0,
+                                newPrice: opt.price
+                            });
+                        });
+                    });
+                } else if (localItem.variants && tItem.variants && Array.isArray(tItem.variants)) {
                     let tOptions = [];
                     tItem.variants.forEach((tvg) => {
                         (tvg.options || []).forEach((tOpt) => {
@@ -226,7 +266,8 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                             const tOptMatch = findBestMatch(
                                 optName,
                                 tOptions.map((t) => ({ ...t, name: t.name })),
-                                0.4
+                                currentMatchMode,
+                                currentMatchMode === "exact" ? 0 : 0.4
                             );
                             if (tOptMatch) {
                                 const tOpt = tOptMatch.item;
@@ -255,9 +296,13 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                     localPrice: localBasePrice,
                     targetName: tItem.name,
                     targetPrice: newBasePrice,
+                    localVariants: localItem.variants || [],
+                    targetVariants: tItem.variants || [],
                     newVariants: newVariants,
                     variantDiffs: variantDiffs,
+                    isNewVariantsAdded: isNewVariantsAdded,
                     score: matchResult.score,
+                    isExact: matchResult.isExact,
                     hasPriceDiff: hasPriceDiff,
                     isPriceMatched: !hasPriceDiff, // true when price is identical
                 });
@@ -270,17 +315,41 @@ export default function TransferPriceModal({ isOpen, onClose }) {
         });
 
         if (matches.length === 0) {
-            notification.info("No matching items found between the menus.");
-        } else {
-            // Sort matches: Price changes first, then lowest match distance
-            matches.sort((a, b) => {
-                if (a.hasPriceDiff && !b.hasPriceDiff) return -1;
-                if (!a.hasPriceDiff && b.hasPriceDiff) return 1;
-                return a.score - b.score;
+            notification.info(
+                currentMatchMode === "exact"
+                    ? "No exact matching items found. Try switching to Fuzzy Match."
+                    : "No matching items found between the menus."
+            );
+        }
+
+        // Sort matches: Price changes first, then exact matches, then lowest match distance
+        matches.sort((a, b) => {
+            if (a.hasPriceDiff && !b.hasPriceDiff) return -1;
+            if (!a.hasPriceDiff && b.hasPriceDiff) return 1;
+            if (a.isExact && !b.isExact) return -1;
+            if (!a.isExact && b.isExact) return 1;
+            return a.score - b.score;
+        });
+
+        setMatchedItems(matches);
+        setSelectedMatches((prev) => {
+            if (prev.size === 0) return initiallySelected;
+            const newSet = new Set();
+            matches.forEach((m) => {
+                if (prev.has(m.localId) || m.hasPriceDiff) {
+                    newSet.add(m.localId);
+                }
             });
-            setMatchedItems(matches);
-            setSelectedMatches(initiallySelected);
-            setStep(2);
+            return newSet.size > 0 ? newSet : initiallySelected;
+        });
+        setStep(2);
+    };
+
+    const handleMatchModeChange = (newMode) => {
+        setMatchMode(newMode);
+        setMatchTypeFilter("all");
+        if (rawTargetItems.length > 0) {
+            processTargetItems(rawTargetItems, newMode);
         }
     };
 
@@ -310,7 +379,7 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                 });
             });
 
-            processTargetItems(tItems);
+            processTargetItems(tItems, matchMode);
         } catch (error) {
             console.error("Fetch target menu error:", error);
             notification.error(
@@ -366,7 +435,7 @@ export default function TransferPriceModal({ isOpen, onClose }) {
             }
 
             setUploadedFileItems(parsedItems);
-            processTargetItems(parsedItems);
+            processTargetItems(parsedItems, matchMode);
         } catch (err) {
             console.error("Error reading file:", err);
             notification.error("Failed to parse file. Please upload a valid JSON or CSV menu file.");
@@ -386,13 +455,21 @@ export default function TransferPriceModal({ isOpen, onClose }) {
         setSelectedMatches(newSelected);
     };
 
-    // Filtered items based on tab & search
+    // Filtered items based on tab & match mode & search
     const displayedItems = useMemo(() => {
         let list = matchedItems;
         if (filterTab === "diff") {
             list = list.filter((m) => m.hasPriceDiff);
         } else if (filterTab === "same") {
             list = list.filter((m) => m.isPriceMatched);
+        }
+
+        if (matchMode === "fuzzy" && matchTypeFilter !== "all") {
+            if (matchTypeFilter === "exact") {
+                list = list.filter((m) => m.isExact);
+            } else if (matchTypeFilter === "fuzzy") {
+                list = list.filter((m) => !m.isExact);
+            }
         }
 
         if (searchQuery.trim()) {
@@ -405,10 +482,12 @@ export default function TransferPriceModal({ isOpen, onClose }) {
             );
         }
         return list;
-    }, [matchedItems, filterTab, searchQuery]);
+    }, [matchedItems, filterTab, matchMode, matchTypeFilter, searchQuery]);
 
     const diffCount = useMemo(() => matchedItems.filter((m) => m.hasPriceDiff).length, [matchedItems]);
     const sameCount = useMemo(() => matchedItems.filter((m) => m.isPriceMatched).length, [matchedItems]);
+    const exactCount = useMemo(() => matchedItems.filter((m) => m.isExact).length, [matchedItems]);
+    const fuzzyCount = useMemo(() => matchedItems.filter((m) => !m.isExact).length, [matchedItems]);
 
     const handleSelectAllDisplayed = () => {
         const displayedIds = displayedItems.map((m) => m.localId);
@@ -449,9 +528,11 @@ export default function TransferPriceModal({ isOpen, onClose }) {
         setTargetResId("");
         setUploadedFileName("");
         setUploadedFileItems([]);
+        setRawTargetItems([]);
         setMatchedItems([]);
         setSelectedMatches(new Set());
         setFilterTab("all");
+        setMatchTypeFilter("all");
         setSearchQuery("");
         onClose();
     };
@@ -636,7 +717,8 @@ export default function TransferPriceModal({ isOpen, onClose }) {
 
                                                     setUploadedFileName("Pasted JSON");
                                                     setUploadedFileItems(parsedItems);
-                                                    processTargetItems(parsedItems);
+                                                    setRawTargetItems(parsedItems);
+                                                    processTargetItems(parsedItems, matchMode);
                                                 } catch (err) {
                                                     console.error("JSON parse error:", err);
                                                     notification.error("Invalid JSON. Please check the format and try again.");
@@ -651,11 +733,142 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                                     </div>
                                 </div>
                             )}
+
+                            {/* Matching Mode Option */}
+                            <div className="bg-slate-50 border rounded-xl p-3.5 space-y-2">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-bold text-slate-700 flex items-center gap-1.5">
+                                        <Sparkles className="w-3.5 h-3.5 text-primary" />
+                                        Matching Mode
+                                    </label>
+                                    <span className="text-[10px] text-slate-500 font-medium">
+                                        {matchMode === "exact" ? "Strict 100% dish name match" : "Smart typo & variation tolerant"}
+                                    </span>
+                                </div>
+                                <div className="grid grid-cols-2 gap-2">
+                                    <button
+                                        type="button"
+                                        onClick={() => setMatchMode("exact")}
+                                        className={`p-2.5 rounded-lg border text-left transition-all ${
+                                            matchMode === "exact"
+                                                ? "bg-white border-emerald-500 ring-2 ring-emerald-500/20 text-slate-900 shadow-xs"
+                                                : "bg-white/60 border-slate-200 text-slate-600 hover:bg-white"
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-1.5 font-bold text-xs">
+                                            <Target className="w-3.5 h-3.5 text-emerald-600" />
+                                            Exact Match Only
+                                        </div>
+                                        <p className="text-[10px] text-slate-500 mt-1 leading-snug">
+                                            Only matches dishes with identical names. 100% safe with zero false matches.
+                                        </p>
+                                    </button>
+
+                                    <button
+                                        type="button"
+                                        onClick={() => setMatchMode("fuzzy")}
+                                        className={`p-2.5 rounded-lg border text-left transition-all ${
+                                            matchMode === "fuzzy"
+                                                ? "bg-white border-primary ring-2 ring-primary/20 text-slate-900 shadow-xs"
+                                                : "bg-white/60 border-slate-200 text-slate-600 hover:bg-white"
+                                        }`}
+                                    >
+                                        <div className="flex items-center gap-1.5 font-bold text-xs">
+                                            <Sparkles className="w-3.5 h-3.5 text-primary" />
+                                            Fuzzy Match
+                                        </div>
+                                        <p className="text-[10px] text-slate-500 mt-1 leading-snug">
+                                            Matches identical names plus minor spelling differences and abbreviations.
+                                        </p>
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     )}
 
                     {step === 2 && (
                         <div className="space-y-4">
+                            {/* Match Mode Switcher & Breakdown */}
+                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 p-3 bg-slate-50 border rounded-xl">
+                                <div className="flex items-center gap-2">
+                                    <span className="text-xs font-bold text-slate-700">Match Mode:</span>
+                                    <div className="inline-flex bg-slate-200/70 p-0.5 rounded-lg text-xs font-semibold">
+                                        <button
+                                            type="button"
+                                            onClick={() => handleMatchModeChange("exact")}
+                                            className={`px-3 py-1 rounded-md transition-all flex items-center gap-1.5 ${
+                                                matchMode === "exact"
+                                                    ? "bg-white text-emerald-700 shadow-xs font-bold"
+                                                    : "text-slate-600 hover:text-slate-900"
+                                            }`}
+                                        >
+                                            <Target className="w-3.5 h-3.5 text-emerald-600" />
+                                            Exact Match ({matchMode === "exact" ? matchedItems.length : exactCount})
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => handleMatchModeChange("fuzzy")}
+                                            className={`px-3 py-1 rounded-md transition-all flex items-center gap-1.5 ${
+                                                matchMode === "fuzzy"
+                                                    ? "bg-white text-primary shadow-xs font-bold"
+                                                    : "text-slate-600 hover:text-slate-900"
+                                            }`}
+                                        >
+                                            <Sparkles className="w-3.5 h-3.5 text-primary" />
+                                            Fuzzy Match {matchMode === "fuzzy" ? `(${matchedItems.length})` : ""}
+                                        </button>
+                                    </div>
+                                </div>
+
+                                {matchMode === "fuzzy" ? (
+                                    <div className="flex items-center gap-1.5 text-xs">
+                                        <span className="text-[11px] text-slate-500 font-medium">Filter type:</span>
+                                        <div className="inline-flex bg-white border p-0.5 rounded-md text-[11px] font-semibold">
+                                            <button
+                                                type="button"
+                                                onClick={() => setMatchTypeFilter("all")}
+                                                className={`px-2 py-0.5 rounded transition-all ${
+                                                    matchTypeFilter === "all"
+                                                        ? "bg-slate-900 text-white font-bold"
+                                                        : "text-slate-600 hover:text-slate-900"
+                                                }`}
+                                            >
+                                                All ({matchedItems.length})
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setMatchTypeFilter("exact")}
+                                                className={`px-2 py-0.5 rounded transition-all flex items-center gap-1 ${
+                                                    matchTypeFilter === "exact"
+                                                        ? "bg-emerald-600 text-white font-bold"
+                                                        : "text-emerald-700 hover:bg-emerald-50"
+                                                }`}
+                                            >
+                                                <Check className="w-3 h-3" />
+                                                Exact ({exactCount})
+                                            </button>
+                                            <button
+                                                type="button"
+                                                onClick={() => setMatchTypeFilter("fuzzy")}
+                                                className={`px-2 py-0.5 rounded transition-all flex items-center gap-1 ${
+                                                    matchTypeFilter === "fuzzy"
+                                                        ? "bg-purple-600 text-white font-bold"
+                                                        : "text-purple-700 hover:bg-purple-50"
+                                                }`}
+                                            >
+                                                <Sparkles className="w-3 h-3" />
+                                                Fuzzy ({fuzzyCount})
+                                            </button>
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="text-[11px] text-emerald-700 font-semibold flex items-center gap-1 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md">
+                                        <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                                        Strict 100% identical names only ({matchedItems.length} items)
+                                    </div>
+                                )}
+                            </div>
+
                             {/* Summary Stats & Filter Tabs */}
                             <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
                                 {/* Filter Tabs */}
@@ -729,15 +942,14 @@ export default function TransferPriceModal({ isOpen, onClose }) {
 
                             {/* Table of Matched Items */}
                             <div className="border rounded-xl overflow-hidden bg-white shadow-2xs">
-                                <div className="grid grid-cols-[auto_1fr_auto_auto_auto] gap-3 p-3 bg-slate-50 border-b font-bold text-[11px] text-slate-500 uppercase tracking-wider">
+                                <div className="grid grid-cols-[auto_1fr_auto_1fr] gap-4 p-3 bg-slate-50 border-b font-bold text-[11px] text-slate-500 uppercase tracking-wider">
                                     <div className="w-5"></div>
-                                    <div>Item</div>
-                                    <div className="w-20 text-right">Current</div>
+                                    <div>Current Menu (Local)</div>
                                     <div className="w-6 text-center"></div>
-                                    <div className="w-24 text-right">Target</div>
+                                    <div>Target Menu (Source)</div>
                                 </div>
 
-                                <div className="max-h-[46vh] overflow-y-auto divide-y">
+                                <div className="max-h-[50vh] overflow-y-auto divide-y">
                                     {displayedItems.length === 0 ? (
                                         <div className="p-8 text-center text-xs text-muted-foreground">
                                             No items match your filter/search.
@@ -748,9 +960,9 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                                             const hasDiff = match.hasPriceDiff;
 
                                             return (
-                                                <label
+                                                <div
                                                     key={match.localId}
-                                                    className={`grid grid-cols-[auto_1fr_auto_auto_auto] gap-3 p-3 items-center cursor-pointer transition-colors ${
+                                                    className={`grid grid-cols-[auto_1fr_auto_1fr] gap-4 p-4 items-start border-b transition-colors ${
                                                         hasDiff
                                                             ? isSelected
                                                                 ? "bg-emerald-50/40 hover:bg-emerald-50/70"
@@ -758,7 +970,7 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                                                             : "bg-slate-50/30 hover:bg-slate-50"
                                                     }`}
                                                 >
-                                                    <div className="w-5 flex justify-center">
+                                                    <div className="w-5 flex justify-center mt-2">
                                                         <input
                                                             type="checkbox"
                                                             className="w-4 h-4 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500 cursor-pointer"
@@ -767,55 +979,114 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                                                         />
                                                     </div>
 
-                                                    <div className="min-w-0 pr-2">
-                                                        <div className="flex items-center gap-2">
-                                                            <p className="text-xs font-bold text-slate-800 truncate" title={match.localName}>
-                                                                {match.localName}
-                                                            </p>
-                                                            {/* Status Badge */}
-                                                            {hasDiff ? (
-                                                                <Badge className="bg-amber-50 text-amber-700 border-amber-200 text-[10px] px-1.5 py-0 font-bold shrink-0">
-                                                                    Price Diff
-                                                                </Badge>
-                                                            ) : (
-                                                                <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[10px] px-1.5 py-0 font-semibold shrink-0 flex items-center gap-1">
-                                                                    <Check className="w-2.5 h-2.5" />
-                                                                    Already Matched
-                                                                </Badge>
-                                                            )}
+                                                    {/* Current Menu Column */}
+                                                    <div className="min-w-0 bg-white border border-slate-200 rounded-lg p-3 shadow-sm cursor-pointer" onClick={() => toggleSelection(match.localId)}>
+                                                        <div className="flex justify-between items-start gap-2 mb-2">
+                                                            <div>
+                                                                <p className="text-xs font-bold text-slate-800 break-words leading-tight">{match.localName}</p>
+                                                                {!hasDiff && (
+                                                                    <Badge variant="outline" className="mt-1 bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] px-1.5 py-0 font-semibold flex items-center gap-1 w-fit">
+                                                                        <Check className="w-2.5 h-2.5" />
+                                                                        Already Matched
+                                                                    </Badge>
+                                                                )}
+                                                            </div>
+                                                            <span className="text-xs font-bold text-slate-600 bg-slate-100 px-2 py-0.5 rounded shrink-0">₹{match.localPrice}</span>
                                                         </div>
-
-                                                        {match.score > 0 && (
-                                                            <p className="text-[11px] text-slate-400 truncate mt-0.5" title={match.targetName}>
-                                                                Target item: {match.targetName}
-                                                            </p>
-                                                        )}
-
-                                                        {match.variantDiffs && match.variantDiffs.length > 0 && (
-                                                            <p className="text-[11px] text-amber-600 font-semibold mt-0.5">
-                                                                + {match.variantDiffs.length} variant price update(s)
-                                                            </p>
-                                                        )}
-                                                    </div>
-
-                                                    <div className="w-20 text-right text-xs font-semibold text-slate-500">
-                                                        ₹{match.localPrice}
-                                                    </div>
-
-                                                    <div className="w-6 flex justify-center text-slate-400">
-                                                        {hasDiff ? (
-                                                            <ArrowRight className="w-3.5 h-3.5 text-emerald-600" />
+                                                        {match.localVariants && match.localVariants.length > 0 ? (
+                                                            <div className="space-y-1 mt-2 border-t pt-2 border-slate-100">
+                                                                {match.localVariants.map(vg => (
+                                                                    <div key={vg.property_name} className="text-[10px]">
+                                                                        <span className="font-semibold text-slate-500">{vg.property_name}:</span>
+                                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                                            {(vg.options || []).map(opt => (
+                                                                                <span key={opt.option_name} className="bg-slate-50 border border-slate-100 px-1.5 py-0.5 rounded text-slate-600">
+                                                                                    {opt.option_name} (₹{cleanPrice(opt.price)})
+                                                                                </span>
+                                                                            ))}
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
                                                         ) : (
-                                                            <Equal className="w-3.5 h-3.5 text-slate-300" />
+                                                            <div className="text-[10px] text-slate-400 italic mt-2 border-t pt-2 border-slate-100">No variants present</div>
                                                         )}
                                                     </div>
 
-                                                    <div className="w-24 text-right text-xs flex flex-col items-end">
-                                                        <span className={`font-bold ${hasDiff ? "text-emerald-700 text-sm" : "text-slate-600"}`}>
-                                                            ₹{match.targetPrice}
-                                                        </span>
+                                                    <div className="w-6 flex flex-col items-center justify-center self-stretch opacity-60">
+                                                        {hasDiff ? <ArrowRight className="w-5 h-5 text-emerald-600" /> : <Equal className="w-4 h-4 text-slate-400" />}
                                                     </div>
-                                                </label>
+
+                                                    {/* Target Menu Column */}
+                                                    <div className={`min-w-0 border rounded-lg p-3 shadow-sm cursor-pointer ${
+                                                        hasDiff ? (isSelected ? 'bg-emerald-50/50 border-emerald-300' : 'bg-amber-50/30 border-amber-200') : 'bg-slate-50/50 border-slate-200'
+                                                    }`} onClick={() => toggleSelection(match.localId)}>
+                                                        <div className="flex justify-between items-start gap-2 mb-2">
+                                                            <div>
+                                                                <p className="text-xs font-bold text-slate-800 break-words leading-tight">{match.targetName}</p>
+                                                                <div className="flex flex-wrap items-center gap-1 mt-1">
+                                                                    {match.isExact ? (
+                                                                        <Badge className="bg-emerald-50 text-emerald-700 border-emerald-200 text-[9px] px-1.5 py-0 font-semibold flex items-center gap-1 w-fit">
+                                                                            <Check className="w-2.5 h-2.5" />
+                                                                            Exact Match
+                                                                        </Badge>
+                                                                    ) : (
+                                                                        <Badge className="bg-purple-50 text-purple-700 border-purple-200 text-[9px] px-1.5 py-0 font-semibold flex items-center gap-1 w-fit">
+                                                                            <Sparkles className="w-2.5 h-2.5" />
+                                                                            Fuzzy Match ({Math.max(1, Math.min(99, Math.round((1 - match.score) * 100)))}%)
+                                                                        </Badge>
+                                                                    )}
+                                                                    {hasDiff && (
+                                                                        <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[9px] px-1.5 py-0 font-bold w-fit">
+                                                                            Price Diff
+                                                                        </Badge>
+                                                                    )}
+                                                                </div>
+                                                            </div>
+                                                            <span className={`text-xs font-bold px-2 py-0.5 rounded shrink-0 ${hasDiff && match.localPrice !== match.targetPrice ? 'bg-amber-100 text-amber-700' : 'bg-slate-100 text-slate-600'}`}>
+                                                                ₹{match.targetPrice}
+                                                            </span>
+                                                        </div>
+                                                        {match.targetVariants && match.targetVariants.length > 0 ? (
+                                                            <div className="space-y-1 mt-2 border-t pt-2 border-slate-200/60">
+                                                                {match.targetVariants.map((vg, i) => (
+                                                                    <div key={vg.property_name || vg.name || vg.group_name || i} className="text-[10px]">
+                                                                        <span className="font-semibold text-slate-500">{vg.property_name || vg.name || vg.group_name || 'Options'}:</span>
+                                                                        <div className="flex flex-wrap gap-1 mt-1">
+                                                                            {(vg.options || []).map((opt, j) => {
+                                                                                const optName = opt.option_name || opt.name || `Opt ${j+1}`;
+                                                                                const optPrice = cleanPrice(opt.price);
+                                                                                // Highlight if price is different from local (if local had variants)
+                                                                                let isDiff = false;
+                                                                                if (hasDiff && match.variantDiffs?.some(d => d.name === optName)) {
+                                                                                    isDiff = true;
+                                                                                }
+                                                                                
+                                                                                return (
+                                                                                    <span key={optName} className={`border px-1.5 py-0.5 rounded text-slate-700 ${isDiff ? 'bg-amber-100 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200'}`}>
+                                                                                        {optName} (₹{optPrice})
+                                                                                    </span>
+                                                                                );
+                                                                            })}
+                                                                        </div>
+                                                                    </div>
+                                                                ))}
+                                                            </div>
+                                                        ) : (
+                                                            <div className="text-[10px] text-slate-400 italic mt-2 border-t pt-2 border-slate-200/60">No variants present</div>
+                                                        )}
+                                                        {match.isNewVariantsAdded && (
+                                                            <div className="mt-2 pt-2 border-t border-purple-200/50">
+                                                                <Badge className="bg-purple-100 text-purple-700 border-purple-200 text-[10px] px-1.5 py-0 font-bold shrink-0">
+                                                                    ✨ Creating Variants
+                                                                </Badge>
+                                                                <p className="text-[9px] text-purple-600 font-medium mt-1 leading-tight">
+                                                                    Will copy missing variants to local menu.
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                </div>
                                             );
                                         })
                                     )}

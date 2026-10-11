@@ -8,6 +8,7 @@ export async function GET(req) {
 
         const { searchParams } = new URL(req.url);
         const query = searchParams.get("q")?.trim();
+        const exact = searchParams.get("exact") === "true";
         const limit = Math.min(
             60,
             Math.max(1, Number.parseInt(searchParams.get("limit") ?? "12", 10)),
@@ -20,13 +21,37 @@ export async function GET(req) {
             });
         }
 
+        const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        let nameQuery;
+        if (exact) {
+            nameQuery = { $regex: `^${escapedQuery}$`, $options: "i" };
+        } else {
+            const words = query
+                .replace(/[^a-zA-Z0-9\s]/g, " ")
+                .trim()
+                .split(/\s+/)
+                .filter((w) => w.length >= 3)
+                .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
+
+            if (words.length > 1) {
+                nameQuery = {
+                    $or: [
+                        { $regex: escapedQuery, $options: "i" },
+                        { $and: words.map((w) => ({ $regex: w, $options: "i" })) }
+                    ]
+                };
+            } else {
+                nameQuery = { $regex: escapedQuery, $options: "i" };
+            }
+        }
+
         const pipeline = [
             { $unwind: "$menu" },
             { $unwind: { path: "$menu.sub_category", preserveNullAndEmptyArrays: false } },
             { $unwind: { path: "$menu.sub_category.items", preserveNullAndEmptyArrays: false } },
             { 
                 $match: { 
-                    "menu.sub_category.items.name": { $regex: query, $options: "i" },
+                    "menu.sub_category.items.name": nameQuery,
                     $or: [
                         { "menu.sub_category.items.image_url": { $type: "string", $ne: "" } },
                         { "menu.sub_category.items.image": { $type: "string", $ne: "" } },
