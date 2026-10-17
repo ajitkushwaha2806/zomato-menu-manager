@@ -37,6 +37,7 @@ import useRestaurant from "@/store/hooks/useRestaurant";
 import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
 import usePetpoojaRestaurant from "@/store/hooks/usePetpoojaRestaurant";
 import { useMenu } from "@/store/hooks/useMenu";
+import SyncAllRestaurantsModal from "@/components/global/menu/bulk-editor-router/views/SyncAllRestaurantsModal";
 
 function ProjectSkeleton() {
   return (
@@ -105,6 +106,8 @@ export function ProjectSwitcher() {
 
   const [searchQuery, setSearchQuery] = React.useState("");
   const [activeTab, setActiveTab] = React.useState(activePlatform || "zomato");
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+  const [isSyncModalOpen, setIsSyncModalOpen] = React.useState(false);
 
   React.useEffect(() => {
     if (activePlatform) {
@@ -144,7 +147,7 @@ export function ProjectSwitcher() {
 
   React.useEffect(() => {
     if (!isLoading && !activeResId && entities.length) {
-      const savedResId = typeof window !== 'undefined' ? localStorage.getItem('activeResId') : null;
+      const savedResId = typeof window !== 'undefined' ? localStorage.getItem('22915132') : null;
       const savedPlatform = typeof window !== 'undefined' ? localStorage.getItem('activePlatform') : null;
       let matchedEntity = null;
       if (savedResId) {
@@ -213,9 +216,13 @@ export function ProjectSwitcher() {
   return (
     <SidebarMenu>
       <SidebarMenuItem>
-        <DropdownMenu onOpenChange={(open) => {
-          if (!open) setSearchQuery("");
-        }}>
+        <DropdownMenu
+          open={isDropdownOpen}
+          onOpenChange={(open) => {
+            setIsDropdownOpen(open);
+            if (!open) setSearchQuery("");
+          }}
+        >
           <DropdownMenuTrigger asChild>
             <SidebarMenuButton
               size="lg"
@@ -289,6 +296,20 @@ export function ProjectSwitcher() {
                     {entities.length} connected account{entities.length > 1 ? "s" : ""}
                   </p>
                 </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-2.5 text-[11px] gap-1.5 border-indigo-200/80 bg-indigo-50/70 hover:bg-indigo-100 text-indigo-700 font-medium rounded-lg shadow-2xs transition-colors cursor-pointer"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setIsDropdownOpen(false);
+                    setIsSyncModalOpen(true);
+                  }}
+                  title="Sync menus of all connected restaurants to database"
+                >
+                  <RefreshCw className="size-3 text-indigo-600" />
+                  Sync All
+                </Button>
               </div>
             </DropdownMenuLabel>
 
@@ -389,6 +410,11 @@ export function ProjectSwitcher() {
             </div>
           </DropdownMenuContent>
         </DropdownMenu>
+
+        <SyncAllRestaurantsModal
+          isOpen={isSyncModalOpen}
+          onClose={() => setIsSyncModalOpen(false)}
+        />
       </SidebarMenuItem>
     </SidebarMenu>
   );

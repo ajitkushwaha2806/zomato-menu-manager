@@ -1,6 +1,6 @@
 import { useState, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ImageIcon, Loader2, CheckCircle2, XCircle, Sparkles, Trash2, Play, Database, Search, AlertCircle, Copy } from "lucide-react";
+import { ImageIcon, Loader2, CheckCircle2, XCircle, Sparkles, Trash2, Play, Database, Search, AlertCircle, Copy, RefreshCw } from "lucide-react";
 import { openImageSidebar } from "@/store/slice/menuSlice";
 import ZomatoImageDropzone from "../../shared/ZomatoImageDropzone";
 import useNotification from "@/store/hooks/useNotification";
@@ -176,11 +176,8 @@ const getMatchScore = (itemName, candidateTitle) => {
     const distance = levenshteinDistance(norm1, norm2);
     const similarity = (maxLen - distance) / maxLen;
 
-    // Strict rule: Allow if up to 2 alphabets are different (for words length >= 4) or similarity is >= 95% (0.95), never less
-    const allowedByDistance = maxLen >= 4 && distance <= 2;
-    const allowedByRatio = similarity >= 0.95;
-
-    if (allowedByDistance || allowedByRatio) {
+    // Strict rule: Similarity must be >= 95% (0.95), never less
+    if (similarity >= 0.95) {
         return similarity;
     }
 
@@ -190,8 +187,8 @@ const getMatchScore = (itemName, candidateTitle) => {
         if (cleanMaxLen >= 4) {
             const cleanDistance = levenshteinDistance(cleanNorm1, cleanNorm2);
             const cleanSim = (cleanMaxLen - cleanDistance) / cleanMaxLen;
-            if (cleanDistance <= 2 || cleanSim >= 0.95) {
-                return cleanSim * 0.96;
+            if (cleanSim >= 0.95) {
+                return cleanSim;
             }
         }
     }
@@ -290,30 +287,83 @@ export default function ImageEditor({ allItems, updateItem }) {
 
                         const query = (item.name || "").toLowerCase().trim();
 
-                        // Hit local search proxy to avoid CORS, passing lowercased query and higher limit
-                        const res = await api.get(`/api/image/search`, {
-                            params: {
-                                q: query,
-                                limit: 30,
-                                premium: true
+                        // 1. Search internal DB of synced restaurants (exact authentic Zomato menu dish photos)
+                        let photos = [];
+                        try {
+                            const internalRes = await api.get(`/api/image/internal-search`, {
+                                params: {
+                                    q: query,
+                                    limit: 25
+                                }
+                            });
+                            if (internalRes.data?.data?.length > 0) {
+                                photos = internalRes.data.data;
                             }
-                        });
-                        const photos = res.data?.data || [];
+                        } catch (err) {
+                            console.warn("Internal DB search error:", err);
+                        }
 
-                        // Rank candidates by match score: allows up to 2 alphabets difference or >=95% similarity, never less
-                        const candidatePhotos = photos
+                        // Rank candidates by match score: strictly require >= 95% similarity
+                        let candidatePhotos = photos
                             .map((photo) => {
                                 const photoTitle = photo.title || photo.dish_name || photo.name || photo.item_name || photo.dishName || "";
                                 if (item.is_veg === "VEG" && (photo.food_type === "non_veg" || photo.is_veg === "NON_VEG" || photo.is_veg === false)) {
                                     return null;
                                 }
-                                const score = getMatchScore(item.name, photoTitle);
-                                if (score <= 0) return null;
-                                return { photo, score };
+                                let maxScore = getMatchScore(item.name, photoTitle);
+                                if (Array.isArray(photo.allNames)) {
+                                    for (const altName of photo.allNames) {
+                                        const altScore = getMatchScore(item.name, altName);
+                                        if (altScore > maxScore) maxScore = altScore;
+                                    }
+                                }
+                                if (maxScore < 0.95) return null; // strictly >= 95% match
+                                return { photo, score: maxScore };
                             })
                             .filter(Boolean)
-                            .sort((a, b) => b.score - a.score)
+                            .sort((a, b) => {
+                                // If match scores differ noticeably (> 0.04), prioritize the closer match
+                                if (Math.abs(b.score - a.score) > 0.04) {
+                                    return b.score - a.score;
+                                }
+                                // For items with similar high match scores, pick the image with the most appearances in DB
+                                const countA = a.photo.count || 1;
+                                const countB = b.photo.count || 1;
+                                if (countB !== countA) {
+                                    return countB - countA;
+                                }
+                                return b.score - a.score;
+                            })
                             .map((entry) => entry.photo);
+
+                        // 2. If no high confidence candidate (>=95%) found in DB, check external catalog
+                        if (candidatePhotos.length === 0) {
+                            try {
+                                const res = await api.get(`/api/image/search`, {
+                                    params: {
+                                        q: query,
+                                        limit: 30,
+                                        premium: true
+                                    }
+                                });
+                                const extPhotos = res.data?.data || [];
+                                candidatePhotos = extPhotos
+                                    .map((photo) => {
+                                        const photoTitle = photo.title || photo.dish_name || photo.name || photo.item_name || photo.dishName || "";
+                                        if (item.is_veg === "VEG" && (photo.food_type === "non_veg" || photo.is_veg === "NON_VEG" || photo.is_veg === false)) {
+                                            return null;
+                                        }
+                                        const score = getMatchScore(item.name, photoTitle);
+                                        if (score < 0.95) return null; // strictly >= 95% match
+                                        return { photo, score };
+                                    })
+                                    .filter(Boolean)
+                                    .sort((a, b) => b.score - a.score)
+                                    .map((entry) => entry.photo);
+                            } catch (err) {
+                                console.warn("External image search error:", err);
+                            }
+                        }
 
                         if (candidatePhotos.length === 0) {
                             return { itemId: item.id, media: [] };
@@ -328,8 +378,6 @@ export default function ImageEditor({ allItems, updateItem }) {
 
                             // Prevent duplicate images
                             if (usedImages.has(imageUrl)) continue;
-
-                            // Optimistically mark as used
                             usedImages.add(imageUrl);
 
                             updateItem({
@@ -339,42 +387,46 @@ export default function ImageEditor({ allItems, updateItem }) {
                                         tempReferenceId: `temp-auto-${crypto.randomUUID()}`,
                                         url: '',
                                         isUploading: true,
-                                        uploadText: `Trying best match ${j+1}/${candidatePhotos.length}`
+                                        uploadText: photo.count > 1 
+                                            ? `Applying popular DB match (${photo.count} uses)...`
+                                            : `Uploading best match ${j+1}/${candidatePhotos.length}`
                                     }]
                                 }
                             });
 
-                            if (activePlatform !== "swiggy") {
-                                // Upload to Zomato to ensure proper tracking and approval
+                            // Upload image to the respective platform (Zomato or Swiggy)
+                            try {
                                 const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
-                                if (uploadRes.success && uploadRes.mediaArray) {
+                                if (uploadRes?.success && uploadRes?.mediaArray?.length > 0) {
                                     finalMedia = uploadRes.mediaArray.map(m => ({
                                         ...m,
                                         entityId: item.originalId || item.id
                                     }));
                                     break;
+                                } else {
+                                    console.warn(`Platform upload failed for ${item.name}:`, uploadRes?.message);
                                 }
-                            } else {
-                                // Swiggy — use source URL directly
-                                finalMedia = [{
-                                    tempReferenceId: `temp-auto-${crypto.randomUUID()}`,
-                                    url: imageUrl,
-                                    thumbUrl: photo.thumb_url || photo.thumbUrl || imageUrl,
-                                    mediaType: "PHOTO",
-                                    mediaId: imageUrl.split('/').pop() || "image.jpg",
-                                    order: 1,
-                                    usageType: "FOODSHOT",
-                                    entityType: "CATALOGUE",
-                                    entityId: item.originalId || item.id,
-                                    fileDirectory: "",
-                                    source: "MS_MENU_TOOL",
-                                    fileName: imageUrl.split('/').pop() || "image.jpg",
-                                    usageTypeEnum: "USAGE_TYPE_FOODSHOT",
-                                    isNewlyUploaded: true,
-                                    isUploading: false,
-                                }];
-                                break;
+                            } catch (e) {
+                                console.warn(`Platform upload error for ${item.name}:`, e);
                             }
+
+                            // Direct fallback if platform upload is not supported or failed
+                            finalMedia = [{
+                                tempReferenceId: `temp-auto-${crypto.randomUUID()}`,
+                                url: imageUrl,
+                                thumbUrl: photo.thumb_url || photo.thumbUrl || imageUrl,
+                                mediaType: "PHOTO",
+                                mediaId: photo.mediaId || imageUrl.split('/').pop() || "image.jpg",
+                                order: 1,
+                                usageType: "FOODSHOT",
+                                entityType: "CATALOGUE",
+                                entityId: item.originalId || item.id,
+                                fileName: photo.fileName || imageUrl.split('/').pop() || "image.jpg",
+                                usageTypeEnum: "USAGE_TYPE_FOODSHOT",
+                                isNewlyUploaded: true,
+                                isUploading: false,
+                            }];
+                            break;
 
                         }
 
@@ -668,12 +720,30 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 if (item.is_veg === "VEG" && (photo.food_type === "non_veg" || photo.is_veg === "NON_VEG" || photo.is_veg === false)) {
                                     return null;
                                 }
-                                const score = getMatchScore(item.name, photoTitle);
-                                if (score <= 0) return null;
-                                return { photo, score };
+                                let maxScore = getMatchScore(item.name, photoTitle);
+                                if (Array.isArray(photo.allNames)) {
+                                    for (const altName of photo.allNames) {
+                                        const altScore = getMatchScore(item.name, altName);
+                                        if (altScore > maxScore) maxScore = altScore;
+                                    }
+                                }
+                                if (maxScore < 0.95) return null; // strictly >= 95% match
+                                return { photo, score: maxScore };
                             })
                             .filter(Boolean)
-                            .sort((a, b) => b.score - a.score)
+                            .sort((a, b) => {
+                                // If match scores differ noticeably (> 0.04), prioritize the closer match
+                                if (Math.abs(b.score - a.score) > 0.04) {
+                                    return b.score - a.score;
+                                }
+                                // For items with similar high match scores, pick the image with the most appearances in DB
+                                const countA = a.photo.count || 1;
+                                const countB = b.photo.count || 1;
+                                if (countB !== countA) {
+                                    return countB - countA;
+                                }
+                                return b.score - a.score;
+                            })
                             .map((entry) => entry.photo);
 
                         if (candidatePhotos.length === 0) {
@@ -698,43 +768,46 @@ export default function ImageEditor({ allItems, updateItem }) {
                                         tempReferenceId: `temp-db-${crypto.randomUUID()}`,
                                         url: '',
                                         isUploading: true,
-                                        uploadText: `Uploading from DB ${j+1}/${candidatePhotos.length}...`
+                                        uploadText: photo.count > 1 
+                                            ? `Applying popular DB match (${photo.count} uses)...`
+                                            : `Uploading from DB ${j+1}/${candidatePhotos.length}...`
                                     }]
                                 }
                             });
 
-                            if (activePlatform !== "swiggy") {
-                                // Upload to Zomato to ensure proper tracking and approval
+                            // Upload to respective platform (Zomato or Swiggy)
+                            try {
                                 const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
-                                if (uploadRes.success && uploadRes.mediaArray) {
+                                if (uploadRes?.success && uploadRes?.mediaArray?.length > 0) {
                                     finalMedia = uploadRes.mediaArray.map(m => ({
                                         ...m,
                                         entityId: item.originalId || item.id
                                     }));
                                     break;
                                 }
-                            } else {
-                                // Swiggy fallback
-                                finalMedia = [{
-                                    tempReferenceId: `temp-db-${crypto.randomUUID()}`,
-                                    url: imageUrl,
-                                    thumbUrl: photo.thumb_url || photo.thumbUrl || imageUrl,
-                                    mediaType: "PHOTO",
-                                    mediaId: photo.mediaId || imageUrl.split('/').pop() || "image.jpg",
-                                    order: 1,
-                                    usageType: "FOODSHOT",
-                                    entityType: "CATALOGUE",
-                                    entityId: item.originalId || item.id,
-                                    fileDirectory: photo.fileDirectory || "",
-                                    source: "MS_MENU_TOOL",
-                                    fileName: photo.fileName || imageUrl.split('/').pop() || "image.jpg",
-                                    usageTypeEnum: "USAGE_TYPE_FOODSHOT",
-                                    isNewlyUploaded: true,
-                                    isUploading: false,
-                                }];
+                            } catch (e) {
+                                console.warn("Platform upload fallback to direct URL:", e);
                             }
-                            
-                            if (finalMedia.length > 0) break;
+
+                            // Fallback: directly apply CDN URL from DB so image is never lost
+                            finalMedia = [{
+                                tempReferenceId: `temp-db-${crypto.randomUUID()}`,
+                                url: imageUrl,
+                                thumbUrl: photo.thumb_url || photo.thumbUrl || imageUrl,
+                                mediaType: "PHOTO",
+                                mediaId: photo.mediaId || imageUrl.split('/').pop() || "image.jpg",
+                                order: 1,
+                                usageType: "FOODSHOT",
+                                entityType: "CATALOGUE",
+                                entityId: item.originalId || item.id,
+                                fileDirectory: photo.fileDirectory || "",
+                                source: "MS_MENU_TOOL",
+                                fileName: photo.fileName || imageUrl.split('/').pop() || "image.jpg",
+                                usageTypeEnum: "USAGE_TYPE_FOODSHOT",
+                                isNewlyUploaded: true,
+                                isUploading: false,
+                            }];
+                            break;
                         }
 
                         return { itemId: item.id, media: finalMedia };

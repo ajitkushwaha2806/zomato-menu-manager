@@ -43,13 +43,13 @@ RULES
 
 1. Preserve item_id EXACTLY.
 2. Preserve name EXACTLY.
-3. Description must be one sentence.
-4. 8-20 words,
+3. Description should be around 1 to 1.5 lines in length (1 to 2 short sentences).
+4. Approximately 16-28 words (1 to 1.5 lines).
 5. Natural and appetizing.
 6. Never mention price.
 7. Never invent variants.
 8. Never skip any item.
-9. never exceeed description more 1.5 line 
+9. Target description length is 1 to 1.5 lines (do not exceed 2 lines).
 
 Return ONLY minified JSON.
 
@@ -60,7 +60,7 @@ Expected format:
     {
       "item_id":"123",
       "name":"Paneer Butter Masala",
-      "description":"Creamy tomato gravy cooked with soft paneer cubes."
+      "description":"Soft paneer cubes simmered in a rich, buttery tomato gravy infused with aromatic spices and finished with fresh cream."
     }
   ]
 }

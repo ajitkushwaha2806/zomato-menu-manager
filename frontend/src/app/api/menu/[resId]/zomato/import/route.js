@@ -143,7 +143,9 @@ const buildPartnerPortalItem = (catalogueWrapper, onHoldItems = {}) => {
             ? "NON_VEG"
             : "VEG",
         packing_charges: 0,
-        media: catalogue?.media || [],
+        media: (Array.isArray(catalogue?.media) && catalogue.media.length > 0)
+            ? catalogue.media
+            : (extractZomatoImageUrl(catalogue) ? [{ url: extractZomatoImageUrl(catalogue) }] : []),
         variants: parsedVariants,
         meatTypes: catalogue?.meatTypes,
         onHold: !!holdData,
@@ -342,24 +344,39 @@ const parseVariantGroups = (itemData) => {
 const extractZomatoImageUrl = (itemData) => {
     if (!itemData) return null;
 
+    let url = null;
     if (typeof itemData.item_image_url === "string" && itemData.item_image_url.trim()) {
-        return itemData.item_image_url.trim();
-    }
-    if (typeof itemData.image_url === "string" && itemData.image_url.trim()) {
-        return itemData.image_url.trim();
-    }
-    if (Array.isArray(itemData.media) && itemData.media.length > 0) {
+        url = itemData.item_image_url.trim();
+    } else if (typeof itemData.image_url === "string" && itemData.image_url.trim()) {
+        url = itemData.image_url.trim();
+    } else if (typeof itemData.imageUrl === "string" && itemData.imageUrl.trim()) {
+        url = itemData.imageUrl.trim();
+    } else if (typeof itemData.thumb_url === "string" && itemData.thumb_url.trim()) {
+        url = itemData.thumb_url.trim();
+    } else if (typeof itemData.thumbUrl === "string" && itemData.thumbUrl.trim()) {
+        url = itemData.thumbUrl.trim();
+    } else if (Array.isArray(itemData.media) && itemData.media.length > 0) {
         const first = itemData.media[0];
-        if (first?.image?.url) return first.image.url;
-        if (typeof first?.url === "string") return first.url;
+        if (typeof first === "string" && first.trim()) url = first.trim();
+        else if (first?.image?.url) url = first.image.url;
+        else if (typeof first?.url === "string") url = first.url;
+        else if (typeof first?.thumbUrl === "string") url = first.thumbUrl;
+    } else if (typeof itemData.media?.url === "string" && itemData.media.url.trim()) {
+        url = itemData.media.url.trim();
+    } else if (typeof itemData.image?.url === "string" && itemData.image.url.trim()) {
+        url = itemData.image.url.trim();
+    } else if (typeof itemData.image === "string" && itemData.image.trim()) {
+        url = itemData.image.trim();
+    } else if (typeof itemData.item_image?.url === "string" && itemData.item_image.url.trim()) {
+        url = itemData.item_image.url.trim();
+    } else if (typeof itemData.item_image === "string" && itemData.item_image.trim()) {
+        url = itemData.item_image.trim();
     }
-    if (typeof itemData.media?.url === "string" && itemData.media.url.trim()) {
-        return itemData.media.url.trim();
+
+    if (url && url.startsWith("//")) {
+        url = "https:" + url;
     }
-    if (typeof itemData.image?.url === "string" && itemData.image.url.trim()) {
-        return itemData.image.url.trim();
-    }
-    return null;
+    return url ? url.trim() : null;
 };
 
 /**
@@ -507,7 +524,7 @@ async function uploadImageFromUrlToZomato({ req, resId, imageUrl, itemName, item
  * 4. Sequentially (one by one) upload all item images to Zomato upload API
  * 5. Update items with returned media and persist to MongoDB
  */
-async function importFromZomatoPageUrl(req, resId, rawPageUrl) {
+async function importFromZomatoPageUrl(req, resId, rawPageUrl, options = {}) {
     const pageUrl = getNormalizedUrl(rawPageUrl);
     const zomatoCookie =
         req?.headers?.get("x-zomato-cookie") ||
@@ -700,7 +717,7 @@ async function importFromZomatoPageUrl(req, resId, rawPageUrl) {
                     max_price: Number(itemData.max_price || basePrice),
                     is_veg: dietaryType,
                     packing_charges: 0,
-                    media: [],
+                    media: rawImageUrl ? [{ url: rawImageUrl }] : [],
                     variants: variants,
                     ...(dietaryType === "NON_VEG" ? { meatTypes: ["chicken"] } : {}),
                     onHold: false,
@@ -734,7 +751,7 @@ async function importFromZomatoPageUrl(req, resId, rawPageUrl) {
         });
     }
 
-    // 3. Immediately save parsed menu data perfectly to DB
+    // 3. Save parsed menu data with direct media URLs to DB
     const initialUpdateData = {
         resId,
         platform: "zomato",
@@ -752,56 +769,58 @@ async function importFromZomatoPageUrl(req, resId, rawPageUrl) {
         { new: true, upsert: true }
     );
 
-    console.log(`[ZOMATO IMPORT] Initial menu saved. Found ${itemsToUpload.length} images to upload one by one.`);
+    console.log(`[ZOMATO IMPORT] Menu saved with ${itemsToUpload.length} item images directly linked.`);
 
-    // 4. One by one upload all images to Zomato upload API and save returned media data
+    // 4. Only upload to Zomato's upload API if explicitly requested (default: false, no upload needed)
+    const shouldUploadToZomato = options.uploadImagesToZomato === true || options.uploadToZomato === true;
     let uploadedCount = 0;
     let failedCount = 0;
 
-    for (let i = 0; i < itemsToUpload.length; i++) {
-        const { item, imageUrl } = itemsToUpload[i];
-        try {
-            console.log(`[ZOMATO IMPORT] Uploading image (${i + 1}/${itemsToUpload.length}) for "${item.name}"...`);
-            const mediaObj = await uploadImageFromUrlToZomato({
-                req,
-                resId,
-                imageUrl,
-                itemName: item.name,
-                itemId: item.id,
-            });
+    if (shouldUploadToZomato && itemsToUpload.length > 0) {
+        for (let i = 0; i < itemsToUpload.length; i++) {
+            const { item, imageUrl } = itemsToUpload[i];
+            try {
+                console.log(`[ZOMATO IMPORT] Uploading image (${i + 1}/${itemsToUpload.length}) for "${item.name}"...`);
+                const mediaObj = await uploadImageFromUrlToZomato({
+                    req,
+                    resId,
+                    imageUrl,
+                    itemName: item.name,
+                    itemId: item.id,
+                });
 
-            if (mediaObj) {
-                item.media = [mediaObj];
-                uploadedCount++;
-            } else {
+                if (mediaObj) {
+                    item.media = [mediaObj];
+                    uploadedCount++;
+                } else {
+                    failedCount++;
+                }
+            } catch (err) {
+                console.error(`[ZOMATO IMPORT] Error on image for "${item.name}":`, err.message);
                 failedCount++;
             }
-        } catch (err) {
-            console.error(`[ZOMATO IMPORT] Error on image for "${item.name}":`, err.message);
-            failedCount++;
+
+            // Periodically persist progress to DB every 5 images or on the last one
+            if ((i + 1) % 5 === 0 || i === itemsToUpload.length - 1) {
+                await Menu.updateOne(
+                    { resId, platform: "zomato" },
+                    { $set: { menu: parsedMenu, updatedAt: new Date() } }
+                );
+            }
         }
 
-        // Periodically persist progress to DB every 5 images or on the last one
-        if ((i + 1) % 5 === 0 || i === itemsToUpload.length - 1) {
-            await Menu.updateOne(
-                { resId, platform: "zomato" },
-                { $set: { menu: parsedMenu, updatedAt: new Date() } }
-            );
-        }
-    }
-
-    // 5. Final DB update with all uploaded media in place
-    savedMenu = await Menu.findOneAndUpdate(
-        { resId, platform: "zomato" },
-        {
-            $set: {
-                menu: parsedMenu,
-                addons: parsedAddons,
-                updatedAt: new Date(),
+        savedMenu = await Menu.findOneAndUpdate(
+            { resId, platform: "zomato" },
+            {
+                $set: {
+                    menu: parsedMenu,
+                    addons: parsedAddons,
+                    updatedAt: new Date(),
+                },
             },
-        },
-        { new: true }
-    );
+            { new: true }
+        );
+    }
 
     const totalCategories = parsedMenu.length;
     const totalItems = parsedMenu.reduce(
@@ -837,7 +856,7 @@ async function importFromZomatoPageUrl(req, resId, rawPageUrl) {
 /**
  * Fallback: Partner Portal Import using Zomato Partner Portal API (action: "get_content_menu")
  */
-async function importFromPartnerPortal(req, resId) {
+async function importFromPartnerPortal(req, resId, options = {}) {
     const result = await apiClient({
         req,
         endpoint: "/php/online_ordering/menu_edit",
@@ -871,26 +890,48 @@ async function importFromPartnerPortal(req, resId) {
 
     const { parsedMenu, parsedAddons } = parseZomatoCatalogueMenu(menu, onHoldItems);
 
+    const restaurantName =
+        options?.name ||
+        req.headers.get("x-restaurant-name") ||
+        result?.data?.data?.restaurantName ||
+        result?.data?.restaurantName ||
+        "";
+
+    const updateSet = {
+        resId,
+        platform: "zomato",
+        menu: parsedMenu,
+        addons: parsedAddons,
+        updatedAt: new Date(),
+    };
+    if (restaurantName) {
+        updateSet.name = restaurantName;
+    }
+
     const savedMenu = await Menu.findOneAndUpdate(
         { resId, platform: "zomato" },
-        {
-            $set: {
-                resId,
-                platform: "zomato",
-                menu: parsedMenu,
-                addons: parsedAddons,
-                updatedAt: new Date(),
-            },
-        },
+        { $set: updateSet },
         { new: true, upsert: true }
     );
 
+    let totalImagesFound = 0;
     const totalCategories = parsedMenu.length;
     const totalItems = parsedMenu.reduce(
         (sum, cat) =>
             sum +
             (cat.sub_category || []).reduce(
-                (subSum, sub) => subSum + (sub.items || []).length,
+                (subSum, sub) => {
+                    (sub.items || []).forEach((item) => {
+                        if (
+                            (item.media && item.media.length > 0) ||
+                            item.image_url ||
+                            item.image
+                        ) {
+                            totalImagesFound++;
+                        }
+                    });
+                    return subSum + (sub.items || []).length;
+                },
                 0
             ),
         0
@@ -907,7 +948,7 @@ async function importFromPartnerPortal(req, resId) {
             stats: {
                 categories: totalCategories,
                 items: totalItems,
-                totalImagesFound: 0,
+                totalImagesFound: totalImagesFound,
                 imagesUploaded: 0,
                 imagesFailed: 0,
                 addonGroups: parsedAddons.length,
@@ -938,12 +979,14 @@ export async function GET(req, { params }) {
 
         const { searchParams } = new URL(req.url);
         const pageUrlParam = searchParams.get("pageUrl");
+        const uploadImagesToZomato = searchParams.get("uploadImagesToZomato") === "true";
 
         if (pageUrlParam) {
-            return await importFromZomatoPageUrl(req, resId, pageUrlParam);
+            return await importFromZomatoPageUrl(req, resId, pageUrlParam, { uploadImagesToZomato });
         }
 
-        return await importFromPartnerPortal(req, resId);
+        const nameParam = searchParams.get("name") || "";
+        return await importFromPartnerPortal(req, resId, { name: nameParam });
     } catch (err) {
         console.error("Zomato Menu Import Route Error:", err);
         return NextResponse.json(
@@ -972,19 +1015,25 @@ export async function POST(req, { params }) {
         }
 
         let pageUrlParam = null;
+        let uploadImagesToZomato = false;
+        let nameParam = "";
         try {
             const body = await req.json();
             pageUrlParam = body?.pageUrl;
+            uploadImagesToZomato = body?.uploadImagesToZomato === true;
+            nameParam = body?.name || "";
         } catch (e) {
             const { searchParams } = new URL(req.url);
             pageUrlParam = searchParams.get("pageUrl");
+            uploadImagesToZomato = searchParams.get("uploadImagesToZomato") === "true";
+            nameParam = searchParams.get("name") || "";
         }
 
         if (pageUrlParam) {
-            return await importFromZomatoPageUrl(req, resId, pageUrlParam);
+            return await importFromZomatoPageUrl(req, resId, pageUrlParam, { uploadImagesToZomato });
         }
 
-        return await importFromPartnerPortal(req, resId);
+        return await importFromPartnerPortal(req, resId, { name: nameParam });
     } catch (err) {
         console.error("Zomato Menu Import Route POST Error:", err);
         return NextResponse.json(
