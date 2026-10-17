@@ -317,31 +317,42 @@ export function buildItemUpdatePayload(source, updates = {}) {
                 updates.is_veg ?? source.item?.is_veg
             );
         } else {
-            updatedVariantGroups.forEach((group) => {
-                const groupName = group.variant_group?.name || group.name;
-                const matchedGroup = updates.variants.find((vg) => vg.property_name === groupName);
+            const finalGroups = [];
+            updates.variants.forEach((vg) => {
+                const groupName = vg.property_name;
+                const existingGroup = updatedVariantGroups.find((g) => (g.variant_group?.name || g.name) === groupName);
 
-                if (matchedGroup && Array.isArray(matchedGroup.options)) {
-                    group.variants_vo?.forEach((opt) => {
-                        const optName = opt.variant?.name;
-                        const matchedOpt = matchedGroup.options.find((o) => o.option_name === optName);
-
-                        if (opt.variant.is_veg === "NONE") {
-                            delete opt.variant.is_veg;
-                        }
-                        if (matchedOpt) {
-                            opt.variant.price = Math.max(0, Number(matchedOpt.price) - Number(itemPrice));
-                            if (matchedOpt.inStock !== undefined) {
-                                opt.variant.in_stock = matchedOpt.inStock ? 1 : 0;
-                            }
-                            if (matchedOpt.is_default !== undefined) {
-                                opt.variant.default = (matchedOpt.is_default || matchedOpt.default) ? 1 : 0;
-                            }
+                if (existingGroup) {
+                    const matchedVariantsVo = [];
+                    (vg.options || []).forEach((opt, idx) => {
+                        const optName = opt.option_name || opt.name;
+                        const existingOpt = existingGroup.variants_vo?.find((vo) => vo.variant?.name === optName);
+                        if (existingOpt) {
+                            if (existingOpt.variant.is_veg === "NONE") delete existingOpt.variant.is_veg;
+                            existingOpt.variant.price = Math.max(0, Number(opt.price) - Number(itemPrice));
+                            if (opt.inStock !== undefined) existingOpt.variant.in_stock = opt.inStock ? 1 : 0;
+                            existingOpt.variant.default = (opt.is_default || opt.default || idx === 0) ? 1 : 0;
+                            matchedVariantsVo.push(existingOpt);
+                        } else {
+                            matchedVariantsVo.push({
+                                variant: {
+                                    name: optName,
+                                    price: Math.max(0, Number(opt.price) - Number(itemPrice)),
+                                    in_stock: opt.inStock !== false ? 1 : 0,
+                                    default: (opt.is_default || opt.default || idx === 0) ? 1 : 0,
+                                    ...((updates.is_veg ?? source.item?.is_veg) !== "NONE" ? { is_veg: updates.is_veg ?? source.item?.is_veg } : {})
+                                }
+                            });
                         }
                     });
+                    existingGroup.variants_vo = matchedVariantsVo;
+                    finalGroups.push(existingGroup);
+                } else {
+                    const newGroups = variantGroups([vg], itemPrice, updates.is_veg ?? source.item?.is_veg);
+                    finalGroups.push(...newGroups);
                 }
             });
-            allowedUpdates.item_vo.variant_groups_vo = updatedVariantGroups;
+            allowedUpdates.item_vo.variant_groups_vo = finalGroups;
         }
     }
 

@@ -223,68 +223,179 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                     : [];
                 let variantDiffs = [];
                 let isNewVariantsAdded = false;
+                let isVariantStructureChanged = false;
 
-                if ((!localItem.variants || localItem.variants.length === 0) && tItem.variants && Array.isArray(tItem.variants) && tItem.variants.length > 0) {
-                    newVariants = tItem.variants.map((tvg, i) => ({
-                        property_id: tvg.property_id || tvg.id || tvg.group_id || `temp-${Math.random().toString(36).substring(7)}`,
-                        property_name: tvg.property_name || tvg.name || tvg.group_name || `Group ${i + 1}`,
-                        options: (tvg.options || []).map((tOpt, j) => ({
-                            option_id: tOpt.option_id || tOpt.id || `temp-${Math.random().toString(36).substring(7)}`,
-                            option_name: tOpt.option_name || tOpt.name || `Option ${j + 1}`,
-                            price: cleanPrice(tOpt.price)
-                        }))
-                    }));
-                    hasPriceDiff = true;
-                    isNewVariantsAdded = true;
-                    newVariants.forEach(vg => {
-                        (vg.options || []).forEach(opt => {
-                            variantDiffs.push({
-                                name: `Added: ${opt.option_name}`,
-                                oldPrice: 0,
-                                newPrice: opt.price
-                            });
+                const hasTargetVariants = tItem.variants && Array.isArray(tItem.variants) && tItem.variants.length > 0;
+                const localVariantsList = Array.isArray(localItem.variants) ? localItem.variants : [];
+                const isLocalEmpty = localVariantsList.length === 0;
+
+                if (hasTargetVariants) {
+                    newVariants = tItem.variants.map((tvg, gIdx) => {
+                        const tvgName = tvg.property_name || tvg.name || tvg.group_name || `Group ${gIdx + 1}`;
+                        const normTvgName = normalizeString(tvgName);
+
+                        let matchedLocalVg = localVariantsList.find((lvg) => {
+                            const lvgName = lvg.property_name || lvg.name || lvg.group_name || "";
+                            return normalizeString(lvgName) === normTvgName;
                         });
-                    });
-                } else if (localItem.variants && tItem.variants && Array.isArray(tItem.variants)) {
-                    let tOptions = [];
-                    tItem.variants.forEach((tvg) => {
-                        (tvg.options || []).forEach((tOpt) => {
-                            tOptions.push({
-                                name: tOpt.option_name || tOpt.name || "",
-                                price: cleanPrice(tOpt.price),
-                                item: tOpt,
+
+                        // Fallback: if both have 1 group or same index
+                        if (!matchedLocalVg && localVariantsList.length === 1 && tItem.variants.length === 1) {
+                            matchedLocalVg = localVariantsList[0];
+                        } else if (!matchedLocalVg && localVariantsList[gIdx]) {
+                            matchedLocalVg = localVariantsList[gIdx];
+                        }
+
+                        let propertyId;
+                        if (matchedLocalVg && matchedLocalVg.property_id) {
+                            propertyId = matchedLocalVg.property_id;
+                        } else {
+                            propertyId = `temp-${Math.random().toString(36).substring(2, 9)}`;
+                            isVariantStructureChanged = true;
+                        }
+
+                        const localOptions = Array.isArray(matchedLocalVg?.options) ? matchedLocalVg.options : [];
+                        const matchedLocalOptIds = new Set();
+
+                        const options = (tvg.options || []).map((tOpt, oIdx) => {
+                            const tOptName = tOpt.option_name || tOpt.name || `Option ${oIdx + 1}`;
+                            const normTOptName = normalizeString(tOptName);
+                            const tOptPrice = cleanPrice(tOpt.price);
+
+                            let matchedLocalOpt = localOptions.find((lo) => {
+                                if (matchedLocalOptIds.has(lo.option_id)) return false;
+                                const loName = lo.option_name || lo.name || "";
+                                return normalizeString(loName) === normTOptName;
                             });
-                        });
-                    });
 
-                    newVariants.forEach((vg, gIdx) => {
-                        if (!vg.options) return;
-                        vg.options.forEach((opt, oIdx) => {
-                            const optName = opt.option_name || opt.name || "";
-                            if (!optName) return;
-
-                            const tOptMatch = findBestMatch(
-                                optName,
-                                tOptions.map((t) => ({ ...t, name: t.name })),
-                                currentMatchMode,
-                                currentMatchMode === "exact" ? 0 : 0.4
-                            );
-                            if (tOptMatch) {
-                                const tOpt = tOptMatch.item;
-                                const localOptPrice = cleanPrice(opt.price);
-                                const targetOptPrice = cleanPrice(tOpt.price);
-                                if (targetOptPrice !== localOptPrice) {
-                                    hasPriceDiff = true;
-                                    variantDiffs.push({
-                                        name: optName,
-                                        oldPrice: localOptPrice,
-                                        newPrice: targetOptPrice,
-                                    });
-                                    newVariants[gIdx].options[oIdx].price = targetOptPrice;
+                            if (!matchedLocalOpt && currentMatchMode === "fuzzy") {
+                                const unmatchedLocalOpts = localOptions.filter((lo) => !matchedLocalOptIds.has(lo.option_id));
+                                const fuzzyMatch = findBestMatch(
+                                    tOptName,
+                                    unmatchedLocalOpts.map((lo) => ({ ...lo, name: lo.option_name || lo.name })),
+                                    "fuzzy",
+                                    0.4
+                                );
+                                if (fuzzyMatch) {
+                                    matchedLocalOpt = fuzzyMatch.item;
                                 }
                             }
+
+                            let optionId;
+                            let variantId = undefined;
+
+                            if (matchedLocalOpt) {
+                                matchedLocalOptIds.add(matchedLocalOpt.option_id);
+                                optionId = matchedLocalOpt.option_id;
+                                if (matchedLocalOpt.variant_id) {
+                                    variantId = matchedLocalOpt.variant_id;
+                                }
+                                const localOptPrice = cleanPrice(matchedLocalOpt.price);
+                                if (localOptPrice !== tOptPrice) {
+                                    hasPriceDiff = true;
+                                    variantDiffs.push({
+                                        optName: tOptName,
+                                        name: tOptName,
+                                        oldPrice: localOptPrice,
+                                        newPrice: tOptPrice,
+                                        type: "price_change",
+                                    });
+                                }
+                                const loName = matchedLocalOpt.option_name || matchedLocalOpt.name;
+                                if (normalizeString(loName) !== normTOptName) {
+                                    hasPriceDiff = true;
+                                    isVariantStructureChanged = true;
+                                    variantDiffs.push({
+                                        optName: tOptName,
+                                        name: `${loName} → ${tOptName}`,
+                                        oldPrice: localOptPrice,
+                                        newPrice: tOptPrice,
+                                        type: "renamed",
+                                    });
+                                }
+                            } else {
+                                optionId = `temp-${Math.random().toString(36).substring(2, 9)}`;
+                                hasPriceDiff = true;
+                                isVariantStructureChanged = true;
+                                variantDiffs.push({
+                                    optName: tOptName,
+                                    name: `Added: ${tOptName}`,
+                                    oldPrice: 0,
+                                    newPrice: tOptPrice,
+                                    type: "added",
+                                });
+                            }
+
+                            return {
+                                option_id: optionId,
+                                option_name: tOptName,
+                                price: tOptPrice,
+                                ...(variantId ? { variant_id: variantId } : {}),
+                                ...(tOpt.is_default !== undefined ? { is_default: tOpt.is_default } : {}),
+                            };
                         });
+
+                        // Check for removed local options
+                        localOptions.forEach((lo) => {
+                            if (!matchedLocalOptIds.has(lo.option_id)) {
+                                const loName = lo.option_name || lo.name || "Option";
+                                const loPrice = cleanPrice(lo.price);
+                                hasPriceDiff = true;
+                                isVariantStructureChanged = true;
+                                variantDiffs.push({
+                                    optName: loName,
+                                    name: `Removed: ${loName}`,
+                                    oldPrice: loPrice,
+                                    newPrice: 0,
+                                    type: "removed",
+                                });
+                            }
+                        });
+
+                        return {
+                            property_id: propertyId,
+                            property_name: tvgName,
+                            options: options,
+                        };
                     });
+
+                    // Check for removed local groups
+                    localVariantsList.forEach((lvg) => {
+                        const lvgName = lvg.property_name || lvg.name || "";
+                        const isMatched = newVariants.some(
+                            (nvg) => normalizeString(nvg.property_name) === normalizeString(lvgName)
+                        );
+                        if (!isMatched) {
+                            hasPriceDiff = true;
+                            isVariantStructureChanged = true;
+                            variantDiffs.push({
+                                name: `Removed Group: ${lvgName}`,
+                                oldPrice: 0,
+                                newPrice: 0,
+                                type: "removed_group",
+                            });
+                        }
+                    });
+
+                    if (isLocalEmpty) {
+                        isNewVariantsAdded = true;
+                        hasPriceDiff = true;
+                    } else if (isVariantStructureChanged) {
+                        hasPriceDiff = true;
+                    }
+
+                    // If base price was 0 or not updated from tItem, use lowest variant price
+                    if (newBasePrice === 0) {
+                        const optPrices = newVariants
+                            .flatMap((vg) => (vg.options || []).map((o) => o.price))
+                            .filter((p) => p > 0);
+                        if (optPrices.length > 0) {
+                            newBasePrice = Math.min(...optPrices);
+                            if (newBasePrice !== localBasePrice) {
+                                hasPriceDiff = true;
+                            }
+                        }
+                    }
                 }
 
                 // Push match whether price is different OR already matched!
@@ -301,6 +412,7 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                     newVariants: newVariants,
                     variantDiffs: variantDiffs,
                     isNewVariantsAdded: isNewVariantsAdded,
+                    isVariantStructureChanged: isVariantStructureChanged,
                     score: matchResult.score,
                     isExact: matchResult.isExact,
                     hasPriceDiff: hasPriceDiff,
@@ -506,7 +618,10 @@ export default function TransferPriceModal({ isOpen, onClose }) {
         let updateCount = 0;
         matchedItems.forEach((match) => {
             if (selectedMatches.has(match.localId)) {
-                let updates = { base_price: match.targetPrice };
+                let updates = {
+                    base_price: match.targetPrice,
+                    price: match.targetPrice,
+                };
                 if (match.newVariants && match.newVariants.length > 0) {
                     updates.variants = match.newVariants;
                 }
@@ -519,7 +634,7 @@ export default function TransferPriceModal({ isOpen, onClose }) {
             }
         });
 
-        notification.success(`Successfully updated prices for ${updateCount} items.`);
+        notification.success(`Successfully updated prices & variants for ${updateCount} items.`);
         handleClose();
     };
 
@@ -1038,7 +1153,7 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                                                                     )}
                                                                     {hasDiff && (
                                                                         <Badge className="bg-amber-100 text-amber-700 border-amber-200 text-[9px] px-1.5 py-0 font-bold w-fit">
-                                                                            Price Diff
+                                                                            {match.localPrice !== match.targetPrice ? "Price Diff" : "Variant Diff"}
                                                                         </Badge>
                                                                     )}
                                                                 </div>
@@ -1056,14 +1171,14 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                                                                             {(vg.options || []).map((opt, j) => {
                                                                                 const optName = opt.option_name || opt.name || `Opt ${j+1}`;
                                                                                 const optPrice = cleanPrice(opt.price);
-                                                                                // Highlight if price is different from local (if local had variants)
+                                                                                // Highlight if price is different from local or newly added
                                                                                 let isDiff = false;
-                                                                                if (hasDiff && match.variantDiffs?.some(d => d.name === optName)) {
+                                                                                if (hasDiff && match.variantDiffs?.some(d => d.optName === optName || d.name === optName || d.name?.includes(optName))) {
                                                                                     isDiff = true;
                                                                                 }
                                                                                 
                                                                                 return (
-                                                                                    <span key={optName} className={`border px-1.5 py-0.5 rounded text-slate-700 ${isDiff ? 'bg-amber-100 border-amber-200 text-amber-800' : 'bg-slate-50 border-slate-200'}`}>
+                                                                                    <span key={optName} className={`border px-1.5 py-0.5 rounded text-slate-700 ${isDiff ? 'bg-amber-100 border-amber-200 text-amber-800 font-medium' : 'bg-slate-50 border-slate-200'}`}>
                                                                                         {optName} (₹{optPrice})
                                                                                     </span>
                                                                                 );
@@ -1082,6 +1197,16 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                                                                 </Badge>
                                                                 <p className="text-[9px] text-purple-600 font-medium mt-1 leading-tight">
                                                                     Will copy missing variants to local menu.
+                                                                </p>
+                                                            </div>
+                                                        )}
+                                                        {match.isVariantStructureChanged && !match.isNewVariantsAdded && (
+                                                            <div className="mt-2 pt-2 border-t border-indigo-200/50">
+                                                                <Badge className="bg-indigo-100 text-indigo-700 border-indigo-200 text-[10px] px-1.5 py-0 font-bold shrink-0">
+                                                                    🔄 Updating Variants
+                                                                </Badge>
+                                                                <p className="text-[9px] text-indigo-600 font-medium mt-1 leading-tight">
+                                                                    Exact variants from Outlet 1 will replace local variants.
                                                                 </p>
                                                             </div>
                                                         )}
