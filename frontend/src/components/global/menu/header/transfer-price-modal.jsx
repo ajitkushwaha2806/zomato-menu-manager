@@ -30,7 +30,6 @@ import { MenuService } from "@/services/menu";
 import { useMenu } from "@/store/hooks/useMenu";
 import useNotification from "@/store/hooks/useNotification";
 
-// Levenshtein distance for fuzzy matching
 function levenshteinDistance(a, b) {
     if (a.length === 0) return b.length;
     if (b.length === 0) return a.length;
@@ -239,7 +238,6 @@ export default function TransferPriceModal({ isOpen, onClose }) {
                             return normalizeString(lvgName) === normTvgName;
                         });
 
-                        // Fallback: if both have 1 group or same index
                         if (!matchedLocalVg && localVariantsList.length === 1 && tItem.variants.length === 1) {
                             matchedLocalVg = localVariantsList[0];
                         } else if (!matchedLocalVg && localVariantsList[gIdx]) {

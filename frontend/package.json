@@ -85,6 +85,7 @@
     "googleapis": "^173.0.0",
     "googlethis": "^1.8.0",
     "ioredis": "^5.11.1",
+    "jszip": "^3.10.2",
     "lodash.merge": "^4.6.2",
     "lucide-react": "^0.553.0",
     "mongodb": "^7.0.0",

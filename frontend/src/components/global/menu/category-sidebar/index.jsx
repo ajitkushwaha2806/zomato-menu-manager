@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { useMenu } from "@/store/hooks/useMenu";
 import { useMemo, useState, useEffect } from "react";
 import InlineInput from "@/components/ui/inline-input";
-import { Plus, Layers, Settings2, DollarSign, AlignLeft, Image as ImageIcon, ChevronLeft, ChevronRight, FileUp, Share, Cloud, PlusCircle, AlertTriangle, ClipboardPaste, Ticket, Table, Download } from "lucide-react";
+import { Plus, Layers, Settings2, DollarSign, AlignLeft, Image as ImageIcon, ChevronLeft, ChevronRight, FileUp, Share, Cloud, FolderDown, PlusCircle, AlertTriangle, ClipboardPaste, Ticket, Table, Download } from "lucide-react";
 
 export default function CategorySidebar() {
     const {
@@ -233,7 +233,7 @@ export default function CategorySidebar() {
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "EXPORT_IMAGES" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
                                     }`}
                             >
-                                <Cloud className="w-4 h-4" /> Export Images
+                                <FolderDown className="w-4 h-4" /> Export Images
                             </button>
                             <button
                                 onClick={() => setActiveBulkMode("EXPORT_CSV")}
