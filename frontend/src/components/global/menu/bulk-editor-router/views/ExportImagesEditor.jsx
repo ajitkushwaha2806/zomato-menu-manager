@@ -73,6 +73,92 @@ function getFileExtension(url, blob) {
     return "jpg";
 }
 
+// Helper: Convert any image blob (AVIF, WEBP, PNG) to JPEG Blob using browser Canvas with server fallback
+async function convertBlobToJpeg(blob, fallbackUrl, quality = 0.92) {
+    if (!blob) return blob;
+    if (blob.type === "image/jpeg" || blob.type === "image/jpg") {
+        return blob;
+    }
+
+    try {
+        // Attempt 1: Modern createImageBitmap (fastest, supports AVIF/WebP in Chrome, Edge, Safari 16+)
+        if (typeof createImageBitmap === "function") {
+            try {
+                const imgBitmap = await createImageBitmap(blob);
+                const canvas = document.createElement("canvas");
+                canvas.width = imgBitmap.width;
+                canvas.height = imgBitmap.height;
+                const ctx = canvas.getContext("2d");
+                // Fill white background in case source has transparency
+                ctx.fillStyle = "#FFFFFF";
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.drawImage(imgBitmap, 0, 0);
+                if (typeof imgBitmap.close === "function") {
+                    imgBitmap.close();
+                }
+
+                const jpegBlob = await new Promise((resolve) => {
+                    canvas.toBlob((b) => resolve(b), "image/jpeg", quality);
+                });
+                if (jpegBlob && jpegBlob.size > 0) return jpegBlob;
+            } catch {
+                // fallback to HTMLImageElement
+            }
+        }
+
+        // Attempt 2: HTMLImageElement + Canvas
+        const convertedFromImg = await new Promise((resolve) => {
+            const img = new Image();
+            const objectUrl = URL.createObjectURL(blob);
+            img.onload = () => {
+                URL.revokeObjectURL(objectUrl);
+                try {
+                    const canvas = document.createElement("canvas");
+                    canvas.width = img.naturalWidth || img.width;
+                    canvas.height = img.naturalHeight || img.height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.fillStyle = "#FFFFFF";
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                    canvas.toBlob(
+                        (b) => resolve(b),
+                        "image/jpeg",
+                        quality
+                    );
+                } catch {
+                    resolve(null);
+                }
+            };
+            img.onerror = () => {
+                URL.revokeObjectURL(objectUrl);
+                resolve(null);
+            };
+            img.src = objectUrl;
+        });
+
+        if (convertedFromImg && convertedFromImg.size > 0) {
+            return convertedFromImg;
+        }
+    } catch (e) {
+        console.warn("Client canvas conversion error:", e);
+    }
+
+    // Attempt 3: Server-side Sharp proxy fallback (if client canvas couldn't decode AVIF)
+    if (fallbackUrl) {
+        try {
+            const proxyRes = await fetch(`/api/image/proxy?url=${encodeURIComponent(fallbackUrl)}&format=jpeg`);
+            if (proxyRes.ok) {
+                const proxiedBlob = await proxyRes.blob();
+                if (proxiedBlob && proxiedBlob.size > 0) return proxiedBlob;
+            }
+        } catch (proxyErr) {
+            console.warn("Server-side JPEG conversion fallback failed:", proxyErr);
+        }
+    }
+
+    return blob;
+}
+
 // Helper: Fetch image with direct CORS fetch first, fallback to Next.js API proxy
 async function fetchImageBlobWithFallback(url, signal) {
     try {
@@ -94,7 +180,7 @@ async function fetchImageBlobWithFallback(url, signal) {
 }
 
 // Subcomponent: Google Drive Export Action
-function GoogleDriveExportSection({ itemsWithImages, activeResId, notification }) {
+function GoogleDriveExportSection({ itemsWithImages, activeResId, notification, convertToJpeg = true }) {
     const [isExporting, setIsExporting] = useState(false);
     const [driveLink, setDriveLink] = useState(null);
 
@@ -105,6 +191,7 @@ function GoogleDriveExportSection({ itemsWithImages, activeResId, notification }
         try {
             const { data } = await axios.post(`/api/menu/${activeResId}/bulk-editor/export-drive`, {
                 accessToken,
+                convertToJpeg,
                 items: itemsWithImages.map(item => ({
                     id: item.id,
                     name: item.name,
@@ -211,6 +298,7 @@ export default function ExportImagesEditor({ allItems = [] }) {
 
     const [organizeByCategory, setOrganizeByCategory] = useState(false);
     const [includeCategoryInFilename, setIncludeCategoryInFilename] = useState(false);
+    const [exportFormat, setExportFormat] = useState("jpeg"); // "jpeg" | "original"
 
     // Filter items with and without images
     const itemsWithImages = useMemo(() => {
@@ -331,8 +419,15 @@ export default function ExportImagesEditor({ allItems = [] }) {
                 });
 
                 try {
-                    const blob = await fetchImageBlobWithFallback(imgUrl);
-                    const ext = getFileExtension(imgUrl, blob);
+                    let blob = await fetchImageBlobWithFallback(imgUrl);
+                    let ext = "jpg";
+
+                    if (exportFormat === "jpeg") {
+                        blob = await convertBlobToJpeg(blob, imgUrl);
+                        ext = "jpg";
+                    } else {
+                        ext = getFileExtension(imgUrl, blob);
+                    }
 
                     // Build base filename
                     const catPrefix = includeCategoryInFilename && item._parentCategoryName
@@ -438,8 +533,15 @@ export default function ExportImagesEditor({ allItems = [] }) {
                     }));
 
                     try {
-                        const blob = await fetchImageBlobWithFallback(imgUrl);
-                        const ext = getFileExtension(imgUrl, blob);
+                        let blob = await fetchImageBlobWithFallback(imgUrl);
+                        let ext = "jpg";
+
+                        if (exportFormat === "jpeg") {
+                            blob = await convertBlobToJpeg(blob, imgUrl);
+                            ext = "jpg";
+                        } else {
+                            ext = getFileExtension(imgUrl, blob);
+                        }
 
                         const catPrefix = includeCategoryInFilename && item._parentCategoryName
                             ? `${sanitizePathSegment(item._parentCategoryName)} - `
@@ -792,6 +894,7 @@ export default function ExportImagesEditor({ allItems = [] }) {
                                             itemsWithImages={itemsWithImages}
                                             activeResId={activeResId}
                                             notification={notification}
+                                            convertToJpeg={exportFormat === "jpeg"}
                                         />
                                     </GoogleOAuthProvider>
                                 ) : (
@@ -814,7 +917,7 @@ export default function ExportImagesEditor({ allItems = [] }) {
                             </h3>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
                             {/* Folder Name */}
                             <div className="space-y-1.5">
                                 <label className="text-xs font-semibold text-neutral-700">
@@ -829,6 +932,43 @@ export default function ExportImagesEditor({ allItems = [] }) {
                                 />
                                 <p className="text-[11px] text-neutral-400">
                                     Folder created on your disk or inside the ZIP.
+                                </p>
+                            </div>
+
+                            {/* Image Format */}
+                            <div className="space-y-1.5">
+                                <div className="flex items-center justify-between">
+                                    <label className="text-xs font-semibold text-neutral-700">
+                                        Image Format
+                                    </label>
+                                    <span className="text-[10px] font-bold text-emerald-600 bg-emerald-50 px-1.5 py-0.5 rounded">
+                                        Auto Convert
+                                    </span>
+                                </div>
+                                <div className="flex items-center gap-2 pt-1">
+                                    <button
+                                        type="button"
+                                        onClick={() => setExportFormat("jpeg")}
+                                        className={`flex-1 text-xs py-2 px-3 rounded-lg border font-medium transition-all ${exportFormat === "jpeg"
+                                            ? 'bg-primary/10 border-primary text-primary font-semibold'
+                                            : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'}`}
+                                    >
+                                        JPEG (.jpg)
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => setExportFormat("original")}
+                                        className={`flex-1 text-xs py-2 px-3 rounded-lg border font-medium transition-all ${exportFormat === "original"
+                                            ? 'bg-primary/10 border-primary text-primary font-semibold'
+                                            : 'bg-white border-neutral-200 text-neutral-600 hover:bg-neutral-50'}`}
+                                    >
+                                        Original (AVIF)
+                                    </button>
+                                </div>
+                                <p className="text-[11px] text-neutral-400">
+                                    {exportFormat === "jpeg"
+                                        ? "Converts Zomato AVIF photos into universal JPEG (.jpg)."
+                                        : "Exports raw AVIF format stored by Zomato."}
                                 </p>
                             </div>
 
@@ -890,7 +1030,7 @@ export default function ExportImagesEditor({ allItems = [] }) {
                                     </button>
                                 </div>
                                 <p className="text-[11px] text-neutral-400">
-                                    Example: {includeCategoryInFilename ? "Main Course - Butter Chicken.jpg" : "Butter Chicken.jpg"}
+                                    Example: {includeCategoryInFilename ? `Main Course - Butter Chicken.${exportFormat === "jpeg" ? "jpg" : "avif"}` : `Butter Chicken.${exportFormat === "jpeg" ? "jpg" : "avif"}`}
                                 </p>
                             </div>
                         </div>
@@ -958,7 +1098,8 @@ export default function ExportImagesEditor({ allItems = [] }) {
                                     const catPrefix = includeCategoryInFilename && item._parentCategoryName
                                         ? `${sanitizePathSegment(item._parentCategoryName)} - `
                                         : "";
-                                    const plannedName = `${catPrefix}${sanitizePathSegment(item.name || "item")}.jpg`;
+                                    const ext = exportFormat === "jpeg" ? "jpg" : (getFileExtension(imgUrl) || "avif");
+                                    const plannedName = `${catPrefix}${sanitizePathSegment(item.name || "item")}.${ext}`;
                                     const folderPath = organizeByCategory
                                         ? `${sanitizePathSegment(item._parentCategoryName || "General")}/${plannedName}`
                                         : plannedName;

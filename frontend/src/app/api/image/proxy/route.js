@@ -25,8 +25,19 @@ export async function GET(request) {
             return new NextResponse(`Failed to fetch image: ${res.statusText}`, { status: res.status });
         }
 
-        const contentType = res.headers.get('content-type') || 'image/jpeg';
-        const buffer = await res.arrayBuffer();
+        let contentType = res.headers.get('content-type') || 'image/jpeg';
+        let buffer = Buffer.from(await res.arrayBuffer());
+
+        const format = searchParams.get('format') || searchParams.get('convertTo');
+        if (format === 'jpeg' || format === 'jpg') {
+            try {
+                const sharp = require('sharp');
+                buffer = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+                contentType = 'image/jpeg';
+            } catch (sharpError) {
+                console.warn('Proxy Sharp conversion to JPEG failed:', sharpError.message);
+            }
+        }
 
         return new NextResponse(buffer, {
             status: 200,

@@ -6,7 +6,7 @@ export async function POST(request, { params }) {
     try {
         const { resId } = await params;
         const body = await request.json();
-        const { items, accessToken } = body;
+        const { items, accessToken, convertToJpeg = true } = body;
 
         if (!items || !items.length) {
             return NextResponse.json({ success: false, message: 'No items provided for export.' }, { status: 400 });
@@ -56,12 +56,31 @@ export async function POST(request, { params }) {
             console.warn("Could not set public permissions (might be restricted by Workspace admins):", permError.message);
         }
 
-        // Helper function to fetch an image and return a stream
+        // Helper function to fetch an image and return a stream & extension
         const fetchImageStream = async (url) => {
             const response = await fetch(url);
             if (!response.ok) throw new Error(`Failed to fetch image: ${response.statusText}`);
             const arrayBuffer = await response.arrayBuffer();
-            return Readable.from(Buffer.from(arrayBuffer));
+            let buffer = Buffer.from(arrayBuffer);
+            let ext = url.split('.').pop().split('?')[0]?.toLowerCase() || 'jpg';
+            let mimeType = response.headers.get('content-type') || 'image/jpeg';
+
+            if (convertToJpeg) {
+                try {
+                    const sharp = require('sharp');
+                    buffer = await sharp(buffer).jpeg({ quality: 90 }).toBuffer();
+                    ext = 'jpg';
+                    mimeType = 'image/jpeg';
+                } catch (sharpErr) {
+                    console.warn("Sharp conversion to JPEG failed:", sharpErr.message);
+                }
+            }
+
+            return {
+                stream: Readable.from(buffer),
+                ext,
+                mimeType
+            };
         };
 
         const titleCounts = {};
@@ -85,8 +104,7 @@ export async function POST(request, { params }) {
             try {
                 if (!item.url) return null;
                 
-                const stream = await fetchImageStream(item.url);
-                const ext = item.url.split('.').pop().split('?')[0] || 'jpg';
+                const { stream, ext, mimeType } = await fetchImageStream(item.url);
                 const safeName = `${item.exportName}.${ext}`;
 
                 const fileMetadata = {
@@ -94,7 +112,7 @@ export async function POST(request, { params }) {
                     parents: [folderId]
                 };
                 const media = {
-                    mimeType: 'image/*',
+                    mimeType: mimeType || 'image/jpeg',
                     body: stream
                 };
 
