@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api/axios";
+import { API_ENDPOINTS } from "@/services/api-endpoints";
 
 export const PETPOOJA_RESTAURANT_QUERY_KEY = ["petpooja-restaurant"];
 
@@ -7,7 +8,7 @@ export default function usePetpoojaRestaurant() {
     const query = useQuery({
         queryKey: PETPOOJA_RESTAURANT_QUERY_KEY,
         queryFn: async () => {
-            const { data } = await api.get("/api/accounts/petpooja/restaurants");
+            const { data } = await api.get(API_ENDPOINTS.ACCOUNTS.PETPOOJA_RESTAURANTS);
             return data;
         },
         retry: false,

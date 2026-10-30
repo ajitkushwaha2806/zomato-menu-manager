@@ -38,6 +38,40 @@ export async function POST(req, { params }) {
 
         const resMenu = await Menu.findOne({ resId, platform: 'zomato' });
 
+        // Check if any item or menu has addons for Zomato
+        const menuCategories = Array.isArray(resMenu?.menu) ? resMenu.menu : [];
+        const dbAddons = Array.isArray(resMenu?.addons) ? resMenu.addons : [];
+
+        let itemsWithAddons = [];
+        menuCategories.forEach(cat => {
+            if (cat.status === 'delete' || cat.status === 'deleted') return;
+            (cat.sub_category || []).forEach(sub => {
+                if (sub.status === 'delete' || sub.status === 'deleted') return;
+                (sub.items || []).forEach(item => {
+                    if (item.status === 'delete' || item.status === 'deleted') return;
+                    const hasAddons = (Array.isArray(item.addons) && item.addons.length > 0) ||
+                        (Array.isArray(item.addon_groups) && item.addon_groups.length > 0) ||
+                        (Array.isArray(item.addonGroups) && item.addonGroups.length > 0);
+                    if (hasAddons) {
+                        itemsWithAddons.push(item.name || "Unnamed Item");
+                    }
+                });
+            });
+        });
+
+        if (itemsWithAddons.length > 0 || dbAddons.length > 0) {
+            const detail = itemsWithAddons.length > 0
+                ? `${itemsWithAddons.length} item(s) have addons attached (${itemsWithAddons.slice(0, 3).join(", ")}${itemsWithAddons.length > 3 ? "..." : ""})`
+                : `${dbAddons.length} addon group(s) exist`;
+            return NextResponse.json(
+                {
+                    success: false,
+                    message: `Cannot trigger Zomato menu: Addons are not allowed on Zomato. ${detail}. Please delete all addons first before triggering.`,
+                },
+                { status: 400 }
+            );
+        }
+
         const menuInfo = await apiClient({
             req,
             endpoint: "/php/online_ordering/menu_edit",

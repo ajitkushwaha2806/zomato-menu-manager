@@ -16,7 +16,8 @@ export default function MenuItemList({
     updateCatalogue,
     deleteItem,
 }) {
-    const { globalSearchQuery, menuData } = useMenu();
+    const { globalSearchQuery, menuData, activePlatform } = useMenu();
+    const isPetpooja = activePlatform === 'petpooja';
     const [isTransferModalOpen, setIsTransferModalOpen] = useState(false);
 
     const itemsToSearch = useMemo(() => {
@@ -109,6 +110,8 @@ export default function MenuItemList({
                             <div className="flex h-full flex-col gap-2 items-center justify-center text-muted-foreground">
                                 {isSearching ? (
                                     <>No items match your search.</>
+                                ) : isPetpooja ? (
+                                    <>No items found in this subcategory.</>
                                 ) : (
                                     <>No items found. Click <b className="mx-1">Add Item</b> to create one.</>
                                 )}
@@ -129,6 +132,7 @@ export default function MenuItemList({
                                     <MenuItemRow
                                         key={item.id}
                                         item={item}
+                                        isPetpooja={isPetpooja}
                                         isDuplicate={item.name && duplicateNames.has(item.name.toLowerCase().trim())}
                                         onChange={(updatedItem) =>
                                             updateCatalogue(item.id, updatedItem)
@@ -144,7 +148,7 @@ export default function MenuItemList({
                 })()}
             </div>
 
-            {activeSubCategoryData && !globalSearchQuery?.trim() && (
+            {activeSubCategoryData && !globalSearchQuery?.trim() && !isPetpooja && (
                 <div className="absolute bottom-6 right-6 flex items-center gap-4 z-10">
                     <Button
                         onClick={() => setIsTransferModalOpen(true)}

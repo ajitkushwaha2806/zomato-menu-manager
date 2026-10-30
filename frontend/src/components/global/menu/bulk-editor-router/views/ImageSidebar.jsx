@@ -3,7 +3,7 @@
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { usePathname, useSearchParams } from "next/navigation";
-import { X, Search, Loader2, CheckCircle2, XCircle, Sparkles } from "lucide-react";
+import { X, Search, Loader2, CheckCircle2, XCircle, Sparkles, RotateCw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -16,6 +16,7 @@ import {
 import { toast } from "sonner";
 import axios from "axios";
 import { uploadPlatformImage } from "@/services/imageService";
+import { queueImageUpload } from "@/services/imageQueueService";
 
 export default function ImageSidebar() {
     const dispatch = useDispatch();
@@ -132,93 +133,35 @@ export default function ImageSidebar() {
         }
     };
 
-    const handleSelectImage = async (imageDoc) => {
+    const handleSelectImage = (imageDoc) => {
         if (!activeImageSearchItem || !imageDoc.image_url) return;
         const imgId = imageDoc._id || imageDoc.id || imageDoc.image_url;
 
-        setUploadStatuses((prev) => ({ ...prev, [imgId]: "uploading" }));
-        dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "uploading" }));
+        // Flash approved checkmark on the sidebar thumbnail immediately
+        setUploadStatuses((prev) => ({ ...prev, [imgId]: "approved" }));
+        setTimeout(() => {
+            setUploadStatuses((prev) => {
+                const newMap = { ...prev };
+                delete newMap[imgId];
+                return newMap;
+            });
+        }, 1500);
 
-        try {
-            let mediaArray = [];
-            if (activePlatform !== "swiggy") {
-                const uploadRes = await uploadPlatformImage(
-                    activePlatform,
-                    activeResId,
-                    imageDoc.image_url,
-                    activeImageSearchItem.name,
-                );
-                if (!uploadRes.success || !uploadRes.mediaArray) {
-                    throw new Error(uploadRes.message || "Failed to verify/upload image to Zomato");
-                }
-                mediaArray = uploadRes.mediaArray.map((m) => ({
-                    ...m,
-                    entityId: activeImageSearchItem.originalId || activeImageSearchItem.id,
-                }));
-            } else {
-                mediaArray = [
-                    {
-                        tempReferenceId: `temp-manual-${crypto.randomUUID()}`,
-                        url: imageDoc.image_url,
-                        thumbUrl: imageDoc.image_url,
-                        mediaType: "PHOTO",
-                        mediaId: imageDoc.image_url.split("/").pop() || "image.jpg",
-                        order: 1,
-                        usageType: "FOODSHOT",
-                        entityType: "CATALOGUE",
-                        entityId: activeImageSearchItem.originalId || activeImageSearchItem.id,
-                        fileDirectory: "",
-                        source: "MS_MENU_TOOL",
-                        fileName: imageDoc.image_url.split("/").pop() || "image.jpg",
-                        usageTypeEnum: "USAGE_TYPE_FOODSHOT",
-                        isNewlyUploaded: true,
-                        isUploading: false,
-                    },
-                ];
-            }
+        // Queue upload in background without blocking the UI
+        queueImageUpload({
+            itemId: activeImageSearchItem.originalId || activeImageSearchItem.id,
+            itemName: activeImageSearchItem.name,
+            fileOrUrl: imageDoc.image_url,
+            isTicket: Boolean(activeImageSearchItem.isTicket),
+            ticketId: activeImageSearchItem.ticketId,
+            activePlatform,
+            activeResId,
+            onError: () => {
+                setUploadStatuses((prev) => ({ ...prev, [imgId]: "rejected" }));
+            },
+        });
 
-            setUploadStatuses((prev) => ({ ...prev, [imgId]: "approved" }));
-            dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "approved" }));
-
-            if (activeImageSearchItem.isTicket) {
-                dispatch(
-                    setTicketImageUpdate({
-                        ticketId: activeImageSearchItem.ticketId,
-                        imageUrl: imageDoc.image_url,
-                    }),
-                );
-            } else {
-                dispatch(
-                    addImage({
-                        itemId: activeImageSearchItem.id,
-                        media: mediaArray,
-                    }),
-                );
-            }
-            toast.success("Image applied successfully!");
-            setTimeout(() => {
-                setUploadStatuses((prev) => {
-                    const newMap = { ...prev };
-                    delete newMap[imgId];
-                    return newMap;
-                });
-                dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: null }));
-            }, 500);
-        } catch (error) {
-            console.error("Image apply error:", error);
-            setUploadStatuses((prev) => ({ ...prev, [imgId]: "rejected" }));
-            dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: "rejected" }));
-            toast.error(error.message || "Failed to apply image");
-
-            setTimeout(() => {
-                setUploadStatuses((prev) => {
-                    const newMap = { ...prev };
-                    delete newMap[imgId];
-                    return newMap;
-                });
-                dispatch(setImageUploadStatus({ itemId: activeImageSearchItem.id, status: null }));
-            }, 3000);
-        }
+        toast.success(`Queued "${activeImageSearchItem.name}" for upload!`, { duration: 2500 });
     };
 
     if (!isImageSidebarOpen) return null;
@@ -322,58 +265,84 @@ export default function ImageSidebar() {
                 ) : images.length > 0 ? (
                     <div className="pb-6">
                         <div className="grid grid-cols-4 gap-3">
-                            {images.map((img) => (
-                                <div
-                                    key={img._id || img.id || img.image_url}
-                                    onClick={() => handleSelectImage(img)}
-                                    className={cn(
-                                        "group relative rounded-xl overflow-hidden border border-border/50 cursor-pointer bg-white transition-all hover:border-primary/40 hover:shadow-md",
-                                        uploadStatuses[img._id || img.id || img.image_url] === "uploading" &&
-                                            "opacity-70 pointer-events-none ring-2 ring-primary",
-                                    )}
-                                >
-                                    <div className="aspect-square w-full bg-slate-100 relative">
-                                        {/* eslint-disable-next-line @next/next/no-img-element */}
-                                        <img
-                                            src={img.image_url}
-                                            alt={img.title || "Food item"}
-                                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                            loading="lazy"
-                                        />
-                                        {/* State Overlays */}
-                                        {uploadStatuses[img._id || img.id || img.image_url] === "uploading" && (
-                                            <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center animate-in fade-in duration-200">
-                                                <Loader2 className="animate-spin text-primary mb-2" size={24} />
-                                                <span className="text-[10px] font-semibold text-neutral-700 tracking-wide uppercase">
-                                                    Validating...
-                                                </span>
-                                            </div>
-                                        )}
+                            {images.map((img) => {
+                                const imgKey = img._id || img.id || img.image_url;
+                                const isUploadingThis = uploadStatuses[imgKey] === "uploading";
+                                const isApprovedThis = uploadStatuses[imgKey] === "approved";
+                                const isRejectedThis = uploadStatuses[imgKey] === "rejected";
 
-                                        {uploadStatuses[img._id || img.id || img.image_url] === "approved" && (
-                                            <div className="absolute top-2 right-2 z-20 bg-green-500/95 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm animate-in zoom-in duration-300">
-                                                <CheckCircle2 size={12} /> Approved
-                                            </div>
+                                return (
+                                    <div
+                                        key={imgKey}
+                                        onClick={() => {
+                                            if (!isUploadingThis) handleSelectImage(img);
+                                        }}
+                                        className={cn(
+                                            "group relative rounded-xl overflow-hidden border cursor-pointer bg-white transition-all hover:shadow-md",
+                                            isRejectedThis
+                                                ? "border-red-500 ring-2 ring-red-500/70 shadow-md shadow-red-100"
+                                                : "border-border/50 hover:border-primary/40",
+                                            isUploadingThis && "opacity-70 pointer-events-none ring-2 ring-primary"
                                         )}
+                                    >
+                                        <div className="aspect-square w-full bg-slate-100 relative">
+                                            {/* eslint-disable-next-line @next/next/no-img-element */}
+                                            <img
+                                                src={img.image_url}
+                                                alt={img.title || "Food item"}
+                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                                                loading="lazy"
+                                            />
+                                            {/* State Overlays */}
+                                            {isUploadingThis && (
+                                                <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center animate-in fade-in duration-200">
+                                                    <Loader2 className="animate-spin text-primary mb-2" size={24} />
+                                                    <span className="text-[10px] font-semibold text-neutral-700 tracking-wide uppercase">
+                                                        Validating...
+                                                    </span>
+                                                </div>
+                                            )}
 
-                                        {uploadStatuses[img._id || img.id || img.image_url] === "rejected" && (
-                                            <div className="absolute top-2 right-2 z-20 bg-red-500/95 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm animate-in zoom-in duration-300">
-                                                <XCircle size={12} /> Rejected
-                                            </div>
-                                        )}
-                                    </div>
-                                    <div className="p-2">
-                                        <p className="text-xs font-semibold truncate text-foreground">
-                                            {img.title}
-                                        </p>
-                                        {(img.category || img.cuisine) && (
-                                            <p className="text-[10px] text-muted-foreground truncate">
-                                                {img.cuisine || img.category}
+                                            {isApprovedThis && (
+                                                <div className="absolute top-2 right-2 z-20 bg-green-500/95 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm animate-in zoom-in duration-300">
+                                                    <CheckCircle2 size={12} /> Approved
+                                                </div>
+                                            )}
+
+                                            {isRejectedThis && (
+                                                <div 
+                                                    className="absolute inset-x-0 bottom-0 bg-red-600/95 text-white p-1.5 flex items-center justify-between gap-1 z-20 animate-in slide-in-from-bottom duration-200"
+                                                    onClick={(e) => e.stopPropagation()}
+                                                >
+                                                    <span className="text-[10px] font-semibold flex items-center gap-1">
+                                                        <XCircle size={11} className="shrink-0 text-red-200" /> Failed
+                                                    </span>
+                                                    <button
+                                                        type="button"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleSelectImage(img);
+                                                        }}
+                                                        className="bg-white hover:bg-neutral-100 active:scale-95 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-1 transition-all cursor-pointer"
+                                                    >
+                                                        <RotateCw size={10} className="shrink-0" /> Retry
+                                                    </button>
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="p-2">
+                                            <p className="text-xs font-semibold truncate text-foreground">
+                                                {img.title}
                                             </p>
-                                        )}
+                                            {(img.category || img.cuisine) && (
+                                                <p className="text-[10px] text-muted-foreground truncate">
+                                                    {img.cuisine || img.category}
+                                                </p>
+                                            )}
+                                        </div>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                         {isLoadingMore && (
                             <div className="flex justify-center py-6">

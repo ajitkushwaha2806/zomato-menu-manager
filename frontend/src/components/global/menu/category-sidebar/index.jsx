@@ -9,6 +9,7 @@ import { Plus, Layers, Settings2, DollarSign, AlignLeft, Image as ImageIcon, Che
 export default function CategorySidebar() {
     const {
         menuData,
+        activePlatform,
         activeView,
         setActiveView,
         activeBulkMode,
@@ -27,6 +28,8 @@ export default function CategorySidebar() {
         pasteCategoryFromClipboard,
         hasCopiedCategory,
     } = useMenu();
+
+    const isPetpooja = activePlatform === 'petpooja';
 
     const [addingCategory, setAddingCategory] = useState(false);
     const [expandedCategoryId, setExpandedCategoryId] = useState(null);
@@ -94,7 +97,7 @@ export default function CategorySidebar() {
                                     Bulk Edit
                                 </button>
                             </div>
-                            {!addingCategory && activeView === "MENU" && (
+                            {!addingCategory && activeView === "MENU" && !isPetpooja && (
                                 <div className="flex items-center gap-1 shrink-0">
                                     {hasCopiedCategory && (
                                         <Button
@@ -144,6 +147,7 @@ export default function CategorySidebar() {
                                     key={category.id || index}
                                     category={category}
                                     index={index}
+                                    isPetpooja={isPetpooja}
                                     isExpanded={expandedCategoryId === category.id}
                                     onToggleExpand={() =>
                                         setExpandedCategoryId(expandedCategoryId === category.id ? null : category.id)
@@ -165,34 +169,38 @@ export default function CategorySidebar() {
                         <div className="space-y-1 p-3 pb-8">
                             <div className="text-[11px] font-bold text-gray-400 uppercase tracking-wider px-3 mb-2">Edit Modes</div>
 
-                            <button
-                                onClick={() => setActiveBulkMode("PRICE")}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "PRICE" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
-                                    }`}
-                            >
-                                <DollarSign className="w-4 h-4" /> Price Editor
-                            </button>
-                            <button
-                                onClick={() => setActiveBulkMode("STRUCTURE")}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "STRUCTURE" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
-                                    }`}
-                            >
-                                <Layers className="w-4 h-4" /> Structure Organizer
-                            </button>
-                            <button
-                                onClick={() => setActiveBulkMode("ADDONS")}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "ADDONS" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
-                                    }`}
-                            >
-                                <PlusCircle className="w-4 h-4" /> Addons Builder
-                            </button>
-                            <button
-                                onClick={() => setActiveBulkMode("HOLD_ITEMS")}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "HOLD_ITEMS" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
-                                    }`}
-                            >
-                                <AlertTriangle className="w-4 h-4 text-amber-500" /> Hold Items
-                            </button>
+                            {activePlatform !== "petpooja" && (
+                              <>
+                                <button
+                                    onClick={() => setActiveBulkMode("PRICE")}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "PRICE" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    <DollarSign className="w-4 h-4" /> Price Editor
+                                </button>
+                                <button
+                                    onClick={() => setActiveBulkMode("STRUCTURE")}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "STRUCTURE" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    <Layers className="w-4 h-4" /> Structure Organizer
+                                </button>
+                                <button
+                                    onClick={() => setActiveBulkMode("ADDONS")}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "ADDONS" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    <PlusCircle className="w-4 h-4" /> Addons Builder
+                                </button>
+                                <button
+                                    onClick={() => setActiveBulkMode("HOLD_ITEMS")}
+                                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "HOLD_ITEMS" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
+                                        }`}
+                                >
+                                    <AlertTriangle className="w-4 h-4 text-amber-500" /> Hold Items
+                                </button>
+                              </>
+                            )}
                             <button
                                 onClick={() => setActiveBulkMode("DESCRIPTION")}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "DESCRIPTION" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
@@ -207,13 +215,15 @@ export default function CategorySidebar() {
                             >
                                 <ImageIcon className="w-4 h-4" /> Image Editor
                             </button>
-                            <button
-                                onClick={() => setActiveBulkMode("UPLOAD")}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "UPLOAD" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
-                                    }`}
-                            >
-                                <FileUp className="w-4 h-4" /> Upload Menu
-                            </button>
+                            {activePlatform !== "petpooja" && (
+                              <button
+                                  onClick={() => setActiveBulkMode("UPLOAD")}
+                                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "UPLOAD" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
+                                      }`}
+                              >
+                                  <FileUp className="w-4 h-4" /> Upload Menu
+                              </button>
+                            )}
                             <button
                                 onClick={() => setActiveBulkMode("TRANSFER")}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "TRANSFER" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"
@@ -221,13 +231,15 @@ export default function CategorySidebar() {
                             >
                                 <Share className="w-4 h-4" /> Transfer Menu
                             </button>
-                            <button
-                                onClick={() => setActiveBulkMode("ZOMATO_IMPORT")}
-                                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "ZOMATO_IMPORT" ? "bg-red-600/10 text-red-600" : "text-gray-600 hover:bg-red-50 hover:text-red-700"
-                                    }`}
-                            >
-                                <Download className="w-4 h-4" /> Import Zomato Menu
-                            </button>
+                            {activePlatform !== "petpooja" && (
+                              <button
+                                  onClick={() => setActiveBulkMode("ZOMATO_IMPORT")}
+                                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "ZOMATO_IMPORT" ? "bg-red-600/10 text-red-600" : "text-gray-600 hover:bg-red-50 hover:text-red-700"
+                                      }`}
+                              >
+                                  <Download className="w-4 h-4" /> Import Zomato Menu
+                              </button>
+                            )}
                             <button
                                 onClick={() => setActiveBulkMode("EXPORT_IMAGES")}
                                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold transition-colors ${activeBulkMode === "EXPORT_IMAGES" ? "bg-primary/10 text-primary" : "text-gray-600 hover:bg-gray-100"

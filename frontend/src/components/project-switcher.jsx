@@ -38,6 +38,7 @@ import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
 import usePetpoojaRestaurant from "@/store/hooks/usePetpoojaRestaurant";
 import { useMenu } from "@/store/hooks/useMenu";
 import SyncAllRestaurantsModal from "@/components/global/menu/bulk-editor-router/views/SyncAllRestaurantsModal";
+import PetpoojaUnlockModal from "@/components/global/menu/PetpoojaUnlockModal";
 
 function ProjectSkeleton() {
   return (
@@ -108,6 +109,43 @@ export function ProjectSwitcher() {
   const [activeTab, setActiveTab] = React.useState(activePlatform || "zomato");
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = React.useState(false);
+  const [isUnlockModalOpen, setIsUnlockModalOpen] = React.useState(false);
+  const [pendingPetpooja, setPendingPetpooja] = React.useState(null);
+
+  const handleSelectRestaurant = async (restaurant) => {
+    if (restaurant.platform === 'petpooja') {
+      const resId = String(restaurant.id);
+      const localVerified = typeof window !== 'undefined' ? localStorage.getItem(`otp_verified_${resId}`) : null;
+      if (localVerified === 'true') {
+        setActiveResId({ id: restaurant.id, platform: restaurant.platform });
+        setIsDropdownOpen(false);
+        return;
+      }
+
+      try {
+        const res = await fetch(`/api/menu/${resId}/otp/verify`);
+        const data = await res.json();
+        if (data.success && data.verified) {
+          if (typeof window !== 'undefined') {
+            localStorage.setItem(`otp_verified_${resId}`, 'true');
+          }
+          setActiveResId({ id: restaurant.id, platform: restaurant.platform });
+          setIsDropdownOpen(false);
+          return;
+        }
+      } catch (e) {
+        // Not verified
+      }
+
+      setPendingPetpooja(restaurant);
+      setIsUnlockModalOpen(true);
+      setIsDropdownOpen(false);
+      return;
+    }
+
+    setActiveResId({ id: restaurant.id, platform: restaurant.platform });
+    setIsDropdownOpen(false);
+  };
 
   React.useEffect(() => {
     if (activePlatform) {
@@ -122,9 +160,9 @@ export function ProjectSwitcher() {
     return [...zomatoEntities, ...swiggyEntities, ...petpoojaEntities];
   }, [zomatoRestaurants, swiggyRestaurants, petpoojaRestaurants]);
 
-  const isLoading = isZomatoLoading || isSwiggyLoading || isPetpoojaLoading;
-  const isError = isZomatoError; // Primary error
-  const error = zomatoError;
+  const isLoading = (isZomatoLoading && isSwiggyLoading && isPetpoojaLoading) && !entities.length;
+  const isError = isZomatoError && isSwiggyError && isPetpoojaError && !entities.length;
+  const error = zomatoError || swiggyError || petpoojaError;
   const isFetching = isZomatoFetching || isSwiggyFetching || isPetpoojaFetching;
   const refetch = () => {
     refetchZomato();
@@ -343,7 +381,7 @@ export function ProjectSwitcher() {
                 return (
                   <DropdownMenuItem
                     key={restaurant.id + '-' + restaurant.platform}
-                    onClick={() => setActiveResId({ id: restaurant.id, platform: restaurant.platform })}
+                    onClick={() => handleSelectRestaurant(restaurant)}
                     className={`
                       flex items-center gap-3
                       cursor-pointer
@@ -414,6 +452,22 @@ export function ProjectSwitcher() {
         <SyncAllRestaurantsModal
           isOpen={isSyncModalOpen}
           onClose={() => setIsSyncModalOpen(false)}
+        />
+
+        <PetpoojaUnlockModal
+          isOpen={isUnlockModalOpen}
+          onClose={() => {
+            setIsUnlockModalOpen(false);
+            setPendingPetpooja(null);
+          }}
+          restaurant={pendingPetpooja}
+          onSuccess={(resId) => {
+            if (pendingPetpooja) {
+              setActiveResId({ id: pendingPetpooja.id, platform: 'petpooja' });
+            }
+            setIsUnlockModalOpen(false);
+            setPendingPetpooja(null);
+          }}
         />
       </SidebarMenuItem>
     </SidebarMenu>

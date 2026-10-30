@@ -28,15 +28,68 @@ export const MenuService = {
         }
     },
 
-    async syncPetpoojaMenu(resId) {
+    async syncPetpoojaMenu(resId, queryParams = "") {
         try {
-            const { data } = await api.get(API_ENDPOINTS.MENU.PETPOOJA_MENU_IMPORT(resId));
+            const query = queryParams ? (queryParams.startsWith("?") ? queryParams : `?${queryParams}`) : "";
+            const { data } = await api.get(`${API_ENDPOINTS.MENU.PETPOOJA_MENU_IMPORT(resId)}${query}`);
             return data?.data;
         } catch (err) {
             throw new Error(
                 err.response?.data?.message ||
                 err.message ||
                 "Something went wrong."
+            );
+        }
+    },
+
+    async getPetpoojaSession(resId) {
+        try {
+            const { data } = await api.get(API_ENDPOINTS.MENU.PETPOOJA_SESSION(resId));
+            return data?.data;
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to fetch Petpooja session details."
+            );
+        }
+    },
+
+    async getPetpoojaIntegrationOutlets(resId) {
+        try {
+            const { data } = await api.get(API_ENDPOINTS.MENU.PETPOOJA_INTEGRATION_OUTLETS(resId));
+            return data;
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to fetch Petpooja integration outlets."
+            );
+        }
+    },
+
+    async switchPetpoojaPlatform(resId, payload) {
+        try {
+            const { data } = await api.post(API_ENDPOINTS.MENU.PETPOOJA_SESSION(resId), payload);
+            return data?.data;
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to switch Petpooja platform."
+            );
+        }
+    },
+
+    async triggerPetpoojaPublish(resId, payload = {}) {
+        try {
+            const { data } = await api.post(API_ENDPOINTS.MENU.PETPOOJA_PUBLISH(resId), payload);
+            return data;
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to trigger menu publish on Petpooja."
             );
         }
     },

@@ -26,6 +26,7 @@ import {
     addAddonGroup as dispatchAddAddonGroup,
     updateAddonGroup as dispatchUpdateAddonGroup,
     deleteAddonGroup as dispatchDeleteAddonGroup,
+    deleteAllAddons as dispatchDeleteAllAddons,
     addAddonOption as dispatchAddAddonOption,
     updateAddonOption as dispatchUpdateAddonOption,
     deleteAddonOption as dispatchDeleteAddonOption,
@@ -36,8 +37,8 @@ import {
     queueAll as dispatchQueueAll,
     queuePriceUpdates as dispatchQueuePriceUpdates,
     queueDescriptionUpdates as dispatchQueueDescriptionUpdates,
-    clearPetpoojaHtml as dispatchClearPetpoojaHtml,
-    setTaskId as dispatchSetTaskId
+    setTaskId as dispatchSetTaskId,
+    clearAllImageUploadStatuses as dispatchClearAllImageUploadStatuses
 } from '../slice/menuSlice';
 
 export const useMenu = () => {
@@ -45,7 +46,6 @@ export const useMenu = () => {
 
     const menuData = useSelector((state) => state.menu.menuData);
     const addonsData = useSelector((state) => state.menu.addonsData);
-    const petpoojaHtml = useSelector((state) => state.menu.petpoojaHtml);
     const restaurantName = useSelector((state) => state.menu.restaurantName);
     const {
         activeResId,
@@ -60,7 +60,9 @@ export const useMenu = () => {
         error,
         globalSearchQuery,
         updated_menu,
-        taskId
+        taskId,
+        uploadQueue,
+        imageUploadStatuses
     } = useSelector((state) => state.menu);
 
     const getMenuByResId = useCallback((resId) => {
@@ -213,6 +215,7 @@ export const useMenu = () => {
         addAddonGroup: (id, name, min, max) => dispatch(dispatchAddAddonGroup({ id, name, min, max })),
         updateAddonGroup: (addonId, data) => dispatch(dispatchUpdateAddonGroup({ addonId, data })),
         deleteAddonGroup: (addonId) => dispatch(dispatchDeleteAddonGroup(addonId)),
+        deleteAllAddons: () => dispatch(dispatchDeleteAllAddons()),
         addAddonOption: (addonId, option) => dispatch(dispatchAddAddonOption({ addonId, option })),
         updateAddonOption: (addonId, optionId, data) => dispatch(dispatchUpdateAddonOption({ addonId, optionId, data })),
         deleteAddonOption: (addonId, optionId) => dispatch(dispatchDeleteAddonOption({ addonId, optionId })),
@@ -221,18 +224,19 @@ export const useMenu = () => {
 
         getMenuByResId,
         saveMenuByResId: () => dispatch(dispatchSaveMenuByResId()),
-        syncZomatoMenu: (resId) => dispatch(dispatchSyncZomatoMenu(resId)),
-        syncSwiggyMenu: (resId) => dispatch(dispatchSyncSwiggyMenu(resId)),
-        syncPetpoojaMenu: (resId) => dispatch(dispatchSyncPetpoojaMenu(resId)),
+        syncZomatoMenu: (resId) => dispatch(dispatchSyncZomatoMenu(resId)).unwrap(),
+        syncSwiggyMenu: (resId) => dispatch(dispatchSyncSwiggyMenu(resId)).unwrap(),
+        syncPetpoojaMenu: (params) => dispatch(dispatchSyncPetpoojaMenu(params)).unwrap(),
         
         markMenuUpdatesDone: () => dispatch(dispatchMarkMenuUpdatesDone()),
         queueAll: () => dispatch(dispatchQueueAll()),
         queuePriceUpdates: () => dispatch(dispatchQueuePriceUpdates()),
         queueDescriptionUpdates: () => dispatch(dispatchQueueDescriptionUpdates()),
         
-        petpoojaHtml,
-        clearPetpoojaHtml: () => dispatch(dispatchClearPetpoojaHtml()),
         taskId,
-        setTaskId: (id) => dispatch(dispatchSetTaskId(id))
+        setTaskId: (id) => dispatch(dispatchSetTaskId(id)),
+        uploadQueue,
+        imageUploadStatuses,
+        clearAllImageUploadStatuses: () => dispatch(dispatchClearAllImageUploadStatuses()),
     };
 };

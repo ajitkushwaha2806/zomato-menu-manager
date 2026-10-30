@@ -12,6 +12,7 @@ export default function CategoryCard({
     category,
     index,
     isExpanded,
+    isPetpooja,
     onToggleExpand,
     activeCategory,
     setActiveCategory,
@@ -122,7 +123,7 @@ export default function CategoryCard({
                             </div>
                         </button>
 
-                        {!category.status || category.status !== 'delete' ? (
+                        {!isPetpooja && (!category.status || category.status !== 'delete') ? (
                             <ActionMenu
                                 triggerClassName="h-7 w-7 shrink-0 rounded-lg opacity-0 transition-opacity group-hover:opacity-100 data-[state=open]:opacity-100"
                                 onRename={() => setIsEditing(true)}
@@ -146,6 +147,7 @@ export default function CategoryCard({
                             addSubCategory={addSubCategory}
                             updateSubCategory={updateSubCategory}
                             deleteSubCategory={deleteSubCategory}
+                            isPetpooja={isPetpooja}
                         />
 
                         {addingSubCategory ? (
@@ -164,7 +166,7 @@ export default function CategoryCard({
                                 />
                             </div>
                         ) : (
-                            !category.status || category.status !== 'delete' ? (
+                            !isPetpooja && (!category.status || category.status !== 'delete') ? (
                                 <Button
                                     type="button"
                                     variant="ghost"

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Sparkles, Loader2, Zap, CheckSquare } from "lucide-react";
+import { Sparkles, Loader2, Zap, CheckSquare, FileSpreadsheet, Download, CheckCircle2 } from "lucide-react";
 import api from "@/lib/api/axios";
 import { useMenu } from "@/store/hooks/useMenu";
 import useNotification from "@/store/hooks/useNotification";
@@ -8,6 +8,7 @@ export default function DescriptionEditor({ allItems, updateItem }) {
     const { activeResId, activePlatform, getMenuByResId, queueDescriptionUpdates } = useMenu();
     const notification = useNotification();
     const [isGenerating, setIsGenerating] = useState(false);
+    const [isTriggeringPetpooja, setIsTriggeringPetpooja] = useState(false);
 
     if (!allItems || allItems.length === 0) {
         return (
@@ -16,6 +17,46 @@ export default function DescriptionEditor({ allItems, updateItem }) {
             </div>
         );
     }
+
+    const triggerPetpoojaDescription = async () => {
+        setIsTriggeringPetpooja(true);
+        try {
+            const { data } = await api.post(`/api/menu/${activeResId}/petpooja/description-sheet`, {
+                items: (allItems || []).map((item) => ({
+                    id: item.id,
+                    name: item.name,
+                    description: item.description || "",
+                })),
+            });
+
+            if (!data.success) {
+                throw new Error(data.message || "Failed to import descriptions to Petpooja");
+            }
+
+            // Immediately update and render on UI the description data
+            if (data.descriptions && typeof data.descriptions === "object") {
+                allItems.forEach((item) => {
+                    const desc = data.descriptions[String(item.id)] || data.descriptions[item.name?.trim().toLowerCase()];
+                    if (desc && desc !== item.description) {
+                        updateItem({ itemId: item.id, updates: { description: desc } });
+                    }
+                });
+            }
+
+            const updatedNum = data.petpoojaUpdated || data.updatedCount || 0;
+            notification.success(`Descriptions imported to Petpooja successfully! (${updatedNum} items updated)`, {
+                duration: 5000,
+            });
+
+            getMenuByResId({ resId: activeResId, platform: activePlatform });
+        } catch (error) {
+            console.error("Trigger Petpooja description error:", error);
+            const errMsg = error.response?.data?.message || error.message || "Failed to import descriptions to Petpooja.";
+            notification.error(errMsg, { duration: 6000 });
+        } finally {
+            setIsTriggeringPetpooja(false);
+        }
+    };
 
     const generateDescriptions = async () => {
         setIsGenerating(true);
@@ -28,7 +69,16 @@ export default function DescriptionEditor({ allItems, updateItem }) {
                 throw new Error(data.message || "Failed to generate descriptions");
             }
 
-            notification.success(`Successfully generated ${data.updated_items || 0} descriptions!`, {
+            if (data.descriptions && typeof data.descriptions === "object") {
+                allItems.forEach((item) => {
+                    const desc = data.descriptions[String(item.id)] || data.descriptions[item.name?.trim().toLowerCase()];
+                    if (desc && desc !== item.description) {
+                        updateItem({ itemId: item.id, updates: { description: desc } });
+                    }
+                });
+            }
+
+            notification.success(`Successfully generated ${data.updated_items || data.total_generated || 0} descriptions!`, {
                 duration: 5000,
             });
             getMenuByResId({ resId: activeResId, platform: activePlatform });
@@ -138,31 +188,50 @@ export default function DescriptionEditor({ allItems, updateItem }) {
             <div className="mx-auto space-y-4">
                 <div className="flex justify-between items-end border-b pb-2">
                     <h2 className="text-lg font-bold text-gray-800">Description Editor</h2>
-                    <div className="flex items-center gap-2">
-                        <button
-                            onClick={clearAllDescriptions}
-                            disabled={isGenerating}
-                            className="flex items-center gap-2 text-sm bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 font-semibold shadow-sm transition-colors disabled:opacity-50"
-                        >
-                            Clear all
-                        </button>
-                        <button
-                            onClick={enrichItems}
-                            disabled={isGenerating}
-                            className="flex items-center gap-2 text-sm bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-200 font-semibold shadow-sm transition-colors disabled:opacity-50"
-                        >
-                            <Zap size={16} />
-                            Enrich Items
-                        </button>
-                        <button
-                            onClick={generateDescriptions}
-                            disabled={isGenerating}
-                            className="flex items-center gap-2 text-sm bg-purple-100 text-purple-700 border border-purple-200 px-3 py-1.5 rounded-lg hover:bg-purple-200 font-semibold shadow-sm transition-colors disabled:opacity-50"
-                        >
-                            {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
-                            {isGenerating ? "Generating..." : "Generate descriptions (AI)"}
-                        </button>
-                        {/* {activePlatform === 'swiggy' && ( */}
+                    {activePlatform === "petpooja" ? (
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={clearAllDescriptions}
+                                disabled={isTriggeringPetpooja}
+                                className="flex items-center gap-2 text-sm bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 font-semibold shadow-sm transition-colors disabled:opacity-50"
+                            >
+                                Clear all
+                            </button>
+                            <button
+                                onClick={triggerPetpoojaDescription}
+                                disabled={isTriggeringPetpooja}
+                                className="flex items-center gap-2 text-sm bg-orange-600 hover:bg-orange-700 active:scale-95 text-white px-4 py-1.5 rounded-lg font-semibold shadow-sm transition-all disabled:opacity-50 cursor-pointer"
+                                title="Fetches Petpooja base sheet, populates descriptions, and imports directly into Petpooja"
+                            >
+                                {isTriggeringPetpooja ? <Loader2 size={16} className="animate-spin" /> : <Zap size={16} />}
+                                {isTriggeringPetpooja ? "Importing to Petpooja..." : "Trigger Description"}
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={clearAllDescriptions}
+                                disabled={isGenerating}
+                                className="flex items-center gap-2 text-sm bg-red-50 text-red-600 border border-red-200 px-3 py-1.5 rounded-lg hover:bg-red-100 font-semibold shadow-sm transition-colors disabled:opacity-50"
+                            >
+                                Clear all
+                            </button>
+                            <button
+                                onClick={enrichItems}
+                                disabled={isGenerating}
+                                className="flex items-center gap-2 text-sm bg-blue-100 text-blue-700 border border-blue-200 px-3 py-1.5 rounded-lg hover:bg-blue-200 font-semibold shadow-sm transition-colors disabled:opacity-50"
+                            >
+                                <Zap size={16} />
+                                Enrich Items
+                            </button>
+                            <button
+                                onClick={generateDescriptions}
+                                disabled={isGenerating}
+                                className="flex items-center gap-2 text-sm bg-purple-100 text-purple-700 border border-purple-200 px-3 py-1.5 rounded-lg hover:bg-purple-200 font-semibold shadow-sm transition-colors disabled:opacity-50"
+                            >
+                                {isGenerating ? <Loader2 size={16} className="animate-spin" /> : <Sparkles size={16} />}
+                                {isGenerating ? "Generating..." : "Generate descriptions (AI)"}
+                            </button>
                             <button
                                 onClick={() => {
                                     queueDescriptionUpdates();
@@ -172,8 +241,8 @@ export default function DescriptionEditor({ allItems, updateItem }) {
                             >
                                 <CheckSquare size={16} /> Queue Descriptions
                             </button>
-                        {/* )} */}
-                    </div>
+                        </div>
+                    )}
                 </div>
 
                 <div className="bg-white border rounded-xl shadow-sm overflow-hidden">

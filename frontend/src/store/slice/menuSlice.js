@@ -43,9 +43,11 @@ export const syncSwiggyMenu = createAsyncThunk(
 
 export const syncPetpoojaMenu = createAsyncThunk(
     'menu/syncPetpoojaMenu',
-    async (resId, { rejectWithValue }) => {
+    async (payload, { rejectWithValue }) => {
         try {
-            const data = await MenuService.syncPetpoojaMenu(resId);
+            const resId = typeof payload === 'object' ? payload.resId : payload;
+            const queryParams = typeof payload === 'object' ? payload.queryParams : '';
+            const data = await MenuService.syncPetpoojaMenu(resId, queryParams);
             return data;
         } catch (error) {
             return rejectWithValue(error.message || 'Failed to sync Petpooja menu');
@@ -143,7 +145,6 @@ const initialState = {
     updated_menu: createEmptyUpdatedMenu(),
     menuData: null,         // Array of categories
     addonsData: [],         // Array of addons/modifier groups
-    petpoojaHtml: null,
     restaurantName: '',
     activeResId: null,
     activePlatform: null,
@@ -158,6 +159,14 @@ const initialState = {
     isSyncing: false,
     imageUploadStatuses: {}, // { [itemId]: 'uploading' | 'approved' | 'rejected' }
     ticketImageUpdates: {},
+    uploadQueue: {
+        total: 0,
+        completed: 0,
+        failed: 0,
+        isProcessing: false,
+        activeItemId: null,
+        items: [],
+    },
     error: null,
     globalSearchQuery: "",
     taskId: null,
@@ -168,6 +177,7 @@ const menuSlice = createSlice({
     initialState,
     reducers: {
         setActiveResId: (state, action) => {
+            state.imageUploadStatuses = {};
             if (typeof action.payload === 'object' && action.payload !== null) {
                 state.activeResId = action.payload.id;
                 if (action.payload.platform) {
@@ -178,6 +188,7 @@ const menuSlice = createSlice({
             }
         },
         setActivePlatform: (state, action) => {
+            state.imageUploadStatuses = {};
             state.activePlatform = action.payload;
         },
         setActiveView: (state, action) => {
@@ -201,11 +212,24 @@ const menuSlice = createSlice({
             state.isImageSidebarOpen = false;
             state.activeImageSearchItem = null;
         },
+        clearAllImageUploadStatuses: (state) => {
+            state.imageUploadStatuses = {};
+        },
         setImageUploadStatus: (state, action) => {
-            const { itemId, status } = action.payload;
+            if (!action.payload || (!action.payload.itemId && action.payload.status === null)) {
+                state.imageUploadStatuses = {};
+                return;
+            }
+            const { itemId, status, error, fileOrUrl } = action.payload || {};
             if (!itemId) return;
             if (status === null) {
                 delete state.imageUploadStatuses[itemId];
+            } else if (typeof action.payload === "object" && (error || fileOrUrl)) {
+                state.imageUploadStatuses[itemId] = {
+                    status,
+                    error: error || null,
+                    fileOrUrl: fileOrUrl || null,
+                };
             } else {
                 state.imageUploadStatuses[itemId] = status;
             }
@@ -225,10 +249,68 @@ const menuSlice = createSlice({
             state.taskId = action.payload;
         },
 
+        // --- Upload Queue Reducers ---
+        enqueueUploadJob: (state, action) => {
+            const { id, itemId, itemName, fileOrUrl } = action.payload;
+            if (!state.uploadQueue) {
+                state.uploadQueue = { total: 0, completed: 0, failed: 0, isProcessing: false, activeItemId: null, items: [] };
+            }
+            if (!state.uploadQueue.isProcessing && state.uploadQueue.total === (state.uploadQueue.completed + state.uploadQueue.failed)) {
+                state.uploadQueue.total = 1;
+                state.uploadQueue.completed = 0;
+                state.uploadQueue.failed = 0;
+                state.uploadQueue.items = [];
+            } else {
+                state.uploadQueue.total += 1;
+            }
+            state.uploadQueue.isProcessing = true;
+            state.uploadQueue.items.push({
+                id,
+                itemId,
+                itemName,
+                fileOrUrl,
+                status: "pending",
+                error: null,
+            });
+        },
+        updateUploadJobStatus: (state, action) => {
+            if (!state.uploadQueue) return;
+            const { id, itemId, status, error } = action.payload;
+            const job = state.uploadQueue.items.find((j) => (id ? j.id === id : j.itemId === itemId));
+            if (job) {
+                job.status = status;
+                if (error) job.error = error;
+            }
+            if (status === "uploading") {
+                state.uploadQueue.activeItemId = itemId;
+            } else if (status === "completed") {
+                state.uploadQueue.completed += 1;
+            } else if (status === "failed") {
+                state.uploadQueue.failed += 1;
+            }
+
+            const doneCount = state.uploadQueue.completed + state.uploadQueue.failed;
+            if (doneCount >= state.uploadQueue.total) {
+                state.uploadQueue.isProcessing = false;
+                state.uploadQueue.activeItemId = null;
+            }
+        },
+        clearUploadQueue: (state) => {
+            state.uploadQueue = {
+                total: 0,
+                completed: 0,
+                failed: 0,
+                isProcessing: false,
+                activeItemId: null,
+                items: [],
+            };
+        },
+
         clearMenuState: () => initialState,
 
         // --- Category CRUD Reducers ---
         addCategory: (state, action) => {
+            if (state.activePlatform === 'petpooja') return;
             if (!Array.isArray(state.menuData)) state.menuData = [];
             const newCategory = {
                 id: 'temp-' + crypto.randomUUID(), // Generates fallback unique strings
@@ -240,6 +322,7 @@ const menuSlice = createSlice({
             upsertUpdatedMenuEntry(state.updated_menu.categories, { id: newCategory.id, name: newCategory.name, action: "create" });
         },
         insertFullCategory: (state, action) => {
+            if (state.activePlatform === 'petpooja') return;
             if (!Array.isArray(state.menuData)) state.menuData = [];
 
             // The payload is the fully formed category object with new temp- IDs generated
@@ -247,6 +330,7 @@ const menuSlice = createSlice({
             state.menuData.push(action.payload);
         },
         updateCategory: (state, action) => {
+            if (state.activePlatform === 'petpooja') return;
             const { categoryId, data } = action.payload;
             const category = state.menuData?.find(cat => cat.id === categoryId);
             if (category) {
@@ -257,6 +341,7 @@ const menuSlice = createSlice({
             }
         },
         deleteCategory: (state, action) => {
+            if (state.activePlatform === 'petpooja') return;
             const categoryId = action.payload;
             if (String(categoryId).startsWith('temp-')) {
                 state.menuData = state.menuData?.filter(cat => cat.id !== categoryId) || [];
@@ -284,6 +369,7 @@ const menuSlice = createSlice({
 
         // --- Subcategory CRUD Reducers ---
         addSubCategory: (state, action) => {
+            if (state.activePlatform === 'petpooja') return;
             const { categoryId, name } = action.payload;
             const category = state.menuData?.find(cat => cat.id === categoryId);
             if (category) {
@@ -298,6 +384,7 @@ const menuSlice = createSlice({
             }
         },
         updateSubCategory: (state, action) => {
+            if (state.activePlatform === 'petpooja') return;
             const { subCategoryId, data } = action.payload;
             state.menuData?.forEach(cat => {
                 const sub = cat.sub_category?.find(s => s.id === subCategoryId);
@@ -310,6 +397,7 @@ const menuSlice = createSlice({
             });
         },
         deleteSubCategory: (state, action) => {
+            if (state.activePlatform === 'petpooja') return;
             const subCategoryId = action.payload;
             state.menuData?.forEach(cat => {
                 if (cat.sub_category) {
@@ -336,6 +424,7 @@ const menuSlice = createSlice({
         },
         // --- Item CRUD Reducers ---
         addItem: (state, action) => {
+            if (state.activePlatform === 'petpooja') return;
             const { subCategoryId, item } = action.payload;
             state.menuData?.forEach(cat => {
                 const sub = cat.sub_category?.find(s => s.id === subCategoryId);
@@ -369,14 +458,19 @@ const menuSlice = createSlice({
         },
         updateItem: (state, action) => {
             const { itemId, updates } = action.payload;
+            const safeUpdates = { ...updates };
+            if (state.activePlatform === 'petpooja') {
+                delete safeUpdates.base_price;
+                delete safeUpdates.price;
+            }
             state.menuData?.forEach(cat => {
                 cat.sub_category?.forEach(sub => {
                     const itemIndex = sub.items?.findIndex(i => i.id === itemId);
                     if (itemIndex !== undefined && itemIndex !== -1) {
                         const updateTag = String(itemId).startsWith('temp-') ? sub.items[itemIndex].temp_id : `update-${itemId}`;
-                        sub.items[itemIndex] = { ...sub.items[itemIndex], ...updates, temp_id: updateTag };
+                        sub.items[itemIndex] = { ...sub.items[itemIndex], ...safeUpdates, temp_id: updateTag };
                         const existingEntry = state.updated_menu.items.find(entry => entry.id === itemId);
-                        upsertUpdatedMenuEntry(state.updated_menu.items, { ...updates, id: itemId, categoryId: cat.id, categoryName: cat.name, subCategoryId: sub.id, subCategoryName: sub.name, action: existingEntry?.action || (String(itemId).startsWith('temp-') ? "create" : "update") }, sub.items[itemIndex]);
+                        upsertUpdatedMenuEntry(state.updated_menu.items, { ...safeUpdates, id: itemId, categoryId: cat.id, categoryName: cat.name, subCategoryId: sub.id, subCategoryName: sub.name, action: existingEntry?.action || (String(itemId).startsWith('temp-') ? "create" : "update") }, sub.items[itemIndex]);
                     }
                 });
             });
@@ -409,6 +503,7 @@ const menuSlice = createSlice({
             });
         },
         deleteItem: (state, action) => {
+            if (state.activePlatform === 'petpooja') return;
             const { itemId } = action.payload;
             state.menuData?.forEach(cat => {
                 cat.sub_category?.forEach(sub => {
@@ -748,6 +843,27 @@ const menuSlice = createSlice({
         deleteAddonGroup: (state, action) => {
             const addonId = action.payload;
             state.addonsData = state.addonsData?.filter(a => a.id !== addonId) || [];
+            (state.menuData || []).forEach(cat => {
+                (cat.sub_category || []).forEach(sub => {
+                    (sub.items || []).forEach(item => {
+                        if (Array.isArray(item.addons)) {
+                            item.addons = item.addons.filter(id => id !== addonId);
+                        }
+                    });
+                });
+            });
+        },
+        deleteAllAddons: (state) => {
+            state.addonsData = [];
+            (state.menuData || []).forEach(cat => {
+                (cat.sub_category || []).forEach(sub => {
+                    (sub.items || []).forEach(item => {
+                        item.addons = [];
+                        if (item.addon_groups) item.addon_groups = [];
+                        if (item.addonGroups) item.addonGroups = [];
+                    });
+                });
+            });
         },
         addAddonOption: (state, action) => {
             const { addonId, option } = action.payload;
@@ -931,9 +1047,6 @@ const menuSlice = createSlice({
                     });
                 });
             });
-        },
-        clearPetpoojaHtml: (state) => {
-            state.petpoojaHtml = null;
         }
     },
     extraReducers: (builder) => {
@@ -953,6 +1066,8 @@ const menuSlice = createSlice({
 
                 state.menuData = newMenuData;
                 state.updated_menu = createEmptyUpdatedMenu();
+                state.imageUploadStatuses = {};
+                state.ticketImageUpdates = {};
                 state.addonsData = Array.isArray(payloadData?.addons) ? payloadData.addons : [];
                 state.restaurantName = payloadData?.restaurantName || payloadData?.name || '';
                 state.taskId = payloadData?.taskId || null;
@@ -1000,6 +1115,9 @@ const menuSlice = createSlice({
             })
             .addCase(syncZomatoMenu.fulfilled, (state, action) => {
                 state.isSyncing = false;
+                state.imageUploadStatuses = {};
+                state.ticketImageUpdates = {};
+                state.updated_menu = createEmptyUpdatedMenu();
 
                 const dbDoc = action.payload;
                 const fetchedMenu = dbDoc?.menu || [];
@@ -1034,6 +1152,9 @@ const menuSlice = createSlice({
             })
             .addCase(syncSwiggyMenu.fulfilled, (state, action) => {
                 state.isSyncing = false;
+                state.imageUploadStatuses = {};
+                state.ticketImageUpdates = {};
+                state.updated_menu = createEmptyUpdatedMenu();
 
                 const dbDoc = action.payload;
                 const fetchedMenu = dbDoc?.menu || [];
@@ -1066,11 +1187,36 @@ const menuSlice = createSlice({
             .addCase(syncPetpoojaMenu.pending, (state) => {
                 state.isSyncing = true;
                 state.error = null;
-                state.petpoojaHtml = null;
             })
             .addCase(syncPetpoojaMenu.fulfilled, (state, action) => {
                 state.isSyncing = false;
-                state.petpoojaHtml = action.payload;
+                state.imageUploadStatuses = {};
+                state.ticketImageUpdates = {};
+                state.updated_menu = createEmptyUpdatedMenu();
+                const dbDoc = action.payload?.data || action.payload;
+                const fetchedMenu = dbDoc?.menu || [];
+                const fetchedAddons = dbDoc?.addons || [];
+
+                if (dbDoc?.name) {
+                    state.restaurantName = dbDoc.name;
+                }
+                state.menuData = Array.isArray(fetchedMenu) ? fetchedMenu : [];
+                state.addonsData = Array.isArray(fetchedAddons) ? fetchedAddons : [];
+
+                if (state.menuData.length > 0) {
+                    const categoryExists = state.activeCategory && state.menuData.find(c => c.id === state.activeCategory);
+                    if (!categoryExists) {
+                        state.activeCategory = state.menuData[0].id;
+                        if (state.menuData[0].sub_category?.length > 0) {
+                            state.activeSubCategory = state.menuData[0].sub_category[0].id;
+                        } else {
+                            state.activeSubCategory = null;
+                        }
+                    }
+                } else {
+                    state.activeCategory = null;
+                    state.activeSubCategory = null;
+                }
             })
             .addCase(syncPetpoojaMenu.rejected, (state, action) => {
                 state.isSyncing = false;
@@ -1090,9 +1236,9 @@ export const {
     closeImageSidebar,
     clearMenuState,
     setImageUploadStatus,
+    clearAllImageUploadStatuses,
     setGlobalSearchQuery,
     setTaskId,
-    clearPetpoojaHtml,
 
     // Category actions
     addCategory,
@@ -1122,6 +1268,7 @@ export const {
     addAddonGroup,
     updateAddonGroup,
     deleteAddonGroup,
+    deleteAllAddons,
     addAddonOption,
     updateAddonOption,
     deleteAddonOption,
@@ -1132,7 +1279,10 @@ export const {
     queuePriceUpdates,
     queueDescriptionUpdates,
     setTicketImageUpdate,
-    clearTicketImageUpdate
+    clearTicketImageUpdate,
+    enqueueUploadJob,
+    updateUploadJobStatus,
+    clearUploadQueue
 } = menuSlice.actions;
 
 export default menuSlice.reducer;

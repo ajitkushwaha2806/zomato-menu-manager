@@ -89,6 +89,19 @@ export function LoginForm({ className, ...props }) {
     }
   };
 
+  const removePetpooja = async (e, name) => {
+    e.stopPropagation();
+    try {
+      await fetch(`/api/accounts/petpooja?name=${encodeURIComponent(name)}`, { method: "DELETE" });
+      setPetpoojaAccounts(prev => prev.filter(a => a.name !== name));
+      if (selectedPetpoojaName === name) setSelectedPetpoojaName("");
+      notify.success("Petpooja account deleted.");
+    } catch (e) {
+      console.error("Failed to remove petpooja account:", e);
+      notify.error("Failed to delete Petpooja account.");
+    }
+  };
+
   const [savingZomato, setSavingZomato] = useState(false);
   const handleSaveZomato = async () => {
     if (!newZomatoName || !zomatoCookie) return notify.error("Please provide Zomato name and cookie.");
@@ -246,8 +259,9 @@ const handleSaveSwiggy = async () => {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                            className="h-7 w-7 rounded-full text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-all"
                             onClick={(e) => removeZomato(e, acc.name)}
+                            title={`Delete ${acc.name}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -321,8 +335,9 @@ const handleSaveSwiggy = async () => {
                             type="button"
                             variant="ghost"
                             size="icon"
-                            className="h-7 w-7 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-destructive hover:text-destructive-foreground"
+                            className="h-7 w-7 rounded-full text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-all"
                             onClick={(e) => removeSwiggy(e, acc.name)}
+                            title={`Delete ${acc.name}`}
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </Button>
@@ -391,6 +406,16 @@ const handleSaveSwiggy = async () => {
                             <User className={cn("w-4 h-4", selectedPetpoojaName === acc.name ? "text-purple-500" : "text-muted-foreground")} />
                             <span className="text-sm font-medium">{acc.name}</span>
                           </div>
+                          <Button
+                            type="button"
+                            variant="ghost"
+                            size="icon"
+                            className="h-7 w-7 rounded-full text-muted-foreground hover:bg-destructive hover:text-destructive-foreground transition-all"
+                            onClick={(e) => removePetpooja(e, acc.name)}
+                            title={`Delete ${acc.name}`}
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </Button>
                         </div>
                       ))}
                     </div>

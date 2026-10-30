@@ -14,6 +14,7 @@ export default function SubCategoryList({
     setActiveCategory,
     updateSubCategory,
     deleteSubCategory,
+    isPetpooja,
 }) {
     const [editingId, setEditingId] = useState(null);
 
@@ -93,7 +94,7 @@ export default function SubCategoryList({
                                     )}
                                 </button>
 
-                                {!sub.status || sub.status !== 'delete' ? (
+                                {!isPetpooja && (!sub.status || sub.status !== 'delete') ? (
                                     <ActionMenu
                                         triggerClassName={cn(
                                             "h-7 w-7 opacity-0 transition-opacity",

@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
-import { X, Loader2, CheckCircle2, XCircle, ChevronRight, ChevronLeft, Search, Save, RefreshCw, UploadCloud } from "lucide-react";
+import { useEffect, useState, useRef, useCallback, useMemo } from "react";
+import { X, Loader2, CheckCircle2, XCircle, ChevronRight, ChevronLeft, Search, Save, RefreshCw, UploadCloud, AlertTriangle, Mail } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -46,6 +46,7 @@ export default function QuickReviewModal({
     const [datasetImagesList, setDatasetImagesList] = useState([]);
     const [swiggyImagesList, setSwiggyImagesList] = useState([]);
     const { activePlatform } = useSelector((state) => state.menu);
+    const isPetpooja = activePlatform === 'petpooja';
     const [page, setPage] = useState(1);
     const [hasMoreDataset, setHasMoreDataset] = useState(true);
     const [hasMoreSwiggy, setHasMoreSwiggy] = useState(true);
@@ -58,7 +59,26 @@ export default function QuickReviewModal({
     const [triggerTaskId, setTriggerTaskId] = useState("");
     const [isTriggerPopoverOpen, setIsTriggerPopoverOpen] = useState(false);
 
-    const { saveMenuByResId, syncZomatoMenu, isSyncing, isSaving, taskId: dbTaskId, setTaskId } = useMenu();
+    const { menuData, addonsData, deleteAllAddons, saveMenuByResId, syncZomatoMenu, isSyncing, isSaving, taskId: dbTaskId, setTaskId } = useMenu();
+
+    const isSwiggy = activePlatform === 'swiggy';
+    const isZomato = !isSwiggy && !isPetpooja;
+
+    const zomatoItemsWithAddons = useMemo(() => {
+        if (!isZomato) return [];
+        return (menuData || []).flatMap(cat =>
+            (cat.sub_category || []).flatMap(sub =>
+                (sub.items || []).filter(item => {
+                    if (item.status === 'delete' || item.status === 'deleted') return false;
+                    return (Array.isArray(item.addons) && item.addons.length > 0) ||
+                        (Array.isArray(item.addon_groups) && item.addon_groups.length > 0) ||
+                        (Array.isArray(item.addonGroups) && item.addonGroups.length > 0);
+                })
+            )
+        );
+    }, [isZomato, menuData]);
+
+    const zomatoHasAddons = isZomato && (zomatoItemsWithAddons.length > 0 || (Array.isArray(addonsData) && addonsData.length > 0));
 
     useEffect(() => {
         if (isOpen && dbTaskId) {
@@ -75,30 +95,12 @@ export default function QuickReviewModal({
     const { restaurants: zomatoRestaurants } = useRestaurant();
     const { restaurants: swiggyRestaurants } = useSwiggyRestaurant();
 
-    const [noTaskId, setNoTaskId] = useState(false);
-    const [isRequestingTaskId, setIsRequestingTaskId] = useState(false);
-    const [requestName, setRequestName] = useState("");
-    const [requestReason, setRequestReason] = useState("");
-    const [isPrefilled, setIsPrefilled] = useState(false);
-
-    useEffect(() => {
-        if (typeof window !== 'undefined' && activeResId) {
-            setRequestName("");
-            setRequestReason("");
-            setIsPrefilled(false);
-            
-            fetch(`/api/request-task-id?resId=${activeResId}`)
-                .then(res => res.json())
-                .then(data => {
-                    if (data.success && data.data) {
-                        setRequestName(data.data.requestedBy || "");
-                        setRequestReason(data.data.reason || "");
-                        setIsPrefilled(true);
-                    }
-                })
-                .catch(err => console.error("Error fetching bypass info", err));
-        }
-    }, [activeResId]);
+    const [isOtpVerified, setIsOtpVerified] = useState(false);
+    const [otpInput, setOtpInput] = useState("");
+    const [isSendingOtp, setIsSendingOtp] = useState(false);
+    const [otpSent, setOtpSent] = useState(false);
+    const [isVerifyingOtp, setIsVerifyingOtp] = useState(false);
+    const [authMode, setAuthMode] = useState("task"); // 'task' | 'otp'
 
     const resList = activePlatform === 'swiggy' ? swiggyRestaurants : zomatoRestaurants;
     const safeResList = Array.isArray(resList) ? resList : (Array.isArray(resList?.entities) ? resList.entities : (Array.isArray(resList?.data) ? resList.data : []));
@@ -106,51 +108,87 @@ export default function QuickReviewModal({
     const activeResName = currentRes?.name || currentRes?.restaurant_name || "Unknown Restaurant";
     const isWhitelistedRes = String(activeResId) === '21';
 
-    const handleRequestTaskId = async () => {
-        if (!requestName.trim()) {
-            toast.error("Please enter your name/who is requesting.");
-            return;
-        }
-        if (!requestReason.trim()) {
-            toast.error("Please enter a reason for bypassing.");
+    useEffect(() => {
+        if (!activeResId) return;
+        setOtpInput("");
+        setOtpSent(false);
+
+        const localVerified = typeof window !== "undefined" ? localStorage.getItem(`otp_verified_${activeResId}`) : null;
+        if (localVerified === "true") {
+            setIsOtpVerified(true);
             return;
         }
 
-        if (isPrefilled) {
-            handleTriggerMenu(true);
-            setIsTriggerPopoverOpen(false);
-            return;
-        }
+        fetch(`/api/menu/${activeResId}/otp/verify`)
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.verified) {
+                    setIsOtpVerified(true);
+                    if (typeof window !== "undefined") {
+                        localStorage.setItem(`otp_verified_${activeResId}`, "true");
+                    }
+                } else {
+                    setIsOtpVerified(false);
+                }
+            })
+            .catch(() => {});
+    }, [activeResId]);
 
+    const handleSendOtp = async () => {
+        if (!activeResId) return;
         try {
-            setIsRequestingTaskId(true);
-
-            const response = await fetch('/api/request-task-id', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+            setIsSendingOtp(true);
+            const res = await fetch(`/api/menu/${activeResId}/otp/send`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     resName: activeResName,
-                    resId: activeResId,
-                    userEmail: user?.email || user?.user?.email,
-                    userName: requestName,
-                    reason: requestReason
-                })
+                    userName: user?.name || user?.user?.name || "Menu Manager User",
+                    userEmail: user?.email || user?.user?.email || "",
+                }),
             });
-
-            const data = await response.json();
+            const data = await res.json();
             if (data.success) {
-                toast.success("Admin notified successfully!");
-                // Trigger the menu bypassing task validation
-                handleTriggerMenu(true);
-                setIsTriggerPopoverOpen(false);
+                setOtpSent(true);
+                toast.success(data.message || "OTP sent to vishalkushwaha@magicscale.in");
             } else {
-                toast.error("Failed to request Task ID.");
+                toast.error(data.message || "Failed to send OTP.");
             }
         } catch (err) {
-            console.error(err);
-            toast.error("Something went wrong requesting Task ID.");
+            console.error("Failed to send OTP:", err);
+            toast.error(err?.message || "Failed to send OTP.");
         } finally {
-            setIsRequestingTaskId(false);
+            setIsSendingOtp(false);
+        }
+    };
+
+    const handleVerifyOtp = async () => {
+        if (!otpInput.trim()) {
+            toast.error("Please enter the 6-digit OTP.");
+            return;
+        }
+        try {
+            setIsVerifyingOtp(true);
+            const res = await fetch(`/api/menu/${activeResId}/otp/verify`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ otp: otpInput.trim() }),
+            });
+            const data = await res.json();
+            if (data.success) {
+                setIsOtpVerified(true);
+                if (typeof window !== "undefined") {
+                    localStorage.setItem(`otp_verified_${activeResId}`, "true");
+                }
+                toast.success("Restaurant unlocked via OTP! You can now trigger.");
+            } else {
+                toast.error(data.message || "Invalid OTP. Please check email and try again.");
+            }
+        } catch (err) {
+            console.error("Failed to verify OTP:", err);
+            toast.error(err?.message || "Failed to verify OTP.");
+        } finally {
+            setIsVerifyingOtp(false);
         }
     };
 
@@ -179,9 +217,9 @@ export default function QuickReviewModal({
             return;
         }
 
-        if (!bypassTaskValidation) {
+        if (!bypassTaskValidation && !isOtpVerified) {
             if (!triggerTaskId.trim()) {
-                toast.error("Task ID is required to trigger the menu");
+                toast.error("Task ID or Admin OTP verification is required to trigger the menu");
                 return;
             }
 
@@ -208,6 +246,17 @@ export default function QuickReviewModal({
                 toast.error("Failed to validate Task ID with CRM.");
                 return;
             }
+        }
+
+        // Addons validation for Zomato
+        if (isZomato && zomatoHasAddons) {
+            const names = zomatoItemsWithAddons.slice(0, 4).map(i => i.name).join(", ");
+            const more = zomatoItemsWithAddons.length > 4 ? ` and ${zomatoItemsWithAddons.length - 4} more` : "";
+            const msg = zomatoItemsWithAddons.length > 0
+                ? `Cannot trigger Zomato menu: Addons are not allowed on Zomato due to an API bug. Found ${zomatoItemsWithAddons.length} item(s) with addons (${names}${more}). Please delete all addons before triggering.`
+                : `Cannot trigger Zomato menu: Addons exist (${addonsData?.length || 0} group(s)). Please delete all addons before triggering.`;
+            toast.error(msg, { duration: 8000 });
+            return;
         }
 
         try {
@@ -506,7 +555,7 @@ export default function QuickReviewModal({
             });
             toast.success(`Image applied for ${itemName}!`);
         } else {
-            uploadPlatformImage(activePlatform, activeResId, imageUrl, itemName)
+            uploadPlatformImage(activePlatform, activeResId, imageUrl, itemName, itemIdToUpdate)
                 .then(result => {
                     if (result.success) {
                         updateItem({
@@ -579,110 +628,211 @@ export default function QuickReviewModal({
                                 {isSyncing ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <RefreshCw className="w-3 h-3 mr-1" />} Sync
                             </Button>
 
-                            <Popover open={isTriggerPopoverOpen} onOpenChange={setIsTriggerPopoverOpen}>
-                                <PopoverTrigger asChild>
-                                    <Button variant="default" size="sm" disabled={isTriggering} className="h-7 px-2 text-xs bg-red-600 hover:bg-red-700 text-white">
-                                        {isTriggering ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <UploadCloud className="w-3 h-3 mr-1" />} Trigger
-                                    </Button>
-                                </PopoverTrigger>
-                                <PopoverContent className="w-80" align="end" side="top">
-                                    <div className="grid gap-4">
-                                        {isWhitelistedRes ? (
-                                            <div className="space-y-4">
-                                                <div className="space-y-2">
-                                                    <h4 className="font-medium leading-none">Trigger Menu</h4>
-                                                    <p className="text-sm text-muted-foreground">
-                                                        This restaurant is whitelisted. You can trigger the menu directly.
-                                                    </p>
+                            {!isPetpooja && (
+                                <Popover open={isTriggerPopoverOpen} onOpenChange={setIsTriggerPopoverOpen}>
+                                    <PopoverTrigger asChild>
+                                        <Button variant="default" size="sm" disabled={isTriggering} className="h-7 px-2 text-xs bg-red-600 hover:bg-red-700 text-white">
+                                            {isTriggering ? <Loader2 className="w-3 h-3 mr-1 animate-spin" /> : <UploadCloud className="w-3 h-3 mr-1" />} Trigger
+                                        </Button>
+                                    </PopoverTrigger>
+                                    <PopoverContent className="w-80" align="end" side="top">
+                                        <div className="grid gap-4">
+                                            {zomatoHasAddons && (
+                                                <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-950 text-xs flex flex-col gap-2">
+                                                    <div className="flex items-start gap-2">
+                                                        <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+                                                        <div>
+                                                            <p className="font-semibold text-red-900">Addons Not Allowed (Zomato)</p>
+                                                            <p className="mt-0.5 text-[11px] text-red-800 leading-snug">
+                                                                {zomatoItemsWithAddons.length > 0
+                                                                    ? `${zomatoItemsWithAddons.length} item(s) currently have addons attached. Zomato does not allow triggering with addons due to a known API bug.`
+                                                                    : "Addon groups exist on this menu. You must delete all addons before triggering Zomato."}
+                                                            </p>
+                                                        </div>
+                                                    </div>
+                                                    <Button
+                                                        size="sm"
+                                                        variant="outline"
+                                                        type="button"
+                                                        onClick={() => {
+                                                            if (deleteAllAddons) {
+                                                                deleteAllAddons();
+                                                                toast.success("All addons removed. Click 'Save' to persist changes.");
+                                                            }
+                                                        }}
+                                                        className="w-full h-7 text-xs border-red-300 text-red-900 bg-red-100/60 hover:bg-red-100 hover:text-red-950 font-medium"
+                                                    >
+                                                        Delete All Addons Now
+                                                    </Button>
                                                 </div>
-                                                <Button onClick={() => handleTriggerMenu(true)} disabled={isTriggering} className="w-full">
-                                                    {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                                    Confirm Trigger
-                                                </Button>
-                                            </div>
-                                        ) : (
-                                            <>
-                                                <div className="flex items-start justify-between gap-2">
+                                            )}
+
+                                            {isWhitelistedRes ? (
+                                                <div className="space-y-4">
                                                     <div className="space-y-2">
                                                         <h4 className="font-medium leading-none">Trigger Menu</h4>
                                                         <p className="text-sm text-muted-foreground">
-                                                            {noTaskId ? "Request a Task ID to proceed." : "Enter a Task ID to proceed with triggering."}
+                                                            This restaurant is whitelisted. You can trigger the menu directly.
                                                         </p>
                                                     </div>
-                                                    <div className="flex flex-col items-center gap-1.5 shrink-0 pt-0.5">
-                                                        <Label htmlFor="review-no-task-id" className="text-[10px] uppercase font-semibold text-muted-foreground cursor-pointer">Request ID</Label>
-                                                        <Switch
-                                                            id="review-no-task-id"
-                                                            checked={noTaskId}
-                                                            onCheckedChange={setNoTaskId}
-                                                        />
-                                                    </div>
+                                                    <Button onClick={() => handleTriggerMenu(true)} disabled={isTriggering || zomatoHasAddons} className="w-full">
+                                                        {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
+                                                        Confirm Trigger
+                                                    </Button>
                                                 </div>
-
-                                                {!noTaskId ? (
-                                                    <>
-                                                        <div className="grid gap-2">
-                                                            <Label htmlFor="reviewTaskId">Task ID <span className="text-destructive">*</span></Label>
-                                                            <Input
-                                                                id="reviewTaskId"
-                                                                placeholder="Enter task ID"
-                                                                value={triggerTaskId}
-                                                                onChange={(e) => setTriggerTaskId(e.target.value)}
-                                                                required
-                                                            />
+                                            ) : isOtpVerified ? (
+                                                <div className="space-y-4">
+                                                    <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex flex-col gap-1.5">
+                                                        <div className="flex items-center gap-2">
+                                                            <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
+                                                            <span className="font-bold text-emerald-950">Restaurant Unlocked via Admin OTP</span>
                                                         </div>
-                                                        <Button onClick={() => handleTriggerMenu(false)} disabled={!triggerTaskId.trim() || isTriggering} className="w-full">
-                                                            {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                                            Confirm Trigger
-                                                        </Button>
-                                                    </>
-                                                ) : (
-                                                    <div className="space-y-3 mt-2 border-t pt-3 border-border/50">
-                                                        <div className="grid gap-2">
-                                                            <Label htmlFor="reviewRequestName">Who is requesting? <span className="text-destructive">*</span></Label>
-                                                            <Input
-                                                                id="reviewRequestName"
-                                                                placeholder="Your Name / ID"
-                                                                value={requestName}
-                                                                onChange={(e) => setRequestName(e.target.value)}
-                                                                required
-                                                                disabled={isPrefilled}
-                                                            />
-                                                        </div>
-                                                        <div className="grid gap-2">
-                                                            <Label htmlFor="reviewRequestReason">Reason <span className="text-destructive">*</span></Label>
-                                                            <Input
-                                                                id="reviewRequestReason"
-                                                                placeholder="Why are you bypassing?"
-                                                                value={requestReason}
-                                                                onChange={(e) => setRequestReason(e.target.value)}
-                                                                required
-                                                                disabled={isPrefilled}
-                                                            />
-                                                        </div>
-                                                        <div className="grid gap-2">
-                                                            <Label htmlFor="reviewReqResId">Restaurant ID</Label>
-                                                            <Input id="reviewReqResId" value={activeResId || ""} disabled className="bg-muted" />
-                                                        </div>
-                                                        <div className="grid gap-2">
-                                                            <Label htmlFor="reviewReqResName">Restaurant Name</Label>
-                                                            <Input id="reviewReqResName" value={activeResName || ""} disabled className="bg-muted" />
-                                                        </div>
-                                                        <Button
-                                                            onClick={handleRequestTaskId}
-                                                            disabled={isRequestingTaskId || !requestName.trim() || !requestReason.trim()}
-                                                            className="w-full bg-purple-600 hover:bg-purple-700 mt-2"
-                                                        >
-                                                            {isRequestingTaskId ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                                            {isPrefilled ? "Bypass & Trigger" : "Send Request"}
-                                                        </Button>
+                                                        <p className="text-[11px] text-emerald-800 leading-snug">
+                                                            Authorized for {activeResName} ({activeResId}). You can proceed with menu trigger.
+                                                        </p>
                                                     </div>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                </PopoverContent>
-                            </Popover>
+                                                    <Button
+                                                        onClick={() => handleTriggerMenu(true)}
+                                                        disabled={isTriggering || zomatoHasAddons}
+                                                        className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
+                                                    >
+                                                        {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
+                                                        Confirm Trigger
+                                                    </Button>
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setIsOtpVerified(false);
+                                                            localStorage.removeItem(`otp_verified_${activeResId}`);
+                                                        }}
+                                                        className="text-[10px] text-muted-foreground hover:text-foreground text-center w-full underline"
+                                                    >
+                                                        Re-lock restaurant
+                                                    </button>
+                                                </div>
+                                            ) : (
+                                                <div className="space-y-3">
+                                                    <div className="space-y-1">
+                                                        <h4 className="font-semibold text-sm flex items-center justify-between">
+                                                            <span>Trigger Menu</span>
+                                                            <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-bold border border-amber-300">
+                                                                🔒 Locked Outlet
+                                                            </span>
+                                                        </h4>
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Enter CRM Task ID or verify using Admin OTP to unlock triggering.
+                                                        </p>
+                                                    </div>
+
+                                                    {/* Tab Switcher */}
+                                                    <div className="grid grid-cols-2 gap-1.5 p-1 bg-slate-100 rounded-lg border border-slate-200/80">
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setAuthMode("task")}
+                                                            className={`py-1 text-xs font-semibold rounded-md transition-all ${authMode === "task" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"}`}
+                                                        >
+                                                            Task ID
+                                                        </button>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setAuthMode("otp")}
+                                                            className={`py-1 text-xs font-semibold rounded-md transition-all ${authMode === "otp" ? "bg-white text-slate-900 shadow-xs" : "text-slate-500 hover:text-slate-900"}`}
+                                                        >
+                                                            Admin OTP
+                                                        </button>
+                                                    </div>
+
+                                                    {authMode === "task" ? (
+                                                        <div className="space-y-2.5">
+                                                            <div className="grid gap-1.5">
+                                                                <Label htmlFor="reviewTaskId" className="text-xs">Task ID <span className="text-destructive">*</span></Label>
+                                                                <Input
+                                                                    id="reviewTaskId"
+                                                                    placeholder="Enter CRM Task ID"
+                                                                    value={triggerTaskId}
+                                                                    onChange={(e) => setTriggerTaskId(e.target.value)}
+                                                                    required
+                                                                    className="text-xs h-8"
+                                                                />
+                                                            </div>
+                                                            <Button onClick={() => handleTriggerMenu(false)} disabled={!triggerTaskId.trim() || isTriggering || zomatoHasAddons} className="w-full h-8 text-xs">
+                                                                {isTriggering ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
+                                                                Confirm Trigger
+                                                            </Button>
+                                                        </div>
+                                                    ) : (
+                                                        <div className="space-y-2.5">
+                                                            <div className="p-2.5 rounded-lg bg-purple-50/80 border border-purple-200 text-purple-950 text-[11px] leading-relaxed">
+                                                                OTP will be emailed to:
+                                                                <div className="font-semibold text-purple-900 mt-0.5 truncate text-[11px]">
+                                                                    vishalkushwaha@magicscale.in
+                                                                </div>
+                                                            </div>
+
+                                                            {!otpSent ? (
+                                                                <Button
+                                                                    type="button"
+                                                                    onClick={handleSendOtp}
+                                                                    disabled={isSendingOtp}
+                                                                    className="w-full h-9 bg-purple-600 hover:bg-purple-700 text-white text-xs font-semibold"
+                                                                >
+                                                                    {isSendingOtp ? (
+                                                                        <>
+                                                                            <Loader2 className="mr-2 h-3.5 w-3.5 animate-spin" />
+                                                                            Sending OTP...
+                                                                        </>
+                                                                    ) : (
+                                                                        <>
+                                                                            <Mail className="mr-2 h-3.5 w-3.5" />
+                                                                            Send OTP
+                                                                        </>
+                                                                    )}
+                                                                </Button>
+                                                            ) : (
+                                                                <div className="space-y-2 pt-1 animate-in fade-in duration-200">
+                                                                    <div className="grid gap-1">
+                                                                        <Label htmlFor="reviewOtpCode" className="text-xs">Enter 6-Digit OTP</Label>
+                                                                        <Input
+                                                                            id="reviewOtpCode"
+                                                                            placeholder="000000"
+                                                                            maxLength={6}
+                                                                            value={otpInput}
+                                                                            onChange={(e) => setOtpInput(e.target.value.replace(/\D/g, ""))}
+                                                                            className="text-center font-mono tracking-widest text-base font-bold h-9"
+                                                                            autoFocus
+                                                                        />
+                                                                    </div>
+                                                                    <div className="flex gap-2">
+                                                                        <Button
+                                                                            type="button"
+                                                                            variant="outline"
+                                                                            onClick={handleSendOtp}
+                                                                            disabled={isSendingOtp}
+                                                                            className="flex-1 h-8 text-xs"
+                                                                        >
+                                                                            {isSendingOtp ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+                                                                            Resend
+                                                                        </Button>
+                                                                        <Button
+                                                                            type="button"
+                                                                            onClick={handleVerifyOtp}
+                                                                            disabled={otpInput.length < 6 || isVerifyingOtp}
+                                                                            className="flex-1 h-8 text-xs bg-purple-600 hover:bg-purple-700 text-white font-semibold"
+                                                                        >
+                                                                            {isVerifyingOtp ? <Loader2 className="h-3 w-3 animate-spin mr-1" /> : null}
+                                                                            Verify OTP
+                                                                        </Button>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                        </div>
+                                                    )}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </PopoverContent>
+                                </Popover>
+                            )}
                         </div>
 
                         <div className="w-px h-6 bg-border mx-1"></div>

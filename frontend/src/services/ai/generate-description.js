@@ -47,7 +47,7 @@ RULES
 4. Approximately 16-28 words (1 to 1.5 lines).
 5. Natural and appetizing.
 6. Never mention price.
-7. Never invent variants.
+7. Never invent variants. Unless the item name explicitly contains "Meal", "Combo", or "Bucket", describe it strictly as a single standalone food item (do NOT assume or mention that it comes with fries, drinks, or sides).
 8. Never skip any item.
 9. Target description length is 1 to 1.5 lines (do not exceed 2 lines).
 

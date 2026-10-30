@@ -92,6 +92,23 @@ export function AppSidebar({ ...props }) {
     }
   }, [categories, expandedCategoryId, activeCategory]);
 
+  useEffect(() => {
+    if (activePlatform === "petpooja") {
+      const petpoojaDisabledModes = [
+        "PRICE",
+        "STRUCTURE",
+        "ADDONS",
+        "HOLD_ITEMS",
+        "ALL_ITEMS",
+        "UPLOAD",
+        "ZOMATO_IMPORT",
+      ];
+      if (petpoojaDisabledModes.includes(activeBulkMode)) {
+        setActiveBulkMode("IMAGE");
+      }
+    }
+  }, [activePlatform, activeBulkMode, setActiveBulkMode]);
+
   return (
     <Sidebar collapsible="icon" className="bg-white" {...props}>
       <SidebarHeader>
@@ -199,42 +216,47 @@ export function AppSidebar({ ...props }) {
           <div className="space-y-1.5 p-3 pb-8 group-data-[collapsible=icon]:p-2">
             <div className="text-[10px] font-black text-muted-foreground/70 uppercase tracking-widest px-3 mb-3 group-data-[collapsible=icon]:hidden">Edit Modes</div>
             
-            <button
-                onClick={() => setActiveBulkMode("PRICE")}
-                title="Price Editor"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "PRICE" ? "bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 scale-[1.01]" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground hover:scale-[1.01]"
-                    }`}
-            >
-                <DollarSign className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "PRICE" ? "scale-110" : ""}`} /> 
-                <span className="group-data-[collapsible=icon]:hidden">Price Editor</span>
-            </button>
-            <button
-                onClick={() => setActiveBulkMode("STRUCTURE")}
-                title="Structure Organizer"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "STRUCTURE" ? "bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 scale-[1.01]" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground hover:scale-[1.01]"
-                    }`}
-            >
-                <Layers className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "STRUCTURE" ? "scale-110" : ""}`} /> 
-                <span className="group-data-[collapsible=icon]:hidden">Structure Organizer</span>
-            </button>
-            <button
-                onClick={() => setActiveBulkMode("ADDONS")}
-                title="Addons Builder"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "ADDONS" ? "bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 scale-[1.01]" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground hover:scale-[1.01]"
-                    }`}
-            >
-                <PlusCircle className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "ADDONS" ? "scale-110" : ""}`} /> 
-                <span className="group-data-[collapsible=icon]:hidden">Addons Builder</span>
-            </button>
-            <button
-                onClick={() => setActiveBulkMode("HOLD_ITEMS")}
-                title="Hold Items"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "HOLD_ITEMS" ? "bg-amber-500/10 text-amber-700 font-bold shadow-sm ring-1 ring-amber-500/20 scale-[1.01]" : "text-muted-foreground hover:bg-amber-50/50 hover:text-amber-700 hover:scale-[1.01]"
-                    }`}
-            >
-                <AlertTriangle className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "HOLD_ITEMS" ? "scale-110 text-amber-600" : "text-amber-500/70"}`} /> 
-                <span className="group-data-[collapsible=icon]:hidden">Hold Items</span>
-            </button>
+            {activePlatform !== "petpooja" && (
+              <>
+                <button
+                    onClick={() => setActiveBulkMode("PRICE")}
+                    title="Price Editor"
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "PRICE" ? "bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 scale-[1.01]" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground hover:scale-[1.01]"
+                        }`}
+                >
+                    <DollarSign className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "PRICE" ? "scale-110" : ""}`} /> 
+                    <span className="group-data-[collapsible=icon]:hidden">Price Editor</span>
+                </button>
+                <button
+                    onClick={() => setActiveBulkMode("STRUCTURE")}
+                    title="Structure Organizer"
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "STRUCTURE" ? "bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 scale-[1.01]" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground hover:scale-[1.01]"
+                        }`}
+                >
+                    <Layers className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "STRUCTURE" ? "scale-110" : ""}`} /> 
+                    <span className="group-data-[collapsible=icon]:hidden">Structure Organizer</span>
+                </button>
+                <button
+                    onClick={() => setActiveBulkMode("ADDONS")}
+                    title="Addons Builder"
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "ADDONS" ? "bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 scale-[1.01]" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground hover:scale-[1.01]"
+                        }`}
+                >
+                    <PlusCircle className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "ADDONS" ? "scale-110" : ""}`} /> 
+                    <span className="group-data-[collapsible=icon]:hidden">Addons Builder</span>
+                </button>
+                <button
+                    onClick={() => setActiveBulkMode("HOLD_ITEMS")}
+                    title="Hold Items"
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "HOLD_ITEMS" ? "bg-amber-500/10 text-amber-700 font-bold shadow-sm ring-1 ring-amber-500/20 scale-[1.01]" : "text-muted-foreground hover:bg-amber-50/50 hover:text-amber-700 hover:scale-[1.01]"
+                        }`}
+                >
+                    <AlertTriangle className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "HOLD_ITEMS" ? "scale-110 text-amber-600" : "text-amber-500/70"}`} /> 
+                    <span className="group-data-[collapsible=icon]:hidden">Hold Items</span>
+                </button>
+              </>
+            )}
+
             <button
                 onClick={() => setActiveBulkMode("DESCRIPTION")}
                 title="Description Editor"
@@ -253,25 +275,33 @@ export function AppSidebar({ ...props }) {
                 <ImageIcon className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "IMAGE" ? "scale-110" : ""}`} /> 
                 <span className="group-data-[collapsible=icon]:hidden">Image Editor</span>
             </button>
-            <button
-                onClick={() => setActiveBulkMode("ALL_ITEMS")}
-                title="All Items & Duplicates"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "ALL_ITEMS" ? "bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 scale-[1.01]" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground hover:scale-[1.01]"
-                    }`}
-            >
-                <ClipboardPaste className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "ALL_ITEMS" ? "scale-110" : ""}`} /> 
-                <span className="group-data-[collapsible=icon]:hidden">All Items & Duplicates</span>
-            </button>
+
+            {activePlatform !== "petpooja" && (
+              <button
+                  onClick={() => setActiveBulkMode("ALL_ITEMS")}
+                  title="All Items & Duplicates"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "ALL_ITEMS" ? "bg-primary/10 text-primary font-bold shadow-sm ring-1 ring-primary/20 scale-[1.01]" : "text-muted-foreground hover:bg-slate-100 hover:text-foreground hover:scale-[1.01]"
+                      }`}
+              >
+                  <ClipboardPaste className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "ALL_ITEMS" ? "scale-110" : ""}`} /> 
+                  <span className="group-data-[collapsible=icon]:hidden">All Items & Duplicates</span>
+              </button>
+            )}
+
             <div className="h-px bg-border/50 my-2 group-data-[collapsible=icon]:hidden"></div>
-            <button
-                onClick={() => setActiveBulkMode("UPLOAD")}
-                title="Upload Menu"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "UPLOAD" ? "bg-slate-800 text-white font-bold shadow-md scale-[1.01]" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 hover:scale-[1.01]"
-                    }`}
-            >
-                <FileUp className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "UPLOAD" ? "scale-110" : ""}`} /> 
-                <span className="group-data-[collapsible=icon]:hidden">Upload Menu</span>
-            </button>
+
+            {activePlatform !== "petpooja" && (
+              <button
+                  onClick={() => setActiveBulkMode("UPLOAD")}
+                  title="Upload Menu"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "UPLOAD" ? "bg-slate-800 text-white font-bold shadow-md scale-[1.01]" : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 hover:scale-[1.01]"
+                      }`}
+              >
+                  <FileUp className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "UPLOAD" ? "scale-110" : ""}`} /> 
+                  <span className="group-data-[collapsible=icon]:hidden">Upload Menu</span>
+              </button>
+            )}
+
             <button
                 onClick={() => setActiveBulkMode("TRANSFER")}
                 title="Transfer Menu"
@@ -281,15 +311,18 @@ export function AppSidebar({ ...props }) {
                 <Share className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "TRANSFER" ? "scale-110" : ""}`} /> 
                 <span className="group-data-[collapsible=icon]:hidden">Transfer Menu</span>
             </button>
-            <button
-                onClick={() => setActiveBulkMode("ZOMATO_IMPORT")}
-                title="Import Zomato Menu"
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "ZOMATO_IMPORT" ? "bg-red-600 text-white font-bold shadow-md scale-[1.01]" : "text-slate-600 hover:bg-red-50 hover:text-red-700 hover:scale-[1.01]"
-                    }`}
-            >
-                <Download className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "ZOMATO_IMPORT" ? "scale-110" : ""}`} /> 
-                <span className="group-data-[collapsible=icon]:hidden">Import Zomato Menu</span>
-            </button>
+
+            {activePlatform !== "petpooja" && (
+              <button
+                  onClick={() => setActiveBulkMode("ZOMATO_IMPORT")}
+                  title="Import Zomato Menu"
+                  className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-[13px] font-medium transition-all duration-200 group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 ${activeBulkMode === "ZOMATO_IMPORT" ? "bg-red-600 text-white font-bold shadow-md scale-[1.01]" : "text-slate-600 hover:bg-red-50 hover:text-red-700 hover:scale-[1.01]"
+                      }`}
+              >
+                  <Download className={`w-4 h-4 shrink-0 transition-transform ${activeBulkMode === "ZOMATO_IMPORT" ? "scale-110" : ""}`} /> 
+                  <span className="group-data-[collapsible=icon]:hidden">Import Zomato Menu</span>
+              </button>
+            )}
             <button
                 onClick={() => setActiveBulkMode("EXPORT_IMAGES")}
                 title="Export Images"

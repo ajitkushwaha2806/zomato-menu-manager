@@ -13,7 +13,26 @@ import api from "@/lib/api/axios";
 import { uploadPlatformImage } from "@/services/imageService";
 
 const ImageCard = ({ item, onClick, onDrop, isActive }) => {
-    const imgUrl = item?.media?.[0]?.thumbUrl || item?.media?.[0]?.url || item.image_url || (typeof item.image === 'string' ? item.image : item.image?.url);
+    const [imgLoadFailed, setImgLoadFailed] = useState(false);
+    const { imageUploadStatuses, activeResId, activePlatform } = useSelector((state) => state.menu);
+
+    const uploadStatusEntry = item?.id ? imageUploadStatuses?.[item?.id] : null;
+    const isUploadRejected = (typeof uploadStatusEntry === "object" ? uploadStatusEntry?.status : uploadStatusEntry) === "rejected";
+    const uploadErrorMsg = typeof uploadStatusEntry === "object" ? uploadStatusEntry?.error : null;
+
+    // Pick the best public image URL, prioritizing accessible source or CloudFront over private S3 buckets
+    const m = item?.media?.[0];
+    const candidateUrls = [
+        m?.sourceUrl,
+        m?.thumbUrl,
+        m?.url,
+        item?.image_url,
+        typeof item?.image === 'string' ? item.image : item?.image?.url
+    ].filter(Boolean);
+
+    const publicUrl = candidateUrls.find(u => typeof u === 'string' && !u.includes("temp-uploads-live.s3"));
+    const keyFallback = (m?.key || (typeof m?.url === 'string' && m.url.includes("temp-uploads-live.s3") ? m.url.split('/').pop().replace(/^thumb_/, '') : null));
+    const imgUrl = publicUrl || (keyFallback ? `/uploads/petpooja/${keyFallback}` : null);
     const isNewMedia = item?.media?.[0]?.id?.toString().startsWith("temp-") || item?.media?.[0]?.tempReferenceId?.toString().startsWith("temp-") || item?.media?.[0]?.isNewlyUploaded;
 
     return (
@@ -21,20 +40,32 @@ const ImageCard = ({ item, onClick, onDrop, isActive }) => {
             itemId={item?.id}
             itemName={item?.name}
             onClick={() => onClick(item)}
-            onUploadSuccess={(mediaArray) => onDrop(item.id, mediaArray)}
+            onUploadSuccess={(mediaArray) => {
+                setImgLoadFailed(false);
+                onDrop(item.id, mediaArray);
+            }}
             overlayText="Drop Image"
             className={`group relative rounded-xl overflow-hidden border bg-card transition-all duration-200 cursor-pointer select-none
-                ${isActive
-                    ? 'border-primary ring-2 ring-primary/20 shadow-sm'
-                    : isNewMedia
-                        ? 'border-yellow-400 ring-2 ring-yellow-400/20 shadow-sm hover:border-yellow-500 hover:-translate-y-[1px]'
-                        : 'border-border/60 hover:border-border hover:shadow-md hover:-translate-y-[1px]'
+                ${isUploadRejected
+                    ? '!border-red-500 !ring-2 !ring-red-500/70 shadow-md shadow-red-100'
+                    : isActive
+                        ? 'border-primary ring-2 ring-primary/20 shadow-sm'
+                        : isNewMedia
+                            ? 'border-yellow-400 ring-2 ring-yellow-400/20 shadow-sm hover:border-yellow-500 hover:-translate-y-[1px]'
+                            : 'border-border/60 hover:border-border hover:shadow-md hover:-translate-y-[1px]'
                 } 
             `}
         >
             {/* Image Container */}
             <div className="aspect-square w-full bg-muted relative overflow-hidden border-b border-border/40">
-                {item?.media?.[0]?.mediaTags?.some?.(t => t.tagSlug === "rejected") ? (
+                {isUploadRejected ? (
+                    <div className="absolute inset-x-0 bottom-0 bg-red-600/95 text-white text-[10px] font-semibold px-2 py-1 z-20 flex items-center gap-1 shadow backdrop-blur-xs">
+                        <XCircle size={11} className="shrink-0 text-red-200" />
+                        <span className="truncate" title={uploadErrorMsg || "Upload failed"}>
+                            {uploadErrorMsg || "Upload failed"}
+                        </span>
+                    </div>
+                ) : item?.media?.[0]?.mediaTags?.some?.(t => t.tagSlug === "rejected") ? (
                     <div className="absolute inset-x-0 bottom-0 bg-red-500 text-white text-[10px] font-bold text-center py-1 z-10">
                         REJECTED
                     </div>
@@ -44,10 +75,19 @@ const ImageCard = ({ item, onClick, onDrop, isActive }) => {
                     </div>
                 ) : null}
                 
-                {imgUrl && (
+                {imgUrl && !imgLoadFailed && (
                     <button
-                        onClick={(e) => {
+                        onClick={async (e) => {
                             e.stopPropagation();
+                            if (activePlatform === "petpooja" && item?.id && !String(item.id).startsWith("temp-")) {
+                                try {
+                                    await api.put(`/api/menu/${activeResId}/petpooja/items/${item.id}`, {
+                                        images: { main: null },
+                                    });
+                                } catch (delErr) {
+                                    console.warn("Could not remove image on Petpooja:", delErr?.message);
+                                }
+                            }
                             onDrop(item.id, []);
                         }}
                         className="absolute top-2 right-2 p-1.5 bg-black/50 hover:bg-red-500 text-white rounded-md transition-colors z-30 opacity-0 group-hover:opacity-100"
@@ -57,12 +97,22 @@ const ImageCard = ({ item, onClick, onDrop, isActive }) => {
                     </button>
                 )}
 
-                {imgUrl ? (
+                {imgUrl && !imgLoadFailed ? (
                     <img
                         src={imgUrl}
                         alt={item.name}
                         className={`w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out`}
                         loading="lazy"
+                        onError={(e) => {
+                            const fallback = candidateUrls.find(u => u !== imgUrl && !u.includes("temp-uploads-live.s3"));
+                            if (fallback && e.currentTarget.src !== fallback) {
+                                e.currentTarget.src = fallback;
+                            } else if (keyFallback && !e.currentTarget.src.includes(`/uploads/petpooja/${keyFallback}`)) {
+                                e.currentTarget.src = `/uploads/petpooja/${keyFallback}`;
+                            } else {
+                                setImgLoadFailed(true);
+                            }
+                        }}
                     />
                 ) : (
                     <div className="w-full h-full flex flex-col items-center justify-center gap-1.5 text-muted-foreground/40 bg-zinc-50/50">
@@ -396,7 +446,7 @@ export default function ImageEditor({ allItems, updateItem }) {
 
                             // Upload image to the respective platform (Zomato or Swiggy)
                             try {
-                                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
+                                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name, item.originalId || item.id);
                                 if (uploadRes?.success && uploadRes?.mediaArray?.length > 0) {
                                     finalMedia = uploadRes.mediaArray.map(m => ({
                                         ...m,
@@ -579,7 +629,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                             });
 
                             if (activePlatform !== "swiggy") {
-                                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
+                                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name, item.originalId || item.id);
                                 if (uploadRes.success && uploadRes.mediaArray) {
                                     finalMedia = uploadRes.mediaArray.map(m => ({
                                         ...m,
@@ -777,7 +827,7 @@ export default function ImageEditor({ allItems, updateItem }) {
 
                             // Upload to respective platform (Zomato or Swiggy)
                             try {
-                                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name);
+                                const uploadRes = await uploadPlatformImage(activePlatform, activeResId, imageUrl, item.name, item.originalId || item.id);
                                 if (uploadRes?.success && uploadRes?.mediaArray?.length > 0) {
                                     finalMedia = uploadRes.mediaArray.map(m => ({
                                         ...m,
@@ -958,7 +1008,7 @@ export default function ImageEditor({ allItems, updateItem }) {
 
                         if (activePlatform !== "swiggy") {
                             // Upload to Zomato to ensure proper tracking and approval
-                            const uploadRes = await uploadPlatformImage(activePlatform, activeResId, sourceImageUrl, item.name);
+                            const uploadRes = await uploadPlatformImage(activePlatform, activeResId, sourceImageUrl, item.name, item.originalId || item.id);
                             if (uploadRes.success && uploadRes.mediaArray) {
                                 finalMedia = uploadRes.mediaArray.map(m => ({
                                     ...m,
