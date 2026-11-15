@@ -135,10 +135,13 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
             if (preview) {
                 let flattenedPreview = [];
                 const catArray = Array.isArray(data.previewMenu) ? data.previewMenu : data.previewMenu?.categories || [];
-                catArray.forEach(cat => {
-                    cat.sub_category?.forEach(sub => {
-                        sub.items?.forEach(item => {
-                            flattenedPreview.push(item);
+                catArray.forEach((cat, cIdx) => {
+                    cat.sub_category?.forEach((sub, sIdx) => {
+                        sub.items?.forEach((item, iIdx) => {
+                            flattenedPreview.push({
+                                ...item,
+                                _uniqueKey: item._uniqueKey || `${cat.id || cIdx}-${sub.id || sIdx}-${item.id || iIdx}-${cIdx}-${sIdx}-${iIdx}`
+                            });
                         });
                     });
                 });
@@ -569,8 +572,8 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                                 </tr>
                             </thead>
                             <tbody className="divide-y">
-                                {allItems.map(item => (
-                                    <tr key={item.id} className="hover:bg-gray-50/50">
+                                {allItems.map((item, index) => (
+                                    <tr key={item._uniqueKey || `${item.id}-${index}`} className="hover:bg-gray-50/50">
                                         <td className="p-3 font-medium text-gray-900 align-top">
                                             {item.name || "Unnamed Item"}
                                             <div className="text-[10px] text-gray-400 font-normal mt-0.5">
@@ -579,7 +582,7 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                                         </td>
                                         <td className="p-3 align-top">
                                             {(() => {
-                                                const previewItem = isPreviewMode ? previewAllItems.find(i => i.id === item.id) : null;
+                                                const previewItem = isPreviewMode ? previewAllItems.find(i => (i._uniqueKey && item._uniqueKey ? i._uniqueKey === item._uniqueKey : i.id === item.id)) : null;
                                                 const hasChanged = previewItem && previewItem.base_price !== item.base_price;
                                                 
                                                 if (isPreviewMode && previewItem) {
@@ -829,10 +832,10 @@ export default function PriceEditor({ allItems, updateItem, menuData }) {
                                                                             </div>
                                                                             
                                                                             <div className="ml-6 space-y-0.5 mt-1">
-                                                                                {sub.items?.map(item => {
+                                                                                {sub.items?.map((item, index) => {
                                                                                     const isItemChecked = selectedItems.includes(item.id);
                                                                                     return (
-                                                                                        <div key={item.id} className="flex items-center gap-2 py-1 hover:bg-slate-50 rounded px-2 transition-colors">
+                                                                                        <div key={item._uniqueKey || `${sub.id}-${item.id}-${index}`} className="flex items-center gap-2 py-1 hover:bg-slate-50 rounded px-2 transition-colors">
                                                                                             <div 
                                                                                                 className="cursor-pointer text-gray-300 hover:text-primary transition-colors flex items-center justify-center"
                                                                                                 onClick={() => toggleItem(item.id, !isItemChecked)}

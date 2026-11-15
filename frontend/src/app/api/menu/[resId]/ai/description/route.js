@@ -1,7 +1,7 @@
 import Menu from "@/model/menu";
 import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
-import { generateMenuDescriptions } from "@/services/gemini/generate-description";
+import { generateMenuDescriptions } from "@/services/ai/generate-description";
 
 const BATCH_SIZE = 40;
 const CONCURRENCY = 1;

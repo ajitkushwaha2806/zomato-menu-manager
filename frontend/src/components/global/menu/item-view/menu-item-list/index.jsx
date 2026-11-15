@@ -128,9 +128,9 @@ export default function MenuItemList({
                                     if (!aIsDup && bIsDup) return 1;
                                     return (a.name || "").localeCompare(b.name || "");
                                 })
-                                .map((item) => (
+                                .map((item, index) => (
                                     <MenuItemRow
-                                        key={item.id}
+                                        key={item._uniqueKey || `${item.id}-${index}`}
                                         item={item}
                                         isPetpooja={isPetpooja}
                                         isDuplicate={item.name && duplicateNames.has(item.name.toLowerCase().trim())}

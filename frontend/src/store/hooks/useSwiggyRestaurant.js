@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import api from "@/lib/api/axios";
+import CookieStorage from "@/services/cookie";
 
 export const SWIGGY_RESTAURANT_QUERY_KEY = ["swiggy-restaurant"];
 
@@ -10,6 +11,7 @@ export default function useSwiggyRestaurant() {
             const { data } = await api.get("/api/accounts/swiggy/restaurants");
             return data;
         },
+        enabled: typeof window !== "undefined" && !!CookieStorage.getSwiggyAccount(),
         retry: false,
     });
 

@@ -580,7 +580,8 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
     const fetchHistory = async () => {
         try {
             setLoading(true);
-            const { data } = await api.get(`/api/menu/${resId}/swiggy/sync-history`);
+            const platformKey = activePlatform === 'ownly' ? 'ownly' : 'swiggy';
+            const { data } = await api.get(`/api/menu/${resId}/${platformKey}/sync-history`);
             if (data.success) {
                 setJobs(data.data);
             }
@@ -594,8 +595,9 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
     const handleRetry = async (job) => {
         try {
             setRetryingId(job._id);
+            const platformKey = activePlatform === 'ownly' ? 'ownly' : 'swiggy';
             const payload = { updated_menu: job.updated_menu || { categories: [], sub_categories: [], items: [] } };
-            const res = await api.post(`/api/menu/${resId}/swiggy/queue-changes`, payload);
+            const res = await api.post(`/api/menu/${resId}/${platformKey}/queue-changes`, payload);
             if (res.data?.success) {
                 notify.success("Menu changes queued for retry successfully!");
                 fetchHistory(); // refresh the list
@@ -613,6 +615,7 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
     const handleRetryFailed = async (job) => {
         try {
             setRetryingId(job._id);
+            const platformKey = activePlatform === 'ownly' ? 'ownly' : 'swiggy';
             const failedCategories = (job.updated_menu?.categories || []).filter(c => c.status === "failed").map(cat => ({ ...cat, status: undefined, error: undefined }));
             const failedSubCategories = (job.updated_menu?.sub_categories || []).filter(s => s.status === "failed").map(sub => ({ ...sub, status: undefined, error: undefined }));
             const failedItems = (job.updated_menu?.items || []).filter(i => i.status === "failed").map(item => ({ ...item, status: undefined, error: undefined }));
@@ -625,7 +628,7 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
                 }
             };
 
-            const res = await api.post(`/api/menu/${resId}/swiggy/queue-changes`, payload);
+            const res = await api.post(`/api/menu/${resId}/${platformKey}/queue-changes`, payload);
             if (res.data?.success) {
                 notify.success("Failed changes queued for retry successfully!");
                 fetchHistory(); // refresh the list
@@ -643,9 +646,10 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
     const handleRetryAllAsNew = async (job) => {
         try {
             setRetryingId(job._id);
+            const platformKey = activePlatform === 'ownly' ? 'ownly' : 'swiggy';
             const transformedMenu = transformMenuAsNew(job.updated_menu);
             const payload = { updated_menu: transformedMenu };
-            const res = await api.post(`/api/menu/${resId}/swiggy/queue-changes`, payload);
+            const res = await api.post(`/api/menu/${resId}/${platformKey}/queue-changes`, payload);
             if (res.data?.success) {
                 notify.success("All items queued for retry as new entities!");
                 fetchHistory(); // refresh the list

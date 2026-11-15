@@ -1,6 +1,6 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { ImageIcon, Loader2, CheckCircle2, XCircle, Sparkles, Trash2, Play, Database, Search, AlertCircle, Copy, RefreshCw } from "lucide-react";
+import { ImageIcon, Loader2, CheckCircle2, XCircle, Sparkles, Trash2, Play, Database, Search, AlertCircle, Copy, RefreshCw, Cloud } from "lucide-react";
 import { openImageSidebar } from "@/store/slice/menuSlice";
 import ZomatoImageDropzone from "../../shared/ZomatoImageDropzone";
 import useNotification from "@/store/hooks/useNotification";
@@ -11,6 +11,9 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Label } from "@/components/ui/label";
 import api from "@/lib/api/axios";
 import { uploadPlatformImage } from "@/services/imageService";
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import GoogleDriveImportModal from "./GoogleDriveImportModal";
+import { startMenuImagePrefetch, pausePrefetchQueue, prefetchDishOnHover } from "@/services/imageSearchCacheService";
 
 const ImageCard = ({ item, onClick, onDrop, isActive }) => {
     const [imgLoadFailed, setImgLoadFailed] = useState(false);
@@ -40,6 +43,7 @@ const ImageCard = ({ item, onClick, onDrop, isActive }) => {
             itemId={item?.id}
             itemName={item?.name}
             onClick={() => onClick(item)}
+            onMouseEnter={() => prefetchDishOnHover(item?.name, "dataset")}
             onUploadSuccess={(mediaArray) => {
                 setImgLoadFailed(false);
                 onDrop(item.id, mediaArray);
@@ -261,6 +265,22 @@ export default function ImageEditor({ allItems, updateItem }) {
     const [isCrossResModalOpen, setIsCrossResModalOpen] = useState(false);
     const [targetResId, setTargetResId] = useState("");
     const [targetPlatform, setTargetPlatform] = useState("zomato");
+
+    const [isDriveImportModalOpen, setIsDriveImportModalOpen] = useState(false);
+    const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
+    // Intelligent background prefetching:
+    // When the user opens the Image Editor, begin pre-warming image search queries in the background
+    // (prioritizing items without photos first), using polite rate limiting (2 concurrent requests, 200ms delay)
+    // so tapping any dish opens suggestions instantaneously with zero waiting or lag.
+    useEffect(() => {
+        if (allItems && allItems.length > 0) {
+            startMenuImagePrefetch(allItems, "dataset");
+        }
+        return () => {
+            pausePrefetchQueue();
+        };
+    }, [allItems]);
 
     const handleRemoveAllImages = () => {
         if (!removeConfirm) {
@@ -1089,45 +1109,45 @@ export default function ImageEditor({ allItems, updateItem }) {
     return (
         <div className="flex-1 flex flex-col overflow-hidden relative bg-neutral-50/40">
             {/* Main Content Pane */}
-            <div className={`flex-1 overflow-y-auto p-6 transition-all duration-300 ease-in-out ${isImageSidebarOpen ? 'w-1/2 pr-4 mr-[50%]' : 'w-full'}`}>
-                <div className="mx-auto space-y-6">
+            <div className={`flex-1 overflow-y-auto p-4 sm:p-6 transition-all duration-300 ease-in-out ${isImageSidebarOpen ? 'lg:w-1/2 lg:pr-4 lg:mr-[50%] w-full' : 'w-full'}`}>
+                <div className="mx-auto space-y-4 sm:space-y-6">
                     {/* Header Banner */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center border-b border-neutral-200/60 pb-4 gap-4 relative">
-                        <div>
-                            <h2 className="text-xl font-bold tracking-tight text-neutral-900">Image Editor</h2>
+                    <div className="flex flex-col xl:flex-row justify-between items-start xl:items-center border-b border-neutral-200/60 pb-4 gap-3 sm:gap-4 relative">
+                        <div className="min-w-0">
+                            <h2 className="text-lg sm:text-xl font-bold tracking-tight text-neutral-900 truncate">Image Editor</h2>
                             <p className="text-xs text-muted-foreground mt-0.5">
                                 Select an item to refine search options or instantly update assets via drag & drop.
                             </p>
                         </div>
                         
-                        <div className="flex flex-wrap items-center gap-2.5 shrink-0">
+                        <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 w-full xl:w-auto">
                             <Button
                                 variant="secondary"
                                 onClick={handleRemoveAllImages}
                                 disabled={isAutoApplying}
-                                className={`h-9 rounded-lg px-4 border transition-colors ${
+                                className={`h-8.5 sm:h-9 rounded-lg px-3 sm:px-4 text-xs font-semibold border transition-colors ${
                                     removeConfirm
                                         ? 'bg-red-500 hover:bg-red-600 text-white border-red-500'
                                         : 'bg-red-50 hover:bg-red-100 text-red-600 border-red-200'
                                 }`}
                             >
-                                <Trash2 className="mr-2 h-4 w-4" />
+                                <Trash2 className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4" />
                                 <span>{removeConfirm ? 'Confirm Remove?' : 'Remove All'}</span>
                             </Button>
                             <Button
                                 variant="secondary"
                                 onClick={handleAutoApplyImages}
                                 disabled={isAutoApplying}
-                                className="h-9 rounded-lg px-4 bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition-colors relative overflow-hidden shrink-0"
+                                className="h-8.5 sm:h-9 rounded-lg px-3 sm:px-4 text-xs font-semibold bg-indigo-50 hover:bg-indigo-100 text-indigo-700 border border-indigo-200 transition-colors relative overflow-hidden shrink-0"
                             >
                                 {autoApplyType === 'dataset' ? (
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-indigo-600" />
+                                        <Loader2 className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin text-indigo-600" />
                                         <span>Applying ({autoApplyProgress.completed}/{autoApplyProgress.total})</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Sparkles className="mr-2 h-4 w-4 text-indigo-500" />
+                                        <Sparkles className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-indigo-500" />
                                         <span>Auto Apply Images</span>
                                     </>
                                 )}
@@ -1136,16 +1156,16 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 variant="secondary"
                                 onClick={handleAutoApplyFoodsnapPlus}
                                 disabled={isAutoApplying}
-                                className="h-9 rounded-lg px-4 bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition-colors relative overflow-hidden shrink-0"
+                                className="h-8.5 sm:h-9 rounded-lg px-3 sm:px-4 text-xs font-semibold bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200 transition-colors relative overflow-hidden shrink-0"
                             >
                                 {autoApplyType === 'foodsnap_plus' ? (
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-purple-600" />
+                                        <Loader2 className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin text-purple-600" />
                                         <span>Applying ({autoApplyProgress.completed}/{autoApplyProgress.total})</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Sparkles className="mr-2 h-4 w-4 text-purple-500" />
+                                        <Sparkles className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-purple-500" />
                                         <span>Auto-fill from Foodsnap Plus</span>
                                     </>
                                 )}
@@ -1154,16 +1174,16 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 variant="secondary"
                                 onClick={handleApplyFromDB}
                                 disabled={isAutoApplying}
-                                className="h-9 rounded-lg px-4 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition-colors relative overflow-hidden shrink-0"
+                                className="h-8.5 sm:h-9 rounded-lg px-3 sm:px-4 text-xs font-semibold bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 transition-colors relative overflow-hidden shrink-0"
                             >
                                 {autoApplyType === 'db' ? (
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-emerald-600" />
+                                        <Loader2 className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin text-emerald-600" />
                                         <span>Applying ({autoApplyProgress.completed}/{autoApplyProgress.total})</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Database className="mr-2 h-4 w-4 text-emerald-500" />
+                                        <Database className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-emerald-500" />
                                         <span>Auto-fill from DB</span>
                                     </>
                                 )}
@@ -1172,19 +1192,28 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 variant="secondary"
                                 onClick={() => setIsCrossResModalOpen(true)}
                                 disabled={isAutoApplying}
-                                className="h-9 rounded-lg px-4 bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition-colors relative overflow-hidden shrink-0"
+                                className="h-8.5 sm:h-9 rounded-lg px-3 sm:px-4 text-xs font-semibold bg-amber-50 hover:bg-amber-100 text-amber-700 border border-amber-200 transition-colors relative overflow-hidden shrink-0"
                             >
                                 {autoApplyType === 'cross_res' ? (
                                     <>
-                                        <Loader2 className="mr-2 h-4 w-4 animate-spin text-amber-600" />
+                                        <Loader2 className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 animate-spin text-amber-600" />
                                         <span>Copying ({autoApplyProgress.completed}/{autoApplyProgress.total})</span>
                                     </>
                                 ) : (
                                     <>
-                                        <Copy className="mr-2 h-4 w-4 text-amber-500" />
+                                        <Copy className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-amber-500" />
                                         <span>Copy from Rest.</span>
                                     </>
                                 )}
+                            </Button>
+                            <Button
+                                variant="secondary"
+                                onClick={() => setIsDriveImportModalOpen(true)}
+                                disabled={isAutoApplying}
+                                className="h-8.5 sm:h-9 rounded-lg px-3 sm:px-4 text-xs font-semibold bg-teal-50 hover:bg-teal-100 text-teal-700 border border-teal-200 transition-colors relative overflow-hidden shrink-0 shadow-xs"
+                            >
+                                <Cloud className="mr-1.5 sm:mr-2 h-3.5 w-3.5 sm:h-4 sm:w-4 text-teal-600" />
+                                <span>Import from Drive</span>
                             </Button>
                         </div>
                         
@@ -1204,10 +1233,15 @@ export default function ImageEditor({ allItems, updateItem }) {
                         )}
                     </div>
 
-                    <div className={`grid gap-4 transition-all duration-300 ${isImageSidebarOpen ? 'grid-cols-4' : 'grid-cols-8'}`}>
-                        {allItems.map(item => (
+                    {/* Responsive Grid of Dishes */}
+                    <div className={`grid gap-3 sm:gap-4 transition-all duration-300 ${
+                        isImageSidebarOpen
+                            ? 'grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'
+                            : 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8'
+                    }`}>
+                        {allItems.map((item, index) => (
                             <ImageCard
-                                key={item.id}
+                                key={item._uniqueKey || `${item.id}-${index}`}
                                 item={item}
                                 isActive={activeItem?.id === item.id}
                                 onClick={(item) => dispatch(openImageSidebar(item))}
@@ -1258,6 +1292,20 @@ export default function ImageEditor({ allItems, updateItem }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Google Drive Import Modal */}
+            {googleClientId ? (
+                <GoogleOAuthProvider clientId={googleClientId}>
+                    <GoogleDriveImportModal
+                        isOpen={isDriveImportModalOpen}
+                        onClose={() => setIsDriveImportModalOpen(false)}
+                        allItems={allItems}
+                        updateItem={updateItem}
+                        activeResId={activeResId}
+                        activePlatform={activePlatform}
+                    />
+                </GoogleOAuthProvider>
+            ) : null}
         </div>
     );
 }

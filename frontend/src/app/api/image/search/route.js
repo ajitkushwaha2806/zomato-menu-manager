@@ -14,6 +14,10 @@ function extractResults(payload) {
     );
 }
 
+const serverCache = new Map();
+const SERVER_CACHE_TTL = 30 * 60 * 1000;
+const MAX_SERVER_CACHE_SIZE = 500;
+
 export async function GET(req) {
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 5000);
@@ -53,6 +57,18 @@ export async function GET(req) {
 
         // Platform detection: defaults to swiggy
         const platform = searchParams.get("platform") ?? "swiggy";
+        const premium = searchParams.get("premium");
+
+        const cacheKey = `${query.toLowerCase()}_${page}_${limit}_${platform}_${premium}`;
+        const cached = serverCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < SERVER_CACHE_TTL) {
+            return NextResponse.json(cached.body, {
+                headers: {
+                    "Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800",
+                    "X-Cache": "HIT"
+                }
+            });
+        }
 
         const url = new URL(SEARCH_API);
 
@@ -67,7 +83,6 @@ export async function GET(req) {
         }
 
         // Forward premium parameter if provided
-        const premium = searchParams.get("premium");
         if (premium === "true") {
             url.searchParams.set("premium", "true");
         }
@@ -99,27 +114,36 @@ export async function GET(req) {
         const payload = await response.json();
         const results = extractResults(payload);
 
-        return NextResponse.json(
-            {
-                success: true,
-                query: payload.query ?? query,
-                data: results,
-                page: payload.page ?? page,
+        const responseBody = {
+            success: true,
+            query: payload.query ?? query,
+            data: results,
+            page: payload.page ?? page,
+            limit: payload.limit ?? limit,
+            total: payload.total ?? results.length,
+            hasMore: payload.hasMore ?? false,
+            pagination: payload.pagination ?? {
+                totalCount: payload.total ?? results.length,
+                currentPage: payload.page ?? page,
+                totalPages: Math.ceil(
+                    (payload.total ?? results.length) / (payload.limit ?? limit),
+                ),
                 limit: payload.limit ?? limit,
-                total: payload.total ?? results.length,
-                hasMore: payload.hasMore ?? false,
-                pagination: payload.pagination ?? {
-                    totalCount: payload.total ?? results.length,
-                    currentPage: payload.page ?? page,
-                    totalPages: Math.ceil(
-                        (payload.total ?? results.length) / (payload.limit ?? limit),
-                    ),
-                    limit: payload.limit ?? limit,
-                },
             },
+        };
+
+        if (serverCache.size >= MAX_SERVER_CACHE_SIZE) {
+            const oldestKey = serverCache.keys().next().value;
+            if (oldestKey) serverCache.delete(oldestKey);
+        }
+        serverCache.set(cacheKey, { body: responseBody, timestamp: Date.now() });
+
+        return NextResponse.json(
+            responseBody,
             {
                 headers: {
-                    "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+                    "Cache-Control": "public, s-maxage=300, stale-while-revalidate=1800",
+                    "X-Cache": "MISS"
                 },
             },
         );

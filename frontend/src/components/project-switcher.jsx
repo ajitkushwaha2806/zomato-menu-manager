@@ -36,6 +36,8 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import useRestaurant from "@/store/hooks/useRestaurant";
 import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
 import usePetpoojaRestaurant from "@/store/hooks/usePetpoojaRestaurant";
+import useOwnlyRestaurant from "@/store/hooks/useOwnlyRestaurant";
+import CookieStorage from "@/services/cookie";
 import { useMenu } from "@/store/hooks/useMenu";
 import SyncAllRestaurantsModal from "@/components/global/menu/bulk-editor-router/views/SyncAllRestaurantsModal";
 import PetpoojaUnlockModal from "@/components/global/menu/PetpoojaUnlockModal";
@@ -103,16 +105,46 @@ export function ProjectSwitcher() {
     isFetching: isPetpoojaFetching,
   } = usePetpoojaRestaurant();
 
+  const {
+    restaurants: ownlyRestaurants,
+    isLoading: isOwnlyLoading,
+    isError: isOwnlyError,
+    error: ownlyError,
+    refetch: refetchOwnly,
+    isFetching: isOwnlyFetching,
+  } = useOwnlyRestaurant();
+
   const { activeResId, activePlatform, setActiveResId } = useMenu();
 
+  const connectedPlatforms = React.useMemo(() => {
+    const platforms = CookieStorage.getConnectedPlatforms();
+    return platforms.length > 0 ? platforms : ["zomato"];
+  }, []);
+
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [activeTab, setActiveTab] = React.useState(activePlatform || "zomato");
+  const initialPlatform = activePlatform || (typeof window !== "undefined" ? (localStorage.getItem("activePlatform") || CookieStorage.getActivePlatform()) : null);
+  const defaultTab = (initialPlatform && connectedPlatforms.includes(initialPlatform))
+    ? initialPlatform
+    : (connectedPlatforms[0] || "zomato");
+
+  const [activeTab, setActiveTab] = React.useState(defaultTab);
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const [isSyncModalOpen, setIsSyncModalOpen] = React.useState(false);
   const [isUnlockModalOpen, setIsUnlockModalOpen] = React.useState(false);
   const [pendingPetpooja, setPendingPetpooja] = React.useState(null);
 
   const handleSelectRestaurant = async (restaurant) => {
+    CookieStorage.setActivePlatform(restaurant.platform);
+    if (restaurant.platform === "ownly") {
+      CookieStorage.setAccountName(CookieStorage.getOwnlyAccount() || "");
+    } else if (restaurant.platform === "petpooja") {
+      CookieStorage.setAccountName(CookieStorage.getPetpoojaAccount() || "");
+    } else if (restaurant.platform === "swiggy") {
+      CookieStorage.setAccountName(CookieStorage.getSwiggyAccount() || "");
+    } else if (restaurant.platform === "zomato") {
+      CookieStorage.setAccountName(CookieStorage.getZomatoAccount() || "");
+    }
+
     if (restaurant.platform === 'petpooja') {
       const resId = String(restaurant.id);
       const localVerified = typeof window !== 'undefined' ? localStorage.getItem(`otp_verified_${resId}`) : null;
@@ -147,27 +179,49 @@ export function ProjectSwitcher() {
     setIsDropdownOpen(false);
   };
 
+  const handleTabChange = (newTab) => {
+    setActiveTab(newTab);
+    const tabOutlets = entities.filter(r => r.platform === newTab);
+    if (tabOutlets.length > 0 && activePlatform !== newTab) {
+      handleSelectRestaurant(tabOutlets[0]);
+    }
+  };
+
   React.useEffect(() => {
-    if (activePlatform) {
+    if (activePlatform && connectedPlatforms.includes(activePlatform)) {
       setActiveTab(activePlatform);
     }
-  }, [activePlatform]);
+  }, [activePlatform, connectedPlatforms]);
 
   const entities = React.useMemo(() => {
-    const zomatoEntities = (zomatoRestaurants?.entities || []).map(r => ({ ...r, platform: 'zomato' }));
-    const swiggyEntities = (swiggyRestaurants?.entities || []).map(r => ({ ...r, platform: 'swiggy' }));
-    const petpoojaEntities = (petpoojaRestaurants?.entities || []).map(r => ({ ...r, platform: 'petpooja' }));
-    return [...zomatoEntities, ...swiggyEntities, ...petpoojaEntities];
-  }, [zomatoRestaurants, swiggyRestaurants, petpoojaRestaurants]);
+    const zomatoEntities = (connectedPlatforms.includes('zomato') ? (zomatoRestaurants?.entities || []) : []).map(r => ({ ...r, platform: 'zomato' }));
+    const swiggyEntities = (connectedPlatforms.includes('swiggy') ? (swiggyRestaurants?.entities || []) : []).map(r => ({ ...r, platform: 'swiggy' }));
+    const petpoojaEntities = (connectedPlatforms.includes('petpooja') ? (petpoojaRestaurants?.entities || []) : []).map(r => ({ ...r, platform: 'petpooja' }));
+    const ownlyEntities = (connectedPlatforms.includes('ownly') ? (ownlyRestaurants?.entities || []) : []).map(r => ({ ...r, platform: 'ownly' }));
+    return [...zomatoEntities, ...swiggyEntities, ...petpoojaEntities, ...ownlyEntities];
+  }, [connectedPlatforms, zomatoRestaurants, swiggyRestaurants, petpoojaRestaurants, ownlyRestaurants]);
 
-  const isLoading = (isZomatoLoading && isSwiggyLoading && isPetpoojaLoading) && !entities.length;
-  const isError = isZomatoError && isSwiggyError && isPetpoojaError && !entities.length;
-  const error = zomatoError || swiggyError || petpoojaError;
-  const isFetching = isZomatoFetching || isSwiggyFetching || isPetpoojaFetching;
+  const isLoading = (
+    (connectedPlatforms.includes('zomato') && isZomatoLoading) ||
+    (connectedPlatforms.includes('swiggy') && isSwiggyLoading) ||
+    (connectedPlatforms.includes('petpooja') && isPetpoojaLoading) ||
+    (connectedPlatforms.includes('ownly') && isOwnlyLoading)
+  ) && !entities.length;
+
+  const isError = !entities.length && (
+    (connectedPlatforms.includes('zomato') && isZomatoError) ||
+    (connectedPlatforms.includes('swiggy') && isSwiggyError) ||
+    (connectedPlatforms.includes('petpooja') && isPetpoojaError) ||
+    (connectedPlatforms.includes('ownly') && isOwnlyError)
+  );
+
+  const error = zomatoError || swiggyError || petpoojaError || ownlyError;
+  const isFetching = isZomatoFetching || isSwiggyFetching || isPetpoojaFetching || isOwnlyFetching;
   const refetch = () => {
-    refetchZomato();
-    refetchSwiggy();
-    refetchPetpooja();
+    if (connectedPlatforms.includes('zomato')) refetchZomato();
+    if (connectedPlatforms.includes('swiggy')) refetchSwiggy();
+    if (connectedPlatforms.includes('petpooja')) refetchPetpooja();
+    if (connectedPlatforms.includes('ownly')) refetchOwnly();
   };
 
   const filteredEntities = React.useMemo(() => {
@@ -184,24 +238,25 @@ export function ProjectSwitcher() {
   }, [entities, activeResId, activePlatform]);
 
   React.useEffect(() => {
-    if (!isLoading && !activeResId && entities.length) {
+    if (!isLoading && entities.length) {
       const savedResId = typeof window !== 'undefined' ? localStorage.getItem('22915132') : null;
-      const savedPlatform = typeof window !== 'undefined' ? localStorage.getItem('activePlatform') : null;
+      const savedPlatform = typeof window !== 'undefined' ? (localStorage.getItem('activePlatform') || CookieStorage.getActivePlatform()) : null;
       let matchedEntity = null;
-      if (savedResId) {
-        if (savedPlatform) {
-          matchedEntity = entities.find(e => String(e.id) === savedResId && e.platform === savedPlatform);
-        } else {
-          matchedEntity = entities.find(e => String(e.id) === savedResId);
-        }
+      if (savedResId && savedPlatform) {
+        matchedEntity = entities.find(e => String(e.id) === savedResId && e.platform === savedPlatform);
       }
-      if (matchedEntity) {
+      if (!matchedEntity) {
+        const targetPlatform = savedPlatform || activePlatform || activeTab || 'zomato';
+        matchedEntity = entities.find(e => e.platform === targetPlatform);
+      }
+      if (!matchedEntity && entities.length > 0) {
+        matchedEntity = entities[0];
+      }
+      if (matchedEntity && (!activeResId || (savedPlatform && activePlatform !== savedPlatform))) {
         setActiveResId({ id: matchedEntity.id, platform: matchedEntity.platform });
-      } else {
-        setActiveResId({ id: entities[0].id, platform: entities[0].platform });
       }
     }
-  }, [entities, activeResId, setActiveResId, isLoading]);
+  }, [entities, activeResId, activePlatform, setActiveResId, isLoading, activeTab]);
 
   if (isLoading) return <ProjectSkeleton />;
 
@@ -284,12 +339,15 @@ export function ProjectSwitcher() {
                 <span className="truncate text-sm font-semibold tracking-tight text-foreground flex items-center gap-1.5">
                   {selected?.name || "Select Restaurant"}
                   {selected?.platform && (
-                    <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider ${selected.platform === 'swiggy'
+                    <span className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-bold tracking-wider ${
+                      selected.platform === 'swiggy'
                         ? 'bg-orange-500/10 text-orange-600'
                         : selected.platform === 'petpooja'
-                          ? 'bg-emerald-500/10 text-emerald-600'
-                          : 'bg-red-500/10 text-red-600'
-                      }`}>
+                          ? 'bg-purple-500/10 text-purple-600'
+                          : selected.platform === 'ownly'
+                            ? 'bg-blue-500/10 text-blue-600'
+                            : 'bg-red-500/10 text-red-600'
+                    }`}>
                       {selected.platform}
                     </span>
                   )}
@@ -331,7 +389,7 @@ export function ProjectSwitcher() {
                     Your Restaurants
                   </p>
                   <p className="text-[11px] text-muted-foreground font-normal mt-0.5">
-                    {entities.length} connected account{entities.length > 1 ? "s" : ""}
+                    {filteredEntities.length} connected outlet{filteredEntities.length !== 1 ? "s" : ""}
                   </p>
                 </div>
                 <Button
@@ -352,13 +410,30 @@ export function ProjectSwitcher() {
             </DropdownMenuLabel>
 
             <div className="px-2 pb-2">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full mb-2">
-                <TabsList className="w-full grid grid-cols-3">
-                  <TabsTrigger value="zomato" className="text-[11px] uppercase tracking-wider">Zomato</TabsTrigger>
-                  <TabsTrigger value="swiggy" className="text-[11px] uppercase tracking-wider">Swiggy</TabsTrigger>
-                  <TabsTrigger value="petpooja" className="text-[11px] uppercase tracking-wider">Petpooja</TabsTrigger>
-                </TabsList>
-              </Tabs>
+              {connectedPlatforms.length > 1 && (
+                <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full mb-2">
+                  <TabsList className={`w-full grid ${
+                    connectedPlatforms.length === 2
+                      ? "grid-cols-2"
+                      : connectedPlatforms.length === 3
+                        ? "grid-cols-3"
+                        : "grid-cols-4"
+                  }`}>
+                    {connectedPlatforms.includes("zomato") && (
+                      <TabsTrigger value="zomato" className="text-[10px] uppercase tracking-wider">Zomato</TabsTrigger>
+                    )}
+                    {connectedPlatforms.includes("swiggy") && (
+                      <TabsTrigger value="swiggy" className="text-[10px] uppercase tracking-wider">Swiggy</TabsTrigger>
+                    )}
+                    {connectedPlatforms.includes("petpooja") && (
+                      <TabsTrigger value="petpooja" className="text-[10px] uppercase tracking-wider">Petpooja</TabsTrigger>
+                    )}
+                    {connectedPlatforms.includes("ownly") && (
+                      <TabsTrigger value="ownly" className="text-[10px] uppercase tracking-wider">Ownly</TabsTrigger>
+                    )}
+                  </TabsList>
+                </Tabs>
+              )}
               <div className="relative">
                 <Search className="absolute left-2 top-1/2 -translate-y-1/2 size-3.5 text-muted-foreground" />
                 <input
@@ -399,12 +474,15 @@ export function ProjectSwitcher() {
                     <div className="min-w-0 flex-1">
                       <p className="truncate text-sm font-medium flex items-center gap-1.5">
                         {restaurant.name}
-                        <span className={`px-1 rounded text-[9px] uppercase font-bold tracking-wider shrink-0 ${restaurant.platform === 'swiggy'
+                        <span className={`px-1 rounded text-[9px] uppercase font-bold tracking-wider shrink-0 ${
+                          restaurant.platform === 'swiggy'
                             ? 'bg-orange-500/10 text-orange-600'
                             : restaurant.platform === 'petpooja'
-                              ? 'bg-emerald-500/10 text-emerald-600'
-                              : 'bg-red-500/10 text-red-600'
-                          }`}>
+                              ? 'bg-purple-500/10 text-purple-600'
+                              : restaurant.platform === 'ownly'
+                                ? 'bg-blue-500/10 text-blue-600'
+                                : 'bg-red-500/10 text-red-600'
+                        }`}>
                           {restaurant.platform}
                         </span>
                       </p>

@@ -261,11 +261,11 @@ export default function StructureEditor({ menuData }) {
 
                                                         {isSubExpanded && (
                                                             <div className="pl-14 pr-4 py-2 space-y-1 bg-white border-y border-gray-100">
-                                                                {activeItems.map(item => {
+                                                                {activeItems.map((item, index) => {
                                                                     const isSelected = selectedItemIds.has(item.id);
                                                                     return (
                                                                         <div 
-                                                                            key={item.id}
+                                                                            key={item._uniqueKey || `${sub.id}-${item.id}-${index}`}
                                                                             onClick={() => handleItemToggle(item.id)}
                                                                             className={`flex items-center gap-3 p-2 rounded-md cursor-pointer transition-colors ${
                                                                                 isSelected ? 'bg-primary/10' : 'hover:bg-gray-50'

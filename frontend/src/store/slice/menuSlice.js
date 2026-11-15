@@ -55,6 +55,18 @@ export const syncPetpoojaMenu = createAsyncThunk(
     }
 );
 
+export const syncOwnlyMenu = createAsyncThunk(
+    'menu/syncOwnlyMenu',
+    async (resId, { rejectWithValue }) => {
+        try {
+            const data = await MenuService.syncOwnlyMenu(resId);
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message || 'Failed to sync Ownly menu');
+        }
+    }
+);
+
 export const saveMenuByResId = createAsyncThunk(
     'menu/saveMenuByResId',
     async (_, { getState, rejectWithValue }) => {
@@ -1219,6 +1231,45 @@ const menuSlice = createSlice({
                 }
             })
             .addCase(syncPetpoojaMenu.rejected, (state, action) => {
+                state.isSyncing = false;
+                state.error = action.payload;
+            })
+            // Sync Ownly Menu
+            .addCase(syncOwnlyMenu.pending, (state) => {
+                state.isSyncing = true;
+                state.error = null;
+            })
+            .addCase(syncOwnlyMenu.fulfilled, (state, action) => {
+                state.isSyncing = false;
+                state.imageUploadStatuses = {};
+                state.ticketImageUpdates = {};
+                state.updated_menu = createEmptyUpdatedMenu();
+                const dbDoc = action.payload?.data || action.payload;
+                const fetchedMenu = dbDoc?.menu || [];
+                const fetchedAddons = dbDoc?.addons || [];
+
+                if (dbDoc?.name) {
+                    state.restaurantName = dbDoc.name;
+                }
+                state.menuData = Array.isArray(fetchedMenu) ? fetchedMenu : [];
+                state.addonsData = Array.isArray(fetchedAddons) ? fetchedAddons : [];
+
+                if (state.menuData.length > 0) {
+                    const categoryExists = state.activeCategory && state.menuData.find(c => c.id === state.activeCategory);
+                    if (!categoryExists) {
+                        state.activeCategory = state.menuData[0].id;
+                        if (state.menuData[0].sub_category?.length > 0) {
+                            state.activeSubCategory = state.menuData[0].sub_category[0].id;
+                        } else {
+                            state.activeSubCategory = null;
+                        }
+                    }
+                } else {
+                    state.activeCategory = null;
+                    state.activeSubCategory = null;
+                }
+            })
+            .addCase(syncOwnlyMenu.rejected, (state, action) => {
                 state.isSyncing = false;
                 state.error = action.payload;
             });

@@ -94,12 +94,12 @@ export default function AllItemsEditor({ allItems, deleteItem }) {
                         </thead>
                         <tbody className="divide-y">
                             {displayItems.length > 0 ? (
-                                displayItems.map(item => {
+                                displayItems.map((item, index) => {
                                     const nameKey = (item.name || "").toLowerCase().trim();
                                     const isDuplicate = nameOccurrences[nameKey] > 1;
                                     
                                     return (
-                                        <tr key={item.id} className={`hover:bg-gray-50/50 ${isDuplicate ? 'bg-amber-50/30' : ''}`}>
+                                        <tr key={item._uniqueKey || `${item.id}-${index}`} className={`hover:bg-gray-50/50 ${isDuplicate ? 'bg-amber-50/30' : ''}`}>
                                             <td className="p-3 align-middle">
                                                 <div className="flex items-center gap-2">
                                                     <span className="font-medium text-gray-900">{item.name || "Unnamed Item"}</span>

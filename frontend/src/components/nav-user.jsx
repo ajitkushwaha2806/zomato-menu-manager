@@ -3,7 +3,7 @@
 import { useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { IconDotsVertical } from "@tabler/icons-react";
-import { LogOut } from "lucide-react";
+import { LogOut, Lock } from "lucide-react";
 import useUser from "@/store/hooks/useUser";
 import useNotification from "@/store/hooks/useNotification";
 import CookieStorage from "@/services/cookie";
@@ -40,7 +40,7 @@ export function NavUser() {
     clearAccessToken();
     clearLoginPromise();
     notify.error(
-      error?.message || "Zomato session expired. Please login again.",
+      error?.message || "Session expired. Please login again.",
       {
         duration: 5000,
       }
@@ -74,12 +74,13 @@ export function NavUser() {
   const email = user?.userEmail ?? "";
   const avatar = user?.userProfilePicture ?? "";
 
-  const initials = name
+  const initials = (name || "U")
     .split(" ")
+    .filter(Boolean)
     .map((x) => x[0])
     .join("")
     .slice(0, 2)
-    .toUpperCase();
+    .toUpperCase() || "U";
 
   return (
     <SidebarMenu>
@@ -138,6 +139,17 @@ export function NavUser() {
                 )}
               </div>
             </div>
+
+            <DropdownMenuItem
+              onClick={() => {
+                CookieStorage.lockApp();
+                window.location.reload();
+              }}
+              className="cursor-pointer py-2.5 text-muted-foreground hover:text-foreground"
+            >
+              <Lock className="mr-2 h-4 w-4" />
+              Lock Application
+            </DropdownMenuItem>
 
             <DropdownMenuItem
               onClick={handleLogout}

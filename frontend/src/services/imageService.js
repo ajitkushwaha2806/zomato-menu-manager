@@ -1,10 +1,13 @@
 import { uploadZomatoImage } from "./zomatoImageService";
 import { uploadSwiggyImage } from "./swiggyImageService";
 import { uploadPetpoojaImage } from "./petpoojaImageService";
+import { uploadOwnlyImage } from "./ownlyImageService";
 
 export const uploadPlatformImage = async (activePlatform, activeResId, fileOrUrl, itemName = "Unknown Item", itemId = null) => {
     if (activePlatform === "petpooja") {
         return await uploadPetpoojaImage(activeResId, fileOrUrl, itemName, itemId);
+    } else if (activePlatform === "ownly") {
+        return await uploadOwnlyImage(activeResId, fileOrUrl, itemName, itemId);
     } else if (activePlatform === "swiggy") {
         try {
             const uploadRes = await uploadSwiggyImage(activeResId, fileOrUrl, itemName);

@@ -42,10 +42,12 @@ export default function BulkEditorRouter({
     }, [menuData]);
 
     const allItems = useMemo(() => {
-        return filteredMenuData.flatMap(cat =>
-            (cat.sub_category || []).flatMap(sub =>
-                (sub.items || []).map(item => ({
+        return filteredMenuData.flatMap((cat, cIdx) =>
+            (cat.sub_category || []).flatMap((sub, sIdx) =>
+                (sub.items || []).map((item, iIdx) => ({
                     ...item,
+                    _uniqueKey: item._uniqueKey || `${cat.id || cIdx}-${sub.id || sIdx}-${item.id || iIdx}-${cIdx}-${sIdx}-${iIdx}`,
+                    _parentCategoryId: cat.id,
                     _parentSubCategoryId: sub.id,
                     _parentSubCategoryName: sub.name,
                     _parentCategoryName: cat.name

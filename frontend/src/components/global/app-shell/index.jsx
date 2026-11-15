@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import React, { useState } from "react";
 import { usePathname } from "next/navigation";
 import AuthProvider from "@/lib/auth/app-provider";
+import AppPasswordGate from "@/components/global/auth/AppPasswordGate";
 import { SiteHeader } from "@/components/site-header";
 import { AppSidebar } from "@/components/app-sidebar";
 import NotificationBanner from "../notification/NotificationBanner";
@@ -24,9 +25,11 @@ const AppShell = ({ children }) => {
   if (pathname === "/login") {
     return (
       <Provider store={store}>
-        <main className="min-h-screen w-full bg-background overflow-hidden" >
-          {children}
-        </main >
+        <AppPasswordGate>
+          <main className="min-h-screen w-full bg-background overflow-hidden" >
+            {children}
+          </main >
+        </AppPasswordGate>
       </Provider>
     );
   }
@@ -38,24 +41,28 @@ const AppShell = ({ children }) => {
   return (
     <Provider store={store}>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider> <SidebarProvider
-          style={{
-            "--sidebar-width": "calc(var(--spacing) * 72)",
-            "--header-height": "calc(var(--spacing) * 12)",
-          }}
-        >
-          <div className="flex min-h-screen w-full">
-            {!isHiddenSidebar && <AppSidebar variant="inset" />}
+        <AppPasswordGate>
+          <AuthProvider>
+            <SidebarProvider
+              style={{
+                "--sidebar-width": "calc(var(--spacing) * 72)",
+                "--header-height": "calc(var(--spacing) * 12)",
+              }}
+            >
+              <div className="flex min-h-screen w-full">
+                {!isHiddenSidebar && <AppSidebar variant="inset" />}
 
-            <SidebarInset className="flex flex-1 flex-col min-w-0">
-              <React.Suspense fallback={null}>
-                <SiteHeader />
-              </React.Suspense>
-              <NotificationBanner />
-              <main className="flex-1 min-w-0">{children}</main>
-            </SidebarInset>
-          </div>
-        </SidebarProvider></AuthProvider>
+                <SidebarInset className="flex flex-1 flex-col min-w-0">
+                  <React.Suspense fallback={null}>
+                    <SiteHeader />
+                  </React.Suspense>
+                  <NotificationBanner />
+                  <main className="flex-1 min-w-0">{children}</main>
+                </SidebarInset>
+              </div>
+            </SidebarProvider>
+          </AuthProvider>
+        </AppPasswordGate>
       </QueryClientProvider>
     </Provider>
   );

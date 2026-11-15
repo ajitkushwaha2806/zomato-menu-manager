@@ -254,8 +254,8 @@ export default function DescriptionEditor({ allItems, updateItem }) {
                             </tr>
                         </thead>
                         <tbody className="divide-y">
-                            {allItems.map(item => (
-                                <tr key={item.id} className="hover:bg-gray-50/50">
+                            {allItems.map((item, index) => (
+                                <tr key={item._uniqueKey || `${item.id}-${index}`} className="hover:bg-gray-50/50">
                                     <td className="p-3 font-medium text-gray-900 align-top">
                                         {item.name || "Unnamed Item"}
                                         <div className="text-[10px] text-gray-400 font-normal mt-0.5">

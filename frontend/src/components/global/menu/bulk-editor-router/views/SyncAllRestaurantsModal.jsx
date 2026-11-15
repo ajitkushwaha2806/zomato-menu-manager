@@ -26,12 +26,14 @@ import {
 import useRestaurant from "@/store/hooks/useRestaurant";
 import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
 import usePetpoojaRestaurant from "@/store/hooks/usePetpoojaRestaurant";
+import useOwnlyRestaurant from "@/store/hooks/useOwnlyRestaurant";
 import api from "@/lib/api/axios";
 
 export default function SyncAllRestaurantsModal({ isOpen, onClose }) {
     const { restaurants: zomatoRestaurants, isLoading: isZomatoLoading } = useRestaurant();
     const { restaurants: swiggyRestaurants } = useSwiggyRestaurant();
     const { restaurants: petpoojaRestaurants } = usePetpoojaRestaurant();
+    const { restaurants: ownlyRestaurants } = useOwnlyRestaurant();
 
     const [platform, setPlatform] = useState("zomato");
     const [skipAlreadySynced, setSkipAlreadySynced] = useState(true);
@@ -101,6 +103,8 @@ export default function SyncAllRestaurantsModal({ isOpen, onClose }) {
             list = zomatoRestaurants?.entities || [];
         } else if (platform === "swiggy") {
             list = swiggyRestaurants?.entities || [];
+        } else if (platform === "ownly") {
+            list = ownlyRestaurants?.entities || [];
         } else if (platform === "petpooja") {
             list = petpoojaRestaurants?.entities || [];
         }
@@ -110,7 +114,7 @@ export default function SyncAllRestaurantsModal({ isOpen, onClose }) {
             subzone: r.subzone || "",
             thumbnail: r.thumbnail || "",
         }));
-    }, [platform, zomatoRestaurants, swiggyRestaurants, petpoojaRestaurants]);
+    }, [platform, zomatoRestaurants, swiggyRestaurants, petpoojaRestaurants, ownlyRestaurants]);
 
     const syncedResIdSet = useMemo(() => {
         const set = new Set();
@@ -198,6 +202,8 @@ export default function SyncAllRestaurantsModal({ isOpen, onClose }) {
                         endpoint = `/api/menu/${restaurant.id}/zomato/import`;
                     } else if (platform === "swiggy") {
                         endpoint = `/api/menu/${restaurant.id}/swiggy/import`;
+                    } else if (platform === "ownly") {
+                        endpoint = `/api/menu/${restaurant.id}/ownly/import`;
                     } else {
                         endpoint = `/api/menu/${restaurant.id}/petpooja/import`;
                     }
@@ -378,6 +384,16 @@ export default function SyncAllRestaurantsModal({ isOpen, onClose }) {
                                     }`}
                                 >
                                     Petpooja ({petpoojaRestaurants?.entities?.length || 0})
+                                </button>
+                                <button
+                                    onClick={() => !isSyncing && setPlatform("ownly")}
+                                    className={`px-3 py-1 text-xs font-bold rounded-md transition-all ${
+                                        platform === "ownly"
+                                            ? "bg-purple-600 text-white shadow-xs"
+                                            : "text-slate-600 hover:text-slate-900"
+                                    }`}
+                                >
+                                    Ownly ({ownlyRestaurants?.entities?.length || 0})
                                 </button>
                             </div>
                         </div>

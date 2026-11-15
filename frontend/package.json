@@ -11,8 +11,9 @@
     "build:electron:win": "npm run build:next && electron-builder --win",
     "build:electron:all": "npm run build:next && electron-builder --mac --arm64 --x64 --win",
     "start:swiggy": "node ./src/lib/bullmq/worker/swiggy-worker.mjs",
+    "start:ownly": "node ./src/lib/bullmq/worker/ownly-worker.mjs",
     "start:dashboard": "node ./bull-server/dashboard.js",
-    "dev": "concurrently -n \"NEXT,SWIGGY,DASHBOARD\" -c \"bgBlue.bold,bgGreen.bold,bgMagenta.bold\" \"npm run next:dev\" \"npm run start:swiggy\" \"npm run start:dashboard\""
+    "dev": "concurrently -n \"NEXT,SWIGGY,OWNLY,DASHBOARD\" -c \"bgBlue.bold,bgGreen.bold,bgYellow.bold,bgMagenta.bold\" \"npm run next:dev\" \"npm run start:swiggy\" \"npm run start:ownly\" \"npm run start:dashboard\""
   },
   "build": {
     "appId": "in.magicscale.menufy",

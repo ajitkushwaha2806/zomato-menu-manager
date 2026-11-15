@@ -27,6 +27,11 @@ api.interceptors.request.use(
             config.headers["x-petpooja-cookie"] = petpoojaCookie;
         }
 
+        const ownlyCookie = CookieStorage.getOwnlyCookie();
+        if (ownlyCookie) {
+            config.headers["x-ownly-cookie"] = ownlyCookie;
+        }
+
         return config;
     },
     (error) => Promise.reject(error)

@@ -17,6 +17,7 @@ import { toast } from "sonner";
 import axios from "axios";
 import { uploadPlatformImage } from "@/services/imageService";
 import { queueImageUpload } from "@/services/imageQueueService";
+import { fetchImagesWithCache, getCachedResult } from "@/services/imageSearchCacheService";
 
 export default function ImageSidebar() {
     const dispatch = useDispatch();
@@ -36,6 +37,7 @@ export default function ImageSidebar() {
     const [isLoadingMore, setIsLoadingMore] = useState(false);
 
     const prevItemKeyRef = useRef(null);
+    const searchDebounceRef = useRef(null);
 
     const fetchImages = useCallback(async (query, pageNum = 1, source = searchSource) => {
         if (!query || !query.trim()) {
@@ -44,40 +46,39 @@ export default function ImageSidebar() {
             return;
         }
 
+        // For page 1, check cache first for instantaneous 0ms display
+        if (pageNum === 1) {
+            const cached = getCachedResult(query, 1, source);
+            if (cached) {
+                setImages(cached.data);
+                setHasMore(cached.hasMore);
+                setPage(1);
+                setLoading(false);
+                return;
+            }
+            setLoading(true);
+            setImages([]);
+        } else {
+            setIsLoadingMore(true);
+        }
+
         try {
+            const res = await fetchImagesWithCache(query, pageNum, source, { urgent: true });
+            const fetchedData = res.data || [];
+
             if (pageNum === 1) {
-                setLoading(true);
-                setImages([]);
+                setImages(fetchedData);
             } else {
-                setIsLoadingMore(true);
+                setImages((prev) => {
+                    const existingIds = new Set(prev.map((img) => img._id || img.id || img.image_url));
+                    const newImages = fetchedData.filter(
+                        (img) => !existingIds.has(img._id || img.id || img.image_url),
+                    );
+                    return [...prev, ...newImages];
+                });
             }
-
-            let endpoint = `/api/image/search?q=${encodeURIComponent(query)}&page=${pageNum}&limit=48`;
-
-            if (source === "foodsnap") {
-                endpoint = `/api/image/foodsnap-search?query=${encodeURIComponent(query)}&page=${pageNum}&limit=48`;
-            } else if (source === "swiggy") {
-                endpoint = `/api/image/swiggy-search?q=${encodeURIComponent(query)}&page=${pageNum}&limit=48`;
-            }
-
-            const res = await axios.get(endpoint);
-
-            if (res.data.success) {
-                const fetchedData = res.data.data || [];
-                if (pageNum === 1) {
-                    setImages(fetchedData);
-                } else {
-                    setImages((prev) => {
-                        const existingIds = new Set(prev.map((img) => img._id || img.id || img.image_url));
-                        const newImages = fetchedData.filter(
-                            (img) => !existingIds.has(img._id || img.id || img.image_url),
-                        );
-                        return [...prev, ...newImages];
-                    });
-                }
-                setHasMore(res.data.hasMore || false);
-                setPage(pageNum);
-            }
+            setHasMore(res.hasMore || false);
+            setPage(pageNum);
         } catch (error) {
             console.error("Failed to search images:", error);
         } finally {
@@ -92,14 +93,29 @@ export default function ImageSidebar() {
             if (prevItemKeyRef.current === currentKey) return;
             prevItemKeyRef.current = currentKey;
 
-            setSearchQuery(activeImageSearchItem.name);
-            fetchImages(activeImageSearchItem.name, 1, searchSource);
+            const dishName = activeImageSearchItem.name;
+            setSearchQuery(dishName);
+
+            // Instant cache check: if cached, render immediately on mount
+            const cached = getCachedResult(dishName, 1, searchSource);
+            if (cached) {
+                setImages(cached.data);
+                setHasMore(cached.hasMore);
+                setPage(1);
+                setLoading(false);
+            } else {
+                fetchImages(dishName, 1, searchSource);
+            }
         }
     }, [isImageSidebarOpen, activeImageSearchItem, searchSource, fetchImages]);
 
     const handleSearchChange = (e) => {
         const query = e.target.value;
         setSearchQuery(query);
+
+        if (searchDebounceRef.current) {
+            clearTimeout(searchDebounceRef.current);
+        }
 
         // Instant preview for pasted URLs
         if (query.trim().startsWith("http://") || query.trim().startsWith("https://")) {
@@ -115,9 +131,11 @@ export default function ImageSidebar() {
             return;
         }
 
-        // Debounce simple version:
+        // Debounced search for manual user typing to avoid rapid fire requests
         if (query.trim().length > 2) {
-            fetchImages(query, 1, searchSource);
+            searchDebounceRef.current = setTimeout(() => {
+                fetchImages(query, 1, searchSource);
+            }, 300);
         }
     };
 
@@ -167,7 +185,7 @@ export default function ImageSidebar() {
     if (!isImageSidebarOpen) return null;
 
     return (
-        <aside className="fixed right-0 top-0 h-full w-1/2 bg-white/80 backdrop-blur-2xl shadow-[-10px_0_30px_-10px_rgba(0,0,0,0.1)] border-l z-50 flex flex-col animate-in slide-in-from-right-full duration-300">
+        <aside className="fixed right-0 top-0 h-full w-full sm:w-[480px] lg:w-1/2 bg-white/95 backdrop-blur-2xl shadow-[-10px_0_30px_-10px_rgba(0,0,0,0.1)] border-l z-50 flex flex-col animate-in slide-in-from-right-full duration-300">
             <div className="flex items-center justify-between p-5 border-b border-border/50 bg-white/50">
                 <div>
                     <h3 className="font-bold text-lg tracking-tight">

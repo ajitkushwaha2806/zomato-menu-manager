@@ -8,11 +8,12 @@ export default function AllItemsList({ menuData, updateItem, deleteItem, moveIte
     if (Array.isArray(menuData)) {
         menuData.forEach((cat) => {
             if (cat.sub_category) {
-                cat.sub_category.forEach((sub) => {
+                cat.sub_category.forEach((sub, sIdx) => {
                     if (sub.items) {
-                        sub.items.forEach((item) => {
+                        sub.items.forEach((item, iIdx) => {
                             allItems.push({
                                 ...item,
+                                _uniqueKey: `${cat.id || ''}-${sub.id || sIdx}-${item.id || iIdx}`,
                                 _parentCategoryId: cat.id,
                                 _parentSubCategoryId: sub.id,
                             });
@@ -66,9 +67,9 @@ export default function AllItemsList({ menuData, updateItem, deleteItem, moveIte
                 ) : (
                     <div className="space-y-4">
                         {allItems
-                            .map((item) => (
+                            .map((item, index) => (
                                     <MenuItemRow
-                                        key={item.id}
+                                        key={item._uniqueKey || `${item.id}-${index}`}
                                         item={item}
                                         categories={menuData}
                                         isAllItemsView={true}

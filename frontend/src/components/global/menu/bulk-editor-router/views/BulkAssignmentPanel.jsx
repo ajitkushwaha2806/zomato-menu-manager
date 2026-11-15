@@ -176,8 +176,8 @@ export function BulkAssignmentPanel({ activeAddon, menuData, bulkToggleAddon, on
                                                         </div>
                                                         
                                                         <div className="ml-6 space-y-0.5 mt-1">
-                                                            {sub.items?.map(item => (
-                                                                <div key={item.id} className="flex items-center gap-2 py-1 hover:bg-slate-50 rounded px-2 transition-colors">
+                                                            {sub.items?.map((item, index) => (
+                                                                <div key={item._uniqueKey || `${sub.id}-${item.id}-${index}`} className="flex items-center gap-2 py-1 hover:bg-slate-50 rounded px-2 transition-colors">
                                                                     <div 
                                                                         className="cursor-pointer text-gray-300 hover:text-blue-600 transition-colors"
                                                                         onClick={() => toggleItem(item.id, !selectedItemIds.has(item.id))}

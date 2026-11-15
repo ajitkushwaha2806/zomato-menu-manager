@@ -6,7 +6,7 @@ import { uploadPlatformImage } from "@/services/imageService";
 import { queueImageUpload } from "@/services/imageQueueService";
 import { setImageUploadStatus } from "@/store/slice/menuSlice";
 
-export default function ZomatoImageDropzone({ itemId, itemName, children, className = "", onClick, overlayText = "Drop Image", onUploadSuccess }) {
+export default function ZomatoImageDropzone({ itemId, itemName, children, className = "", onClick, onMouseEnter, overlayText = "Drop Image", onUploadSuccess }) {
     const dispatch = useDispatch();
     const { activeResId, activePlatform, imageUploadStatuses } = useSelector((state) => state.menu);
     const notification = useNotification();
@@ -183,6 +183,7 @@ export default function ZomatoImageDropzone({ itemId, itemName, children, classN
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
             onClick={onClick}
+            onMouseEnter={onMouseEnter}
             onPaste={handlePaste}
             tabIndex={0}
         >

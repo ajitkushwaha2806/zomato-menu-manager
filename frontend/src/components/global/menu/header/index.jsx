@@ -35,6 +35,7 @@ import { useMenu } from "@/store/hooks/useMenu";
 import useNotification from "@/store/hooks/useNotification";
 import { useState, useEffect, useRef } from "react";
 import api from "@/lib/api/axios";
+import CookieStorage from "@/services/cookie";
 import useRestaurant from "@/store/hooks/useRestaurant";
 import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
 import useUser from "@/store/hooks/useUser";
@@ -55,7 +56,7 @@ export function MenuEditorHeader({
     onSave,
     isSaving,
 }) {
-    const { menuData, addonsData, deleteAllAddons, isLoading, error, syncZomatoMenu, syncSwiggyMenu, syncPetpoojaMenu, isSyncing, activeResId: resId, activePlatform, updateItem, setActiveCategory, setActiveSubCategory, setActiveView, globalSearchQuery, setGlobalSearchQuery, updated_menu, markMenuUpdatesDone, getMenuByResId, taskId: dbTaskId, setTaskId, uploadQueue, clearAllImageUploadStatuses } = useMenu();
+    const { menuData, addonsData, deleteAllAddons, isLoading, error, syncZomatoMenu, syncSwiggyMenu, syncPetpoojaMenu, syncOwnlyMenu, isSyncing, activeResId: resId, activePlatform, updateItem, setActiveCategory, setActiveSubCategory, setActiveView, globalSearchQuery, setGlobalSearchQuery, updated_menu, markMenuUpdatesDone, getMenuByResId, taskId: dbTaskId, setTaskId, uploadQueue, clearAllImageUploadStatuses } = useMenu();
     const notification = useNotification();
 
     const { restaurants: zomatoRestaurants } = useRestaurant();
@@ -161,7 +162,8 @@ export function MenuEditorHeader({
 
     const isSwiggy = activePlatform === 'swiggy';
     const isPetpooja = activePlatform === 'petpooja';
-    const isZomato = !isSwiggy && !isPetpooja;
+    const isOwnly = activePlatform === 'ownly';
+    const isZomato = !isSwiggy && !isPetpooja && !isOwnly;
 
     const [petpoojaSession, setPetpoojaSession] = useState(null);
     const [isSwitchingPetpoojaPlatform, setIsSwitchingPetpoojaPlatform] = useState(false);
@@ -384,6 +386,12 @@ export function MenuEditorHeader({
                     throw new Error(res.error?.message || res.payload || "Failed to sync Swiggy menu");
                 }
                 notification.success("Menu synced with Swiggy successfully!", { duration: 3000 });
+            } else if (isOwnly) {
+                const res = await syncOwnlyMenu(resId);
+                if (res?.error) {
+                    throw new Error(res.error?.message || res.payload || "Failed to sync Ownly menu");
+                }
+                notification.success("Menu synced with Ownly successfully!", { duration: 3000 });
             } else {
                 const res = await syncZomatoMenu(resId);
                 if (res?.error) {
@@ -542,7 +550,7 @@ export function MenuEditorHeader({
         // Addons validation for Zomato
         if (isZomato && zomatoHasAddons) {
             const names = zomatoItemsWithAddons.slice(0, 4).map(i => i.name).join(", ");
-            const more = zomatoItemsWithAddons.length > 4 ? ` and ${zomatoItemsWithAddons.length - 4} more` : "";
+            const more = zomatoItemsWithAddons.length > 0 ? ` and ${zomatoItemsWithAddons.length - 0} more` : "";
             const msg = zomatoItemsWithAddons.length > 0
                 ? `Cannot trigger Zomato menu: Addons are not allowed on Zomato due to an API bug. Found ${zomatoItemsWithAddons.length} item(s) with addons (${names}${more}). Please delete all addons before triggering.`
                 : `Cannot trigger Zomato menu: Addons exist (${addonsData.length} group(s)). Please delete all addons before triggering.`;
@@ -556,9 +564,11 @@ export function MenuEditorHeader({
             let url = `/api/menu/${resId}/zomato/update-menu`;
             let payload = { taskId: triggerTaskId };
 
-            if (isSwiggy) {
-                url = `/api/menu/${resId}/swiggy/queue-changes`;
-                payload = { accountName: localStorage.getItem("swiggy_account"), taskId: triggerTaskId };
+            if (isSwiggy || isOwnly) {
+                const platformKey = isOwnly ? "ownly" : "swiggy";
+                url = `/api/menu/${resId}/${platformKey}/queue-changes`;
+                const accountName = isOwnly ? CookieStorage.getAccountName() : localStorage.getItem("swiggy_account");
+                payload = { accountName, taskId: triggerTaskId };
 
                 let final_updated_menu = updated_menu;
                 const isUpdatedMenuEmpty = !updated_menu ||
@@ -604,20 +614,21 @@ export function MenuEditorHeader({
                     final_updated_menu = generated;
                 }
 
-                payload = { updated_menu: final_updated_menu || { categories: [], sub_categories: [], items: [] } };
+                payload = { ...payload, updated_menu: final_updated_menu || { categories: [], sub_categories: [], items: [] } };
             }
 
             const res = await api.post(url, payload);
 
-            if (isSwiggy) {
+            if (isSwiggy || isOwnly) {
                 markMenuUpdatesDone();
+                const platformKey = isOwnly ? "ownly" : "swiggy";
 
                 const syncId = res.data?.syncId;
                 if (syncId) {
                     // Poll until the sync job finishes
                     const pollInterval = setInterval(async () => {
                         try {
-                            const { data } = await api.get(`/api/menu/${resId}/swiggy/sync-history`);
+                            const { data } = await api.get(`/api/menu/${resId}/${platformKey}/sync-history`);
                             if (data.success) {
                                 const currentSync = data.data.find(job => job._id === syncId);
                                 if (currentSync) {
@@ -637,7 +648,7 @@ export function MenuEditorHeader({
                                         status: currentSync.status
                                     });
 
-                                    if (currentSync.status === 'completed' || currentSync.status === 'failed') {
+                                    if (currentSync.status === 'completed' || currentSync.status === 'failed' || currentSync.status === 'completed_with_errors') {
                                         clearInterval(pollInterval);
 
                                         if (currentSync.status === 'completed') {
@@ -648,6 +659,7 @@ export function MenuEditorHeader({
 
                                         // Clear the progress bar after 6 seconds
                                         setTimeout(() => setActiveSyncProgress(null), 6000);
+                                        await getMenuByResId({ resId, platform: platformKey });
                                     }
                                 }
                             }
@@ -662,7 +674,7 @@ export function MenuEditorHeader({
                         setActiveSyncProgress(null);
                     }, 5 * 60 * 1000);
                 } else {
-                    setTimeout(() => getMenuByResId(resId), 800);
+                    setTimeout(() => getMenuByResId({ resId, platform: platformKey }), 800);
                 }
             }
 
@@ -1130,7 +1142,7 @@ export function MenuEditorHeader({
                                         </PopoverTrigger>
                                         <PopoverContent className="w-80" align="end">
                                             <div className="grid gap-4">
-                                                {zomatoHasAddons && (
+                                                {/* {zomatoHasAddons && (
                                                     <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-950 text-xs flex flex-col gap-2">
                                                         <div className="flex items-start gap-2">
                                                             <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
@@ -1158,7 +1170,7 @@ export function MenuEditorHeader({
                                                             Delete All Addons Now
                                                         </Button>
                                                     </div>
-                                                )}
+                                                )} */}
 
                                                 {isWhitelistedRes ? (
                                                     <div className="space-y-4">
@@ -1168,7 +1180,7 @@ export function MenuEditorHeader({
                                                                 This restaurant is whitelisted. You can trigger the menu directly.
                                                             </p>
                                                         </div>
-                                                        <Button onClick={() => handleTriggerMenu(true)} disabled={isTriggering || zomatoHasAddons} className="w-full">
+                                                        <Button onClick={() => handleTriggerMenu(true)} disabled={isTriggering} className="w-full">
                                                             {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
                                                             Confirm Trigger
                                                         </Button>
@@ -1186,7 +1198,7 @@ export function MenuEditorHeader({
                                                         </div>
                                                         <Button
                                                             onClick={() => handleTriggerMenu(true)}
-                                                            disabled={isTriggering || zomatoHasAddons}
+                                                            disabled={isTriggering}
                                                             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
                                                         >
                                                             {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
@@ -1254,7 +1266,7 @@ export function MenuEditorHeader({
                                                                         Save & Validate Task ID
                                                                     </Button>
                                                                 ) : (
-                                                                    <Button onClick={() => handleTriggerMenu(false)} disabled={isTriggering || zomatoHasAddons} className="w-full h-8 text-xs">
+                                                                    <Button onClick={() => handleTriggerMenu(false)} disabled={isTriggering} className="w-full h-8 text-xs">
                                                                         {isTriggering ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
                                                                         Confirm Trigger
                                                                     </Button>

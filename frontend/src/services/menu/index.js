@@ -42,6 +42,32 @@ export const MenuService = {
         }
     },
 
+    async syncOwnlyMenu(resId) {
+        try {
+            const { data } = await api.get(API_ENDPOINTS.MENU.OWNLY_MENU_IMPORT(resId));
+            return data?.data;
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Something went wrong."
+            );
+        }
+    },
+
+    async updateOwnlyItem(resId, itemId, payload) {
+        try {
+            const { data } = await api.put(API_ENDPOINTS.MENU.OWNLY_ITEM_UPDATE(resId, itemId), payload);
+            return data;
+        } catch (err) {
+            throw new Error(
+                err.response?.data?.message ||
+                err.message ||
+                "Failed to update Ownly item."
+            );
+        }
+    },
+
     async getPetpoojaSession(resId) {
         try {
             const { data } = await api.get(API_ENDPOINTS.MENU.PETPOOJA_SESSION(resId));

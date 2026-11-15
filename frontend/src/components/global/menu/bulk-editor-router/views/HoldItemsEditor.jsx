@@ -36,8 +36,8 @@ export default function HoldItemsEditor({ allItems, updateItem, deleteItem, cate
                 </div>
 
                 <div className="grid gap-6">
-                    {holdItems.map(item => (
-                        <div key={item.id} className="bg-white border border-red-200 shadow-sm rounded-xl overflow-hidden flex flex-col transition-shadow hover:shadow-md">
+                    {holdItems.map((item, index) => (
+                        <div key={item._uniqueKey || `${item.id}-${index}`} className="bg-white border border-red-200 shadow-sm rounded-xl overflow-hidden flex flex-col transition-shadow hover:shadow-md">
                             {/* Moderation Warning Header */}
                             {item.holdComments && item.holdComments.length > 0 && (
                                 <div className="bg-red-50/80 border-b border-red-100 px-5 py-3">

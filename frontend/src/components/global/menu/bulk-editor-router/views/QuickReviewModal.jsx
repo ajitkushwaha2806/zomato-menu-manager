@@ -251,7 +251,7 @@ export default function QuickReviewModal({
         // Addons validation for Zomato
         if (isZomato && zomatoHasAddons) {
             const names = zomatoItemsWithAddons.slice(0, 4).map(i => i.name).join(", ");
-            const more = zomatoItemsWithAddons.length > 4 ? ` and ${zomatoItemsWithAddons.length - 4} more` : "";
+            const more = zomatoItemsWithAddons.length > 0 ? ` and ${zomatoItemsWithAddons.length - 0} more` : "";
             const msg = zomatoItemsWithAddons.length > 0
                 ? `Cannot trigger Zomato menu: Addons are not allowed on Zomato due to an API bug. Found ${zomatoItemsWithAddons.length} item(s) with addons (${names}${more}). Please delete all addons before triggering.`
                 : `Cannot trigger Zomato menu: Addons exist (${addonsData?.length || 0} group(s)). Please delete all addons before triggering.`;
@@ -637,7 +637,7 @@ export default function QuickReviewModal({
                                     </PopoverTrigger>
                                     <PopoverContent className="w-80" align="end" side="top">
                                         <div className="grid gap-4">
-                                            {zomatoHasAddons && (
+                                            {/* {zomatoHasAddons && (
                                                 <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-950 text-xs flex flex-col gap-2">
                                                     <div className="flex items-start gap-2">
                                                         <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
@@ -665,7 +665,7 @@ export default function QuickReviewModal({
                                                         Delete All Addons Now
                                                     </Button>
                                                 </div>
-                                            )}
+                                            )} */}
 
                                             {isWhitelistedRes ? (
                                                 <div className="space-y-4">

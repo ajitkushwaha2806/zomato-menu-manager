@@ -1,5 +1,6 @@
 import { useEffect, useCallback } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { MenuService } from '@/services/menu';
 import {
     fetchMenuByResId,
     setActiveResId as dispatchSetActiveResId,
@@ -23,6 +24,7 @@ import {
     syncZomatoMenu as dispatchSyncZomatoMenu,
     syncSwiggyMenu as dispatchSyncSwiggyMenu,
     syncPetpoojaMenu as dispatchSyncPetpoojaMenu,
+    syncOwnlyMenu as dispatchSyncOwnlyMenu,
     addAddonGroup as dispatchAddAddonGroup,
     updateAddonGroup as dispatchUpdateAddonGroup,
     deleteAddonGroup as dispatchDeleteAddonGroup,
@@ -227,6 +229,8 @@ export const useMenu = () => {
         syncZomatoMenu: (resId) => dispatch(dispatchSyncZomatoMenu(resId)).unwrap(),
         syncSwiggyMenu: (resId) => dispatch(dispatchSyncSwiggyMenu(resId)).unwrap(),
         syncPetpoojaMenu: (params) => dispatch(dispatchSyncPetpoojaMenu(params)).unwrap(),
+        syncOwnlyMenu: (resId) => dispatch(dispatchSyncOwnlyMenu(resId)).unwrap(),
+        updateOwnlyItem: (resId, itemId, payload) => MenuService.updateOwnlyItem(resId, itemId, payload),
         
         markMenuUpdatesDone: () => dispatch(dispatchMarkMenuUpdatesDone()),
         queueAll: () => dispatch(dispatchQueueAll()),
