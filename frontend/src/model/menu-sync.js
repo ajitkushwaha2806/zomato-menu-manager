@@ -24,6 +24,7 @@ const MenuSyncSchema = new mongoose.Schema(
                 "processing",
                 "completed",
                 "failed",
+                "completed_with_errors",
             ],
             default: "pending",
         },

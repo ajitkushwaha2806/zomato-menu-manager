@@ -31,12 +31,13 @@ export function normalizeQuery(query) {
         .replace(/\s+/g, " ");
 }
 
-export function getCacheKey(query, page = 1, source = "dataset") {
-    return `${source}:${normalizeQuery(query)}:${page}`;
+export function getCacheKey(query, page = 1, source = "dataset", options = {}) {
+    const resPart = options?.resIds ? `:${options.resIds}` : "";
+    return `${source}:${normalizeQuery(query)}:${page}${resPart}`;
 }
 
-export function getCachedResult(query, page = 1, source = "dataset") {
-    const key = getCacheKey(query, page, source);
+export function getCachedResult(query, page = 1, source = "dataset", options = {}) {
+    const key = getCacheKey(query, page, source, options);
     const entry = searchCache.get(key);
     if (!entry) return null;
 
@@ -48,8 +49,8 @@ export function getCachedResult(query, page = 1, source = "dataset") {
     return entry;
 }
 
-export function setCachedResult(query, page = 1, source = "dataset", data, hasMore) {
-    const key = getCacheKey(query, page, source);
+export function setCachedResult(query, page = 1, source = "dataset", data, hasMore, options = {}) {
+    const key = getCacheKey(query, page, source, options);
 
     // Evict oldest entries if capacity is reached
     if (searchCache.size >= MAX_CACHE_ENTRIES) {
@@ -64,8 +65,15 @@ export function setCachedResult(query, page = 1, source = "dataset", data, hasMo
     });
 }
 
-function getEndpoint(query, page = 1, source = "dataset", limit = 48) {
+function getEndpoint(query, page = 1, source = "dataset", limit = 48, options = {}) {
     const encoded = encodeURIComponent(query.trim());
+    if (source === "outlet" || source === "internal") {
+        const resIdsPart = options?.resIds ? `&resIds=${encodeURIComponent(options.resIds)}` : "";
+        return `/api/image/internal-search?q=${encoded}&page=${page}&limit=${limit}${resIdsPart}`;
+    }
+    if (source === "instagram") {
+        return `/api/instagram/posts?q=${encoded}&page=${page}&limit=${limit}`;
+    }
     if (source === "foodsnap") {
         return `/api/image/foodsnap-search?query=${encoded}&page=${page}&limit=${limit}`;
     }
@@ -101,7 +109,7 @@ function processQueue() {
     if (!task) return;
 
     // Check if item was cached while sitting in queue
-    const cached = getCachedResult(task.query, task.page, task.source);
+    const cached = getCachedResult(task.query, task.page, task.source, task.options);
     if (cached) {
         task.resolve({ ...cached, fromCache: true });
         // Immediately try next item
@@ -111,16 +119,16 @@ function processQueue() {
 
     activeRequests++;
 
-    const endpoint = getEndpoint(task.query, task.page, task.source, task.limit);
-    const inFlightKey = getCacheKey(task.query, task.page, task.source);
+    const endpoint = getEndpoint(task.query, task.page, task.source, task.limit, task.options);
+    const inFlightKey = getCacheKey(task.query, task.page, task.source, task.options);
 
     const promise = axios
         .get(endpoint, { signal: task.abortController?.signal })
         .then(res => {
             if (res.data?.success) {
-                const fetchedData = res.data.data || [];
+                const fetchedData = res.data.data || res.data.posts || [];
                 const hasMore = Boolean(res.data.hasMore);
-                setCachedResult(task.query, task.page, task.source, fetchedData, hasMore);
+                setCachedResult(task.query, task.page, task.source, fetchedData, hasMore, task.options);
 
                 // Silently preload top 3 image thumbnails in the browser
                 prewarmThumbnails(fetchedData);
@@ -173,20 +181,20 @@ export function fetchImagesWithCache(query, page = 1, source = "dataset", option
     }
 
     // 1. Check in-memory cache
-    const cached = getCachedResult(norm, page, source);
+    const cached = getCachedResult(norm, page, source, options);
     if (cached) {
         return Promise.resolve({ ...cached, fromCache: true });
     }
 
     // 2. Check in-flight requests
-    const inFlightKey = getCacheKey(norm, page, source);
+    const inFlightKey = getCacheKey(norm, page, source, options);
     if (inFlightMap.has(inFlightKey)) {
         return inFlightMap.get(inFlightKey);
     }
 
     // 3. Check if already in queue: if urgent, bump priority to top
     const existingIndex = queue.findIndex(
-        q => normalizeQuery(q.query) === norm && q.page === page && q.source === source
+        q => normalizeQuery(q.query) === norm && q.page === page && q.source === source && q.options?.resIds === options?.resIds
     );
 
     const isUrgent = options.urgent || false;
@@ -217,7 +225,8 @@ export function fetchImagesWithCache(query, page = 1, source = "dataset", option
             priority,
             abortController,
             resolve,
-            reject
+            reject,
+            options
         });
 
         // Trigger queue runner

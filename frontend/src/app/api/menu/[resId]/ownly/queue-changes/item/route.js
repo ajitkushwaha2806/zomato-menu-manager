@@ -24,33 +24,33 @@ export async function POST(req, { params }) {
         const items = sync.updated_menu?.items || [];
         console.log(`[Ownly Item Queue] Found ${items.length} items to process in sync ${syncId}`);
 
-        const updateItems = [];
+        const queueItems = [];
 
         for (const item of items) {
             const action = item.action || "update";
-            if (action === "update" || action === "create") {
-                updateItems.push(item);
+            if (action === "update" || action === "create" || action === "delete") {
+                queueItems.push({ ...item, action });
             }
         }
 
-        // Queue all items with action = "update"
+        // Queue all items with their respective actions (create, update, delete)
         await Promise.all(
-            updateItems.map((item) =>
+            queueItems.map((item) =>
                 ownlyProcessorJob({
                     resId,
                     syncId,
                     type: "item",
-                    action: item.action || "update",
+                    action: item.action,
                     payload: item,
                     accountName: effectiveAccountName,
                 })
             )
         );
 
-        const totalQueued = updateItems.length;
+        const totalQueued = queueItems.length;
 
         if (totalQueued === 0) {
-            console.log(`No items to update. Marking sync ${syncId} as completed.`);
+            console.log(`No items to process. Marking sync ${syncId} as completed.`);
             await MenuSync.updateOne({ _id: syncId }, { $set: { status: "completed" } });
         } else {
             await MenuSync.updateOne({ _id: syncId }, { $set: { status: "processing" } });

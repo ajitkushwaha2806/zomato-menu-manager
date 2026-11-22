@@ -14,7 +14,8 @@ import {
     AlertTriangle,
     CheckCircle2,
     AlertCircle,
-    Mail
+    Mail,
+    X
 } from "lucide-react";
 
 import {
@@ -422,6 +423,78 @@ export function MenuEditorHeader({
         }
     }, [dbTaskId, resId]);
 
+    // Check for any ongoing sync on mount or platform switch
+    useEffect(() => {
+        if (!resId || (!isSwiggy && !isOwnly)) {
+            setActiveSyncProgress(null);
+            return;
+        }
+        const platformKey = isOwnly ? "ownly" : "swiggy";
+        let isCancelled = false;
+        let pollInterval = null;
+
+        const checkActiveSync = async () => {
+            try {
+                const { data } = await api.get(`/api/menu/${resId}/${platformKey}/sync-history?limit=5`);
+                if (isCancelled || !data?.success || !data.data?.length) return;
+                const activeJob = data.data.find(job => job.status === "pending" || job.status === "processing");
+                if (activeJob) {
+                    const cats = activeJob.updated_menu?.categories || [];
+                    const subs = activeJob.updated_menu?.sub_categories || [];
+                    const items = activeJob.updated_menu?.items || [];
+                    const allTasks = [...cats, ...subs, ...items];
+                    const total = allTasks.length;
+                    const completed = allTasks.filter(t => t.status === 'completed').length;
+                    const failed = allTasks.filter(t => t.status === 'failed').length;
+
+                    setActiveSyncProgress({
+                        total,
+                        completed,
+                        failed,
+                        status: activeJob.status
+                    });
+
+                    pollInterval = setInterval(async () => {
+                        try {
+                            const { data: pollData } = await api.get(`/api/menu/${resId}/${platformKey}/sync-history?limit=5`);
+                            if (isCancelled || !pollData?.success) return;
+                            const currentSync = pollData.data.find(job => job._id === activeJob._id);
+                            if (currentSync) {
+                                const cTasks = [
+                                    ...(currentSync.updated_menu?.categories || []),
+                                    ...(currentSync.updated_menu?.sub_categories || []),
+                                    ...(currentSync.updated_menu?.items || [])
+                                ];
+                                setActiveSyncProgress({
+                                    total: cTasks.length,
+                                    completed: cTasks.filter(t => t.status === 'completed').length,
+                                    failed: cTasks.filter(t => t.status === 'failed').length,
+                                    status: currentSync.status
+                                });
+                                if (currentSync.status === 'completed' || currentSync.status === 'failed' || currentSync.status === 'completed_with_errors') {
+                                    clearInterval(pollInterval);
+                                    setTimeout(() => setActiveSyncProgress(null), 6000);
+                                    await getMenuByResId({ resId, platform: platformKey });
+                                }
+                            }
+                        } catch (e) {
+                            console.error("Polling error", e);
+                        }
+                    }, 2500);
+                }
+            } catch (e) {
+                console.error("Error checking active sync on load", e);
+            }
+        };
+
+        checkActiveSync();
+
+        return () => {
+            isCancelled = true;
+            if (pollInterval) clearInterval(pollInterval);
+        };
+    }, [resId, isSwiggy, isOwnly]);
+
     const handleSaveTaskId = async () => {
         if (!triggerTaskId.trim()) {
             notify.error("Task ID is required");
@@ -535,11 +608,11 @@ export function MenuEditorHeader({
             });
         });
 
-        if (invalidItems.length > 0) {
-            const names = invalidItems.join(", ");
-            notify.error(`Cannot trigger menu: The following items are missing a price (₹0): ${names}. Please update them before triggering.`, { duration: 6000 });
-            return;
-        }
+        // if (invalidItems.length > 0) {
+        //     const names = invalidItems.join(", ");
+        //     notify.error(`Cannot trigger menu: The following items are missing a price (₹0): ${names}. Please update them before triggering.`, { duration: 6000 });
+        //     return;
+        // }
 
         if (itemsMissingDescription.length > 0) {
             const names = itemsMissingDescription.join(", ");
@@ -548,15 +621,15 @@ export function MenuEditorHeader({
         }
 
         // Addons validation for Zomato
-        if (isZomato && zomatoHasAddons) {
-            const names = zomatoItemsWithAddons.slice(0, 4).map(i => i.name).join(", ");
-            const more = zomatoItemsWithAddons.length > 0 ? ` and ${zomatoItemsWithAddons.length - 0} more` : "";
-            const msg = zomatoItemsWithAddons.length > 0
-                ? `Cannot trigger Zomato menu: Addons are not allowed on Zomato due to an API bug. Found ${zomatoItemsWithAddons.length} item(s) with addons (${names}${more}). Please delete all addons before triggering.`
-                : `Cannot trigger Zomato menu: Addons exist (${addonsData.length} group(s)). Please delete all addons before triggering.`;
-            notify.error(msg, { duration: 8000 });
-            return;
-        }
+        // if (isZomato && zomatoHasAddons) {
+        //     const names = zomatoItemsWithAddons.slice(0, 4).map(i => i.name).join(", ");
+        //     const more = zomatoItemsWithAddons.length > 0 ? ` and ${zomatoItemsWithAddons.length - 0} more` : "";
+        //     const msg = zomatoItemsWithAddons.length > 0
+        //         ? `Cannot trigger Zomato menu: Addons are not allowed on Zomato due to an API bug. Found ${zomatoItemsWithAddons.length} item(s) with addons (${names}${more}). Please delete all addons before triggering.`
+        //         : `Cannot trigger Zomato menu: Addons exist (${addonsData.length} group(s)). Please delete all addons before triggering.`;
+        //     notify.error(msg, { duration: 8000 });
+        //     return;
+        // }
 
         try {
             setIsTriggering(true);
@@ -578,7 +651,7 @@ export function MenuEditorHeader({
 
                 if (isUpdatedMenuEmpty && hasUnsavedChanges) {
                     const generated = { categories: [], sub_categories: [], items: [] };
-                    const isTemp = (id) => typeof id === 'string' && id.startsWith('temp-');
+                    const isTemp = (id) => typeof id === 'string' && (id.startsWith('temp-') || id.startsWith('temp_'));
 
                     menuArray.forEach(c => {
                         const catHasUnsaved = c.temp_id || isTemp(c.id);
@@ -597,24 +670,38 @@ export function MenuEditorHeader({
                             }
 
                             (s.items || []).forEach(i => {
-                                let itemHasUnsaved = i.temp_id || isTemp(i.id);
+                                const isCatDeleted = c.temp_id?.startsWith('delete-') || c.status === 'delete';
+                                const isSubDeleted = s.temp_id?.startsWith('delete-') || s.status === 'delete';
+                                const isItemDeleted = i.temp_id?.startsWith('delete-') || i.status === 'delete';
+
+                                let itemHasUnsaved = catHasUnsaved || subHasUnsaved || i.temp_id || isTemp(i.id) || isCatDeleted || isSubDeleted || isItemDeleted;
                                 if (!itemHasUnsaved) {
                                     (i.variants || []).forEach(v => { if (v.temp_id || isTemp(v.id)) itemHasUnsaved = true; });
                                     (i.media || []).forEach(m => { if (m.tempReferenceId || isTemp(m.id)) itemHasUnsaved = true; });
                                 }
 
                                 if (itemHasUnsaved) {
+                                    const action = (isCatDeleted || isSubDeleted || isItemDeleted)
+                                        ? "delete"
+                                        : (isTemp(i.id) ? "create" : "update");
+
                                     generated.items.push({
-                                        id: i.id, categoryId: c.id, categoryName: c.name, subCategoryId: s.id, subCategoryName: s.name, ...i, action: i.temp_id?.startsWith('delete-') ? "delete" : isTemp(i.id) ? "create" : "update"
+                                        id: i.id,
+                                        categoryId: c.id,
+                                        categoryName: c.name,
+                                        subCategoryId: s.id,
+                                        subCategoryName: s.name,
+                                        ...i,
+                                        action,
                                     });
                                 }
                             });
                         });
                     });
-                    final_updated_menu = generated;
+                    final_updated_menu = isOwnly ? { items: generated.items } : generated;
                 }
 
-                payload = { ...payload, updated_menu: final_updated_menu || { categories: [], sub_categories: [], items: [] } };
+                payload = { ...payload, updated_menu: final_updated_menu || (isOwnly ? { items: [] } : { categories: [], sub_categories: [], items: [] }) };
             }
 
             const res = await api.post(url, payload);
@@ -659,6 +746,13 @@ export function MenuEditorHeader({
 
                                         // Clear the progress bar after 6 seconds
                                         setTimeout(() => setActiveSyncProgress(null), 6000);
+                                        if (platformKey === 'ownly') {
+                                            try {
+                                                await syncOwnlyMenu(resId);
+                                            } catch (sErr) {
+                                                console.warn("Could not sync Ownly menu directly:", sErr);
+                                            }
+                                        }
                                         await getMenuByResId({ resId, platform: platformKey });
                                     }
                                 }
@@ -681,6 +775,8 @@ export function MenuEditorHeader({
             if (res.data) {
                 if (isSwiggy) {
                     notification.success("Swiggy Menu trigger queued successfully!");
+                } else if (isOwnly) {
+                    notification.success("Ownly Menu trigger queued successfully!");
                 } else {
                     notification.success("Zomato Menu successfully triggered!");
                 }
@@ -771,7 +867,7 @@ export function MenuEditorHeader({
                                 <Skeleton className="h-8 w-28 rounded-lg bg-muted/60" />
                                 <Skeleton className="h-8 w-28 rounded-lg bg-muted/60" />
                                 <Skeleton className="h-8 w-28 rounded-lg bg-muted/60" />
-                                {isSwiggy && <Skeleton className="h-8 w-8 rounded-lg bg-muted/60" />}
+                                {(isSwiggy || isOwnly) && <Skeleton className="h-8 w-8 rounded-lg bg-muted/60" />}
                             </>
                         ) : (
                             <>
@@ -1126,7 +1222,7 @@ export function MenuEditorHeader({
                                     <Popover open={isTriggerPopoverOpen} onOpenChange={setIsTriggerPopoverOpen}>
                                         <PopoverTrigger asChild>
                                             <Button
-                                                disabled={isTriggering || (activeSyncProgress && (activeSyncProgress.status === 'pending' || activeSyncProgress.status === 'processing'))}
+                                                disabled={isTriggering}
                                                 className="h-10 rounded-lg px-5 bg-green-600 hover:bg-green-700 text-white shadow-md transition-colors relative"
                                             >
                                                 {isTriggering ? (
@@ -1142,6 +1238,18 @@ export function MenuEditorHeader({
                                         </PopoverTrigger>
                                         <PopoverContent className="w-80" align="end">
                                             <div className="grid gap-4">
+                                                {activeSyncProgress && (activeSyncProgress.status === 'pending' || activeSyncProgress.status === 'processing') && (
+                                                    <div className="p-2.5 rounded-lg bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-center justify-between">
+                                                        <span className="leading-tight">A sync is currently running ({activeSyncProgress.completed + activeSyncProgress.failed}/{activeSyncProgress.total}). You can retrigger or dismiss.</span>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => setActiveSyncProgress(null)}
+                                                            className="ml-2 text-[11px] font-bold text-amber-800 underline hover:text-amber-950 shrink-0"
+                                                        >
+                                                            Dismiss
+                                                        </button>
+                                                    </div>
+                                                )}
                                                 {/* {zomatoHasAddons && (
                                                     <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-950 text-xs flex flex-col gap-2">
                                                         <div className="flex items-start gap-2">
@@ -1358,7 +1466,17 @@ export function MenuEditorHeader({
                                                 <Loader2 className="h-3 w-3 animate-spin text-primary" />
                                                 Syncing
                                             </span>
-                                            <span className="font-mono">{activeSyncProgress.completed + activeSyncProgress.failed}/{activeSyncProgress.total}</span>
+                                            <div className="flex items-center gap-1.5">
+                                                <span className="font-mono">{activeSyncProgress.completed + activeSyncProgress.failed}/{activeSyncProgress.total}</span>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setActiveSyncProgress(null)}
+                                                    className="text-gray-400 hover:text-gray-700 p-0.5 rounded cursor-pointer"
+                                                    title="Dismiss sync indicator"
+                                                >
+                                                    <X className="w-3 h-3" />
+                                                </button>
+                                            </div>
                                         </div>
                                         <div className="w-full bg-gray-200 rounded-full h-1.5 overflow-hidden z-0 shadow-inner">
                                             <div
@@ -1369,7 +1487,7 @@ export function MenuEditorHeader({
                                     </div>
                                 )}
 
-                                {isSwiggy && (
+                                {(isSwiggy || isOwnly) && (
                                     <Button
                                         variant="outline"
                                         onClick={() => setIsSyncHistoryOpen(true)}

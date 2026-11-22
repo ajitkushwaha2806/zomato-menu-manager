@@ -205,7 +205,7 @@ const levenshteinDistance = (s1, s2) => {
     return dp[m][n];
 };
 
-const getMatchScore = (itemName, candidateTitle) => {
+const getMatchScore = (itemName, candidateTitle, minThreshold = 0.95) => {
     if (!itemName || !candidateTitle) return 0;
     const s1 = String(itemName).toLowerCase().trim();
     const s2 = String(candidateTitle).toLowerCase().trim();
@@ -225,29 +225,75 @@ const getMatchScore = (itemName, candidateTitle) => {
 
     // Evaluate edit distance and similarity on full normalized titles
     const maxLen = Math.max(norm1.length, norm2.length);
-    if (maxLen === 0) return 0;
-
-    const distance = levenshteinDistance(norm1, norm2);
-    const similarity = (maxLen - distance) / maxLen;
-
-    // Strict rule: Similarity must be >= 95% (0.95), never less
-    if (similarity >= 0.95) {
-        return similarity;
+    let levSim = 0;
+    if (maxLen > 0) {
+        const distance = levenshteinDistance(norm1, norm2);
+        levSim = (maxLen - distance) / maxLen;
     }
 
     // Also check on cleaned strings (e.g. minor typo with parentheses stripped)
-    if (cleanNorm1 && cleanNorm2 && (cleanNorm1 !== norm1 || cleanNorm2 !== norm2)) {
+    let cleanLevSim = 0;
+    if (cleanNorm1 && cleanNorm2) {
         const cleanMaxLen = Math.max(cleanNorm1.length, cleanNorm2.length);
-        if (cleanMaxLen >= 4) {
+        if (cleanMaxLen >= 3) {
             const cleanDistance = levenshteinDistance(cleanNorm1, cleanNorm2);
-            const cleanSim = (cleanMaxLen - cleanDistance) / cleanMaxLen;
-            if (cleanSim >= 0.95) {
-                return cleanSim;
-            }
+            cleanLevSim = (cleanMaxLen - cleanDistance) / cleanMaxLen;
         }
     }
 
-    return 0; // Less than allowed threshold - never match
+    // Token / Word Overlap similarity (e.g. "Afghani Chaap (350 Gram)" vs "Afghani Soya Chaap")
+    const targetA = cleanNorm1 || norm1;
+    const targetB = cleanNorm2 || norm2;
+    const wordsA = targetA.split(/\s+/).filter(w => w.length > 1);
+    const wordsB = targetB.split(/\s+/).filter(w => w.length > 1);
+
+    let tokenSim = 0;
+    let containmentScore = 0;
+
+    if (wordsA.length > 0 && wordsB.length > 0) {
+        const setA = new Set(wordsA);
+        const setB = new Set(wordsB);
+        let intersection = 0;
+
+        for (const w of setA) {
+            if (setB.has(w)) {
+                intersection++;
+            } else {
+                // Check for close word match (e.g. "chaap" vs "champ", "paneer" vs "panir")
+                for (const wb of setB) {
+                    if (Math.abs(w.length - wb.length) <= 1 && w.length >= 4) {
+                        if (levenshteinDistance(w, wb) <= 1) {
+                            intersection += 0.9;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+
+        // Sørensen–Dice token similarity
+        tokenSim = (2 * intersection) / (wordsA.length + wordsB.length);
+
+        // Containment: if one dish name's words are largely contained in the other
+        const minWords = Math.min(wordsA.length, wordsB.length);
+        const maxWords = Math.max(wordsA.length, wordsB.length);
+        const containmentRatio = intersection / minWords;
+
+        if (containmentRatio >= 0.99 && minWords >= 2) {
+            // E.g. "Afghani Chaap" (2 words) in "Afghani Soya Chaap" (3 words): intersection=2, min=2 => 100% contained
+            containmentScore = 0.82 + (minWords / maxWords) * 0.15;
+        } else if (containmentRatio >= 0.8 && minWords >= 2) {
+            containmentScore = 0.75 * containmentRatio;
+        }
+    }
+
+    const bestScore = Math.max(levSim, cleanLevSim, tokenSim, containmentScore);
+
+    if (bestScore >= minThreshold) {
+        return Math.min(1.0, Number(bestScore.toFixed(3)));
+    }
+
+    return 0; // Less than allowed threshold
 };
 
 export default function ImageEditor({ allItems, updateItem }) {
@@ -265,6 +311,7 @@ export default function ImageEditor({ allItems, updateItem }) {
     const [isCrossResModalOpen, setIsCrossResModalOpen] = useState(false);
     const [targetResId, setTargetResId] = useState("");
     const [targetPlatform, setTargetPlatform] = useState("zomato");
+    const [similarityThreshold, setSimilarityThreshold] = useState(70);
 
     const [isDriveImportModalOpen, setIsDriveImportModalOpen] = useState(false);
     const googleClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
@@ -942,6 +989,7 @@ export default function ImageEditor({ allItems, updateItem }) {
 
         setIsCrossResModalOpen(false);
         setIsAutoApplying(true);
+        setAutoApplyType('cross_res');
         setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: 0 });
 
         try {
@@ -953,28 +1001,49 @@ export default function ImageEditor({ allItems, updateItem }) {
             if (!res.data?.success || !res.data?.data?.menu) {
                 notify.error("Failed to load target restaurant menu.");
                 setIsAutoApplying(false);
+                setAutoApplyType(null);
                 return;
             }
 
             const targetMenu = res.data.data.menu;
 
-            // 2. Flatten target menu to get a map of lowercase item names to their media arrays
-            const targetMediaMap = {};
+            // 2. Extract candidate items with media and diet/veg info
+            const candidateItems = [];
             targetMenu.forEach(cat => {
                 cat.sub_category?.forEach(subcat => {
-                    subcat.items?.forEach(item => {
-                        const name = item.name?.trim().toLowerCase();
-                        if (name && item.media && item.media.length > 0) {
-                            targetMediaMap[name] = item.media;
-                        } else if (name && item.image_url) {
-                            targetMediaMap[name] = [{ url: item.image_url, thumbUrl: item.image_url }];
+                    subcat.items?.forEach(candItem => {
+                        const name = candItem.name?.trim();
+                        let media = [];
+                        if (candItem.media && candItem.media.length > 0) {
+                            media = candItem.media;
+                        } else if (candItem.image_url) {
+                            media = [{ url: candItem.image_url, thumbUrl: candItem.image_url }];
+                        }
+                        if (name && media.length > 0) {
+                            candidateItems.push({
+                                name,
+                                is_veg: candItem.is_veg ?? candItem.dietary_preference ?? candItem.diet_type,
+                                media
+                            });
                         }
                     });
                 });
             });
 
+            if (candidateItems.length === 0) {
+                notify.warning(`Target restaurant menu has no items with images on ${targetPlatform}.`);
+                setIsAutoApplying(false);
+                setAutoApplyType(null);
+                return;
+            }
+
+            const thresholdFraction = (similarityThreshold || 70) / 100;
+            const isVeg = (v) => v === true || v === 1 || String(v).toUpperCase() === 'VEG';
+            const isNonVeg = (v) => v === false || v === 0 || String(v).toUpperCase() === 'NON_VEG' || String(v).toUpperCase() === 'NON-VEG';
+
             // 3. Match items and update
             let completedCount = 0;
+            let appliedCount = 0;
             const chunkSize = 2; // Process 2 at a time
 
             for (let i = 0; i < itemsWithoutMedia.length; i += chunkSize) {
@@ -982,33 +1051,34 @@ export default function ImageEditor({ allItems, updateItem }) {
                 
                 const fetchPromises = chunk.map(async (item) => {
                     try {
-                        const nameKey = item.name?.trim().toLowerCase();
-                        let sourceMediaArray = targetMediaMap[nameKey];
+                        let bestCandidate = null;
+                        let bestScore = 0;
 
-                        if (!sourceMediaArray || sourceMediaArray.length === 0) {
-                            // Find closest match adhering to <=2 edit distance or >=95% similarity
-                            let bestScore = 0;
-                            let bestKey = null;
-                            for (const targetName of Object.keys(targetMediaMap)) {
-                                const score = getMatchScore(item.name, targetName);
-                                if (score > 0 && score > bestScore) {
-                                    bestScore = score;
-                                    bestKey = targetName;
-                                }
+                        // Match against candidate items adhering to fuzziness threshold
+                        for (const cand of candidateItems) {
+                            // Dietary compatibility check (prevent mixing strictly veg and non-veg)
+                            if (item.is_veg && cand.is_veg) {
+                                if (isVeg(item.is_veg) && isNonVeg(cand.is_veg)) continue;
+                                if (isNonVeg(item.is_veg) && isVeg(cand.is_veg)) continue;
                             }
-                            if (bestKey) {
-                                sourceMediaArray = targetMediaMap[bestKey];
+
+                            const score = getMatchScore(item.name, cand.name, thresholdFraction);
+                            if (score > 0 && score > bestScore) {
+                                bestScore = score;
+                                bestCandidate = cand;
+                                if (score >= 0.99) break; // Perfect match found
                             }
                         }
 
-                        if (!sourceMediaArray || sourceMediaArray.length === 0) {
-                            return { itemId: item.id, media: [] };
+                        if (!bestCandidate || !bestCandidate.media || bestCandidate.media.length === 0) {
+                            return { itemId: item.id, media: [], matched: false };
                         }
 
+                        const sourceMediaArray = bestCandidate.media;
                         const sourceImageUrl = sourceMediaArray[0].url || sourceMediaArray[0].thumbUrl || sourceMediaArray[0].image_url;
 
                         if (!sourceImageUrl) {
-                            return { itemId: item.id, media: [] };
+                            return { itemId: item.id, media: [], matched: false };
                         }
 
                         // Show temporary uploading state
@@ -1019,7 +1089,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                                     tempReferenceId: `temp-cross-${crypto.randomUUID()}`,
                                     url: '',
                                     isUploading: true,
-                                    uploadText: `Copying from ${targetPlatform}...`
+                                    uploadText: `Copying from ${targetPlatform} (${(bestScore * 100).toFixed(0)}% match)...`
                                 }]
                             }
                         });
@@ -1027,7 +1097,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                         let finalMedia = [];
 
                         if (activePlatform !== "swiggy") {
-                            // Upload to Zomato to ensure proper tracking and approval
+                            // Upload to platform to ensure proper tracking and approval
                             const uploadRes = await uploadPlatformImage(activePlatform, activeResId, sourceImageUrl, item.name, item.originalId || item.id);
                             if (uploadRes.success && uploadRes.mediaArray) {
                                 finalMedia = uploadRes.mediaArray.map(m => ({
@@ -1056,18 +1126,19 @@ export default function ImageEditor({ allItems, updateItem }) {
                             }];
                         }
 
-                        return { itemId: item.id, media: finalMedia };
+                        return { itemId: item.id, media: finalMedia, matched: finalMedia.length > 0 };
                     } catch (e) {
                         console.error(`Failed to apply cross-res image for ${item.name}`, e);
-                        return { itemId: item.id, media: [] };
+                        return { itemId: item.id, media: [], matched: false };
                     }
                 });
 
                 const results = await Promise.all(fetchPromises);
                 
                 results.forEach(result => {
-                    const { itemId, media } = result;
-                    if (media && media.length > 0) {
+                    const { itemId, media, matched } = result;
+                    if (matched && media && media.length > 0) {
+                        appliedCount++;
                         updateItem({ itemId, updates: { media } });
                     } else {
                         updateItem({ itemId, updates: { media: [] } });
@@ -1077,13 +1148,20 @@ export default function ImageEditor({ allItems, updateItem }) {
                 completedCount += chunk.length;
                 setAutoApplyProgress({ total: itemsWithoutMedia.length, completed: completedCount });
                 
-                // Rate limit: wait 3 seconds between chunks
-                await new Promise(r => setTimeout(r, 3000));
+                // Rate limit: wait between chunks
+                if (i + chunkSize < itemsWithoutMedia.length) {
+                    await new Promise(r => setTimeout(r, 2000));
+                }
             }
 
             setIsAutoApplying(false);
             setAutoApplyType(null);
-            notify.success(`Copied images for ${completedCount} matching items!`);
+
+            if (appliedCount > 0) {
+                notify.success(`Copied images for ${appliedCount} matching items (at ≥${similarityThreshold}% similarity)!`);
+            } else {
+                notify.warning(`No items found matching the ≥${similarityThreshold}% similarity threshold. Try lowering the threshold.`);
+            }
 
         } catch (err) {
             console.error(err);
@@ -1254,11 +1332,11 @@ export default function ImageEditor({ allItems, updateItem }) {
 
             {/* Cross-Restaurant Modal */}
             <Dialog open={isCrossResModalOpen} onOpenChange={setIsCrossResModalOpen}>
-                <DialogContent className="sm:max-w-[425px]">
+                <DialogContent className="sm:max-w-[450px]">
                     <DialogHeader>
                         <DialogTitle>Copy Images from Restaurant</DialogTitle>
                         <DialogDescription>
-                            Enter the Restaurant ID and platform to fetch images and match them by item name.
+                            Enter the Restaurant ID, platform, and match similarity threshold to map and transfer dish images.
                         </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -1268,7 +1346,7 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 id="resId"
                                 value={targetResId}
                                 onChange={(e) => setTargetResId(e.target.value)}
-                                placeholder="e.g. 18464619"
+                                placeholder="e.g. 18464619 or RN562883"
                             />
                         </div>
                         <div className="grid gap-2">
@@ -1280,8 +1358,53 @@ export default function ImageEditor({ allItems, updateItem }) {
                                 <SelectContent>
                                     <SelectItem value="zomato">Zomato</SelectItem>
                                     <SelectItem value="swiggy">Swiggy</SelectItem>
+                                    <SelectItem value="ownly">Ownly</SelectItem>
                                 </SelectContent>
                             </Select>
+                        </div>
+
+                        {/* Match Fuzziness / Similarity Selector */}
+                        <div className="grid gap-2.5 pt-1">
+                            <div className="flex items-center justify-between">
+                                <Label htmlFor="similarityThreshold" className="text-xs font-semibold text-neutral-800">
+                                    Match Similarity / Fuzziness
+                                </Label>
+                                <span className="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 px-2 py-0.5 rounded-full">
+                                    ≥ {similarityThreshold}% match
+                                </span>
+                            </div>
+
+                            <input
+                                id="similarityThreshold"
+                                type="range"
+                                min="50"
+                                max="100"
+                                step="5"
+                                value={similarityThreshold}
+                                onChange={(e) => setSimilarityThreshold(Number(e.target.value))}
+                                className="w-full accent-amber-600 cursor-pointer h-2 bg-neutral-200 rounded-lg appearance-none"
+                            />
+
+                            <div className="flex items-center justify-between gap-1.5 pt-0.5">
+                                {[60, 70, 80, 90, 100].map((preset) => (
+                                    <button
+                                        key={preset}
+                                        type="button"
+                                        onClick={() => setSimilarityThreshold(preset)}
+                                        className={`flex-1 py-1 px-1.5 text-[11px] font-medium rounded border transition-colors ${
+                                            similarityThreshold === preset
+                                                ? 'bg-amber-600 text-white border-amber-600 shadow-xs'
+                                                : 'bg-neutral-50 hover:bg-neutral-100 text-neutral-600 border-neutral-200'
+                                        }`}
+                                    >
+                                        {preset === 100 ? '100% (Exact)' : `${preset}%`}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <p className="text-[11px] text-muted-foreground leading-relaxed mt-0.5">
+                                Maps and copies photos for dishes matching at or above <strong className="text-neutral-700 font-semibold">{similarityThreshold}%</strong> similarity (e.g. &ldquo;Afghani Chaap (350 Gram)&rdquo; matches &ldquo;Afghani Soya Chaap&rdquo;).
+                            </p>
                         </div>
                     </div>
                     <DialogFooter>

@@ -82,12 +82,106 @@ export async function POST(req, { params }) {
             }
         }
 
+        // In Ownly, categories and subcategories do not have separate delete endpoints.
+        // Everything is handled by deleting items.
+        // If any category or subcategory is marked for deletion, propagate action: "delete" to all items under it!
+        const deletedCatIds = new Set(
+            (updated_menu?.categories || [])
+                .filter((c) => c.action === "delete")
+                .map((c) => String(c.id))
+        );
+
+        const deletedSubIds = new Set(
+            (updated_menu?.sub_categories || [])
+                .filter((s) => s.action === "delete")
+                .map((s) => String(s.id))
+        );
+
+        const currentItems = Array.isArray(updated_menu?.items) ? [...updated_menu.items] : [];
+
+        if (menuDoc?.menu && (deletedCatIds.size > 0 || deletedSubIds.size > 0)) {
+            for (const cat of menuDoc.menu) {
+                const catIdStr = String(cat.id);
+                const isCatDeleted = deletedCatIds.has(catIdStr);
+
+                for (const sub of cat.sub_category || []) {
+                    const subIdStr = String(sub.id);
+                    const isSubDeleted = deletedSubIds.has(subIdStr);
+
+                    if (isCatDeleted || isSubDeleted) {
+                        for (const it of sub.items || []) {
+                            const itIdStr = String(it.id);
+                            if (itIdStr.startsWith("temp-") || itIdStr.startsWith("temp_")) {
+                                continue;
+                            }
+
+                            const existingIdx = currentItems.findIndex(
+                                (i) => String(i.id) === itIdStr
+                            );
+                            if (existingIdx >= 0) {
+                                currentItems[existingIdx] = {
+                                    ...currentItems[existingIdx],
+                                    action: "delete",
+                                    categoryId: cat.id,
+                                    subCategoryId: sub.id,
+                                };
+                            } else {
+                                currentItems.push({
+                                    id: it.id,
+                                    name: it.name,
+                                    categoryId: cat.id,
+                                    categoryName: cat.name,
+                                    subCategoryId: sub.id,
+                                    subCategoryName: sub.name,
+                                    action: "delete",
+                                });
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        const itemsWithStatus = currentItems.map((i) => {
+            const finalPrice = Number(
+                (i.base_price !== undefined && i.base_price !== null && i.base_price !== "")
+                    ? i.base_price
+                    : (i.price ?? 0)
+            );
+            return {
+                ...i,
+                price: finalPrice,
+                base_price: finalPrice,
+                min_price: finalPrice,
+                max_price: finalPrice,
+                status: i.status || "pending",
+            };
+        });
+
+        const categoriesWithStatus = (updated_menu?.categories || []).map((c) => ({
+            ...c,
+            action: c.action || "create",
+            status: c.status || "pending",
+        }));
+
+        const subCategoriesWithStatus = (updated_menu?.sub_categories || []).map((s) => ({
+            ...s,
+            action: s.action || "create",
+            status: s.status || "pending",
+        }));
+
+        const finalUpdatedMenu = {
+            categories: categoriesWithStatus,
+            sub_categories: subCategoriesWithStatus,
+            items: itemsWithStatus,
+        };
+
         const sync = await MenuSync.create({
             resId,
             status: "pending",
             accountName: accountName || "Ownly Account",
             taskId: taskId || null,
-            updated_menu: updated_menu || { items: [] },
+            updated_menu: finalUpdatedMenu,
         });
 
         if (taskId) {

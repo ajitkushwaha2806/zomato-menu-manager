@@ -249,15 +249,15 @@ export default function QuickReviewModal({
         }
 
         // Addons validation for Zomato
-        if (isZomato && zomatoHasAddons) {
-            const names = zomatoItemsWithAddons.slice(0, 4).map(i => i.name).join(", ");
-            const more = zomatoItemsWithAddons.length > 0 ? ` and ${zomatoItemsWithAddons.length - 0} more` : "";
-            const msg = zomatoItemsWithAddons.length > 0
-                ? `Cannot trigger Zomato menu: Addons are not allowed on Zomato due to an API bug. Found ${zomatoItemsWithAddons.length} item(s) with addons (${names}${more}). Please delete all addons before triggering.`
-                : `Cannot trigger Zomato menu: Addons exist (${addonsData?.length || 0} group(s)). Please delete all addons before triggering.`;
-            toast.error(msg, { duration: 8000 });
-            return;
-        }
+        // if (isZomato && zomatoHasAddons) {
+        //     const names = zomatoItemsWithAddons.slice(0, 4).map(i => i.name).join(", ");
+        //     const more = zomatoItemsWithAddons.length > 0 ? ` and ${zomatoItemsWithAddons.length - 0} more` : "";
+        //     const msg = zomatoItemsWithAddons.length > 0
+        //         ? `Cannot trigger Zomato menu: Addons are not allowed on Zomato due to an API bug. Found ${zomatoItemsWithAddons.length} item(s) with addons (${names}${more}). Please delete all addons before triggering.`
+        //         : `Cannot trigger Zomato menu: Addons exist (${addonsData?.length || 0} group(s)). Please delete all addons before triggering.`;
+        //     toast.error(msg, { duration: 8000 });
+        //     return;
+        // }
 
         try {
             setIsTriggering(true);

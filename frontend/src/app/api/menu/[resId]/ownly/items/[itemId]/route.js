@@ -2,83 +2,22 @@ import { NextResponse } from "next/server";
 import { ownlyClient } from "@/lib/api/ownly-client";
 import dbConnect from "@/lib/dbConnect";
 import Menu from "@/model/menu";
+import { buildOwnlyUpdateItemPayload, buildOwnlyCreateItemPayload } from "@/lib/payload/ownly/item-payload";
 
 export const dynamic = "force-dynamic";
 
 /**
  * Builds the exact JSON payload expected by Ownly's PUT /api/v1/menu/item
  */
-export function buildOwnlyItemPayload(resId, itemId, currentItem, category, body = {}) {
-    const raw = currentItem?.raw || {};
-
-    const name = body.name?.trim() || currentItem?.name?.trim() || "Item";
-    const description = body.description !== undefined ? body.description?.trim() : (currentItem?.description?.trim() || "");
-
-    const price = Number(
-        body.price !== undefined ? body.price : (currentItem?.price !== undefined ? currentItem.price : (currentItem?.base_price ?? 0))
-    );
-
-    const imageUrl =
-        body.imageUrl ||
-        body.image_url ||
-        (Array.isArray(body.media) && body.media[0]?.url) ||
-        currentItem?.imageUrl ||
-        currentItem?.image_url ||
-        (Array.isArray(currentItem?.media) && currentItem.media[0]?.url) ||
-        raw.imageUrl ||
-        "";
-
-    let foodType = "veg";
-    const rawFoodType = (body.foodType || body.is_veg || currentItem?.is_veg || raw.foodType || "veg").toLowerCase();
-    if (rawFoodType === "non_veg" || rawFoodType === "non-veg") {
-        foodType = "non-veg";
-    } else if (rawFoodType === "egg") {
-        foodType = "egg";
-    }
-
-    const catId = String(category?.id || raw.categoryId || `CAT_${resId}`);
-    const catName = category?.name?.trim() || "Menu";
-
-    const categoryObj = {
-        id: catId,
-        name: catName,
-        description: category?.description || "",
-        imageUrl: category?.imageUrl || "",
-        providerId: catId,
-        sortOrder: category?.sortOrder ?? 0,
-    };
-
-    const billComponents = raw.billComponents && Array.isArray(raw.billComponents.taxes) && raw.billComponents.taxes.length > 0
-        ? raw.billComponents
-        : {
-              taxes: [
-                  {
-                      id: "GST_5",
-                      providerId: "GST_5",
-                      name: "GST (2.5% CGST + 2.5% SGST)",
-                      value: 5.0,
-                  },
-              ],
-          };
-
-    const ignoreOn = raw.ignoreOn || {
-        tax: false,
-        discounts: false,
-    };
-
-    return {
-        itemId: String(itemId),
-        restaurantId: String(resId),
-        name,
-        description,
-        price,
-        imageUrl,
-        foodType,
-        gstType: raw.gstType || "services",
-        category: categoryObj,
-        billComponents,
-        ignoreOn,
-    };
+export function buildOwnlyItemPayload(resId, itemId, currentItem, category, body = {}, subcategory = {}) {
+    return buildOwnlyUpdateItemPayload({
+        resId,
+        itemId,
+        currentItem,
+        category,
+        subcategory,
+        body,
+    });
 }
 
 /**
@@ -143,6 +82,7 @@ export async function PUT(req, { params }) {
 
         let currentItem = null;
         let parentCat = null;
+        let parentSub = null;
 
         for (const cat of menuDoc.menu) {
             for (const sub of cat.sub_category || []) {
@@ -150,6 +90,7 @@ export async function PUT(req, { params }) {
                     if (String(it.id) === String(itemId)) {
                         currentItem = it;
                         parentCat = cat;
+                        parentSub = sub;
                         break;
                     }
                 }
@@ -166,7 +107,7 @@ export async function PUT(req, { params }) {
         }
 
         // 2. Build the payload according to Ownly's schema
-        const payload = buildOwnlyItemPayload(resId, itemId, currentItem, parentCat, body);
+        const payload = buildOwnlyItemPayload(resId, itemId, currentItem, parentCat, body, parentSub);
 
         // 3. Send PUT request to Ownly live API
         const ownlyResponse = await ownlyClient({
@@ -183,6 +124,8 @@ export async function PUT(req, { params }) {
         currentItem.description = payload.description;
         currentItem.price = payload.price;
         currentItem.base_price = payload.price;
+        currentItem.min_price = payload.price;
+        currentItem.max_price = payload.price;
         currentItem.imageUrl = payload.imageUrl;
         currentItem.image_url = payload.imageUrl;
         currentItem.is_veg = payload.foodType === "non-veg" ? "NON_VEG" : (payload.foodType === "egg" ? "EGG" : "VEG");
@@ -223,6 +166,92 @@ export async function PUT(req, { params }) {
             {
                 success: false,
                 message: err.response?.data?.message || err.message || "Failed to update item on Ownly",
+            },
+            { status: err.response?.status || 500 }
+        );
+    }
+}
+
+/**
+ * DELETE /api/menu/[resId]/ownly/items/[itemId]
+ * Deletes item from Ownly (DELETE https://rxapi.ownly.food/api/v1/menu/item) and syncs MongoDB
+ */
+export async function DELETE(req, { params }) {
+    try {
+        const { resId, itemId } = await params;
+        if (!resId || !itemId) {
+            return NextResponse.json(
+                { success: false, message: "Restaurant ID and Item ID are required." },
+                { status: 400 }
+            );
+        }
+
+        await dbConnect();
+        const menuDoc = await Menu.findOne({ resId: String(resId), platform: "ownly" });
+
+        let targetCatId = null;
+        let targetSubId = null;
+
+        if (menuDoc?.menu) {
+            for (const cat of menuDoc.menu) {
+                for (const sub of cat.sub_category || []) {
+                    for (const it of sub.items || []) {
+                        if (String(it.id) === String(itemId)) {
+                            targetCatId = cat.id;
+                            targetSubId = sub.id;
+                            break;
+                        }
+                    }
+                    if (targetCatId) break;
+                }
+                if (targetCatId) break;
+            }
+        }
+
+        const isTemp = String(itemId).startsWith("temp-") || String(itemId).startsWith("temp_");
+        let ownlyData = null;
+
+        if (!isTemp) {
+            const deletePayload = {
+                restaurantId: String(resId),
+                categoryId: String(targetCatId || `CAT_${resId}`),
+                subcategoryId: (targetSubId && !String(targetSubId).startsWith("sub-") && !String(targetSubId).startsWith("temp"))
+                    ? String(targetSubId)
+                    : null,
+                itemId: String(itemId),
+            };
+
+            const ownlyRes = await ownlyClient({
+                req,
+                endpoint: "/api/v1/menu/item",
+                method: "DELETE",
+                data: deletePayload,
+            });
+            ownlyData = ownlyRes.data;
+        }
+
+        if (menuDoc?.menu) {
+            for (const cat of menuDoc.menu) {
+                for (const sub of cat.sub_category || []) {
+                    if (Array.isArray(sub.items)) {
+                        sub.items = sub.items.filter((it) => String(it.id) !== String(itemId));
+                    }
+                }
+            }
+            await Menu.updateOne({ _id: menuDoc._id }, { $set: { menu: menuDoc.menu } });
+        }
+
+        return NextResponse.json({
+            success: true,
+            message: "Item deleted successfully from Ownly",
+            data: ownlyData,
+        });
+    } catch (err) {
+        console.error("Ownly DELETE Item Error:", err.response?.data || err.message);
+        return NextResponse.json(
+            {
+                success: false,
+                message: err.response?.data?.message || err.message || "Failed to delete item from Ownly",
             },
             { status: err.response?.status || 500 }
         );

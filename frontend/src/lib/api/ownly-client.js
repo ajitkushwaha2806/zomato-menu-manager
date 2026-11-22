@@ -53,7 +53,7 @@ export function extractPhoneFromJwt(jwtToken) {
 
 export async function ownlyClient({
     req,
-    baseURL = process.env.OWNLY_API_BASE_URL || "https://rx-api.pd.ownly.food",
+    baseURL = process.env.OWNLY_API_BASE_URL || "https://rxapi.ownly.food",
     endpoint,
     method = "GET",
     data,

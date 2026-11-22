@@ -363,10 +363,12 @@ export const transformMenuAsNew = (updatedMenu) => {
 };
 
 const StatusBadge = ({ status }) => {
-// ... existing code for StatusBadge ...
-    switch (status) {
+    const s = typeof status === "string" ? status.toLowerCase() : "pending";
+    switch (s) {
         case "completed":
             return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold"><CheckCircle2 className="w-3 h-3" /> Completed</span>;
+        case "completed_with_errors":
+            return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-orange-100 text-orange-700 text-xs font-semibold"><AlertCircle className="w-3 h-3" /> Partial Success</span>;
         case "processing":
             return <span className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-blue-100 text-blue-700 text-xs font-semibold"><RefreshCcw className="w-3 h-3 animate-spin" /> Processing</span>;
         case "failed":
@@ -376,15 +378,38 @@ const StatusBadge = ({ status }) => {
     }
 };
 
+const formatErrorMessage = (err) => {
+    if (!err) return "";
+    if (typeof err === "string") return err;
+    if (typeof err === "object") {
+        if (typeof err.displayMessage === "string" && err.displayMessage.trim()) return err.displayMessage;
+        if (typeof err.message === "string" && err.message.trim()) return err.message;
+        if (err.error) return formatErrorMessage(err.error);
+        if (err.data && typeof err.data === "object") {
+            const inner = formatErrorMessage(err.data);
+            if (inner) return inner;
+        }
+        try {
+            return JSON.stringify(err);
+        } catch {
+            return String(err);
+        }
+    }
+    return String(err);
+};
+
 const ActionTag = ({ action }) => {
     if (action === "create") {
         return <span className="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-700 text-[10px] font-bold uppercase">Create</span>;
     }
+    if (action === "delete") {
+        return <span className="px-1.5 py-0.5 rounded bg-rose-100 text-rose-700 text-[10px] font-bold uppercase">Delete</span>;
+    }
     return <span className="px-1.5 py-0.5 rounded bg-sky-100 text-sky-700 text-[10px] font-bold uppercase">Update</span>;
 };
 
-const SyncItem = ({ label, items, type }) => {
-    const [expanded, setExpanded] = useState(false);
+const SyncItem = ({ label, items, defaultExpanded = false }) => {
+    const [expanded, setExpanded] = useState(defaultExpanded);
     
     if (!items || items.length === 0) return null;
 
@@ -410,37 +435,46 @@ const SyncItem = ({ label, items, type }) => {
                         className="overflow-hidden border-t"
                     >
                         <div className="p-3 space-y-2 max-h-60 overflow-y-auto">
-                            {items.map((item, idx) => (
-                                <div key={idx} className={`bg-white p-2 rounded border shadow-sm flex flex-col gap-2 ${item.status === 'failed' ? 'border-red-200' : item.status === 'completed' ? 'border-green-200' : ''}`}>
-                                    <div className="flex items-center justify-between">
-                                        <div className="flex items-center gap-2 max-w-[70%]">
-                                            <span className="text-sm font-medium truncate" title={item.name}>{item.name || item.id}</span>
-                                            {item.status && (
+                            {items.map((item, idx) => {
+                                const rawStatus = typeof item.status === 'string'
+                                    ? item.status
+                                    : (item.sync_status || "pending");
+                                const statusStr = String(rawStatus || "pending").toLowerCase();
+                                const isCompleted = statusStr === 'completed';
+                                const isFailed = statusStr === 'failed';
+                                const isProcessing = statusStr === 'processing';
+
+                                return (
+                                    <div key={idx} className={`bg-white p-2 rounded border shadow-sm flex flex-col gap-2 ${isFailed ? 'border-red-200' : isCompleted ? 'border-green-200' : ''}`}>
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2 max-w-[70%]">
+                                                <span className="text-sm font-medium truncate" title={item.name}>{item.name || item.id}</span>
                                                 <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${
-                                                    item.status === 'completed' ? 'bg-green-100 text-green-700' :
-                                                    item.status === 'failed' ? 'bg-red-100 text-red-700' :
+                                                    isCompleted ? 'bg-green-100 text-green-700' :
+                                                    isFailed ? 'bg-red-100 text-red-700' :
+                                                    isProcessing ? 'bg-blue-100 text-blue-700' :
                                                     'bg-yellow-100 text-yellow-700'
                                                 }`}>
-                                                    {item.status.toUpperCase()}
+                                                    {statusStr.toUpperCase()}
                                                 </span>
-                                            )}
+                                            </div>
+                                            <ActionTag action={item.action} />
                                         </div>
-                                        <ActionTag action={item.action} />
-                                    </div>
-                                    
-                                    {item.error && (
-                                        <div className="text-xs bg-red-50 text-red-700 p-2 rounded border border-red-100 break-words">
-                                            <strong>Error:</strong> {item.error}
+                                        
+                                        {item.error && (
+                                            <div className="text-xs bg-red-50 text-red-700 p-2 rounded border border-red-100 break-words">
+                                                <strong>Error:</strong> {formatErrorMessage(item.error)}
+                                            </div>
+                                        )}
+                                        
+                                        <div className="bg-slate-900 rounded-md p-4 overflow-x-auto shadow-inner">
+                                            <pre className="text-xs text-slate-300 font-mono leading-relaxed">
+                                                {JSON.stringify(item, null, 2)}
+                                            </pre>
                                         </div>
-                                    )}
-                                    
-                                    <div className="bg-slate-900 rounded-md p-4 overflow-x-auto shadow-inner">
-                                        <pre className="text-xs text-slate-300 font-mono leading-relaxed">
-                                            {JSON.stringify(item, null, 2)}
-                                        </pre>
                                     </div>
-                                </div>
-                            ))}
+                                );
+                            })}
                         </div>
                     </motion.div>
                 )}
@@ -449,18 +483,24 @@ const SyncItem = ({ label, items, type }) => {
     );
 };
 
-const JobCard = ({ job, onRetry, onRetryFailed, onRetryAllAsNew, onImportToLocal, isRetrying }) => {
+const JobCard = ({ job, onRetry, onRetryFailed, onRetryPending, onCancelJob, onRetryAllAsNew, onImportToLocal, isRetrying, isOwnly }) => {
     const [expanded, setExpanded] = useState(false);
     
     const categories = job.updated_menu?.categories || [];
     const subCategories = job.updated_menu?.sub_categories || [];
     const items = job.updated_menu?.items || [];
     
-    const totalChanges = categories.length + subCategories.length + items.length;
+    const allEntities = [...categories, ...subCategories, ...items];
+    const totalChanges = allEntities.length;
+    const completedCount = allEntities.filter(e => typeof e.status === 'string' && e.status.toLowerCase() === 'completed').length;
+    const failedCount = allEntities.filter(e => typeof e.status === 'string' && e.status.toLowerCase() === 'failed').length;
+    const pendingCount = allEntities.filter(e => !e.status || e.status === 'pending' || e.status === 'processing' || typeof e.status === 'boolean').length;
 
-    const hasFailedItems = items.some(item => item.status === 'failed') || 
-                           categories.some(cat => cat.status === 'failed') || 
-                           subCategories.some(sub => sub.status === 'failed');
+    const hasFailedItems = items.some(item => typeof item.status === 'string' && item.status.toLowerCase() === 'failed') || 
+                           categories.some(cat => typeof cat.status === 'string' && cat.status.toLowerCase() === 'failed') || 
+                           subCategories.some(sub => typeof sub.status === 'string' && sub.status.toLowerCase() === 'failed');
+
+    const isJobActive = job.status === "pending" || job.status === "processing";
 
     return (
         <div className="bg-white border rounded-xl shadow-sm overflow-hidden mb-3 transition-all hover:shadow-md">
@@ -469,18 +509,74 @@ const JobCard = ({ job, onRetry, onRetryFailed, onRetryAllAsNew, onImportToLocal
                 onClick={() => setExpanded(!expanded)}
             >
                 <div className="flex flex-col gap-1">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-wrap">
                         <StatusBadge status={job.status} />
                         <span className="text-xs text-gray-400 font-medium">
                             {new Date(job.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                         </span>
+                        {job.taskId && (
+                            <span className="text-[10px] bg-slate-100 text-slate-700 px-2 py-0.5 rounded font-mono font-medium border">
+                                Task: {job.taskId}
+                            </span>
+                        )}
+                        {job.accountName && (
+                            <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded font-medium border border-blue-100">
+                                {job.accountName}
+                            </span>
+                        )}
                     </div>
-                    <p className="text-sm font-semibold text-gray-800 mt-1">
-                        {totalChanges} Entity Changes
+                    <p className="text-sm font-semibold text-gray-800 mt-0.5">
+                        {totalChanges} {isOwnly ? (totalChanges === 1 ? "Item" : "Items") : "Entity Changes"}
                     </p>
-                    <p className="text-xs text-gray-500 font-mono mt-0.5">ID: {job._id}</p>
+                    <div className="flex items-center gap-2.5 text-xs">
+                        <span className="text-emerald-700 font-medium flex items-center gap-1">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            {completedCount} Completed
+                        </span>
+                        {failedCount > 0 && (
+                            <span className="text-red-700 font-medium flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-red-500" />
+                                {failedCount} Failed
+                            </span>
+                        )}
+                        {pendingCount > 0 && (
+                            <span className="text-amber-700 font-medium flex items-center gap-1">
+                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500" />
+                                {pendingCount} Pending
+                            </span>
+                        )}
+                    </div>
+                    <p className="text-xs text-gray-400 font-mono mt-0.5">ID: {job._id}</p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                    {pendingCount > 0 && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onRetryPending(job);
+                            }}
+                            disabled={isRetrying}
+                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-amber-50 text-amber-800 rounded-md hover:bg-amber-100 transition-colors disabled:opacity-50 border border-amber-200"
+                            title="Retry pending items in this sync"
+                        >
+                            <RefreshCcw className={`w-3.5 h-3.5 ${isRetrying ? 'animate-spin' : ''}`} />
+                            Retry Pending
+                        </button>
+                    )}
+                    {isJobActive && (
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onCancelJob(job);
+                            }}
+                            disabled={isRetrying}
+                            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium bg-red-50 text-red-700 rounded-md hover:bg-red-100 transition-colors disabled:opacity-50 border border-red-200"
+                            title="Mark stuck sync as cancelled"
+                        >
+                            <X className="w-3.5 h-3.5" />
+                            Cancel Sync
+                        </button>
+                    )}
                     {hasFailedItems && (
                         <button
                             onClick={(e) => {
@@ -549,13 +645,13 @@ const JobCard = ({ job, onRetry, onRetryFailed, onRetryAllAsNew, onImportToLocal
                             {job.error && (
                                 <div className="mb-3 p-3 bg-red-50 border border-red-100 rounded-lg text-sm text-red-700">
                                     <span className="font-semibold block mb-1">Error Details:</span>
-                                    {job.error}
+                                    {formatErrorMessage(job.error)}
                                 </div>
                             )}
                             
-                            <SyncItem label="Categories" items={categories} />
-                            <SyncItem label="Sub Categories" items={subCategories} />
-                            <SyncItem label="Items" items={items} />
+                            {categories.length > 0 && <SyncItem label="Categories" items={categories} />}
+                            {subCategories.length > 0 && <SyncItem label="Sub Categories" items={subCategories} />}
+                            {items.length > 0 && <SyncItem label="Items" items={items} defaultExpanded={true} />}
 
                             {totalChanges === 0 && (
                                 <div className="text-center py-4 text-sm text-gray-500">
@@ -643,6 +739,59 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
         }
     };
 
+    const handleRetryPending = async (job) => {
+        try {
+            setRetryingId(job._id);
+            const platformKey = activePlatform === 'ownly' ? 'ownly' : 'swiggy';
+            const pendingCategories = (job.updated_menu?.categories || []).filter(c => c.status !== "completed").map(cat => ({ ...cat, status: undefined, error: undefined }));
+            const pendingSubCategories = (job.updated_menu?.sub_categories || []).filter(s => s.status !== "completed").map(sub => ({ ...sub, status: undefined, error: undefined }));
+            const pendingItems = (job.updated_menu?.items || []).filter(i => i.status !== "completed").map(item => ({ ...item, status: undefined, error: undefined }));
+
+            const payload = {
+                updated_menu: {
+                    categories: pendingCategories,
+                    sub_categories: pendingSubCategories,
+                    items: pendingItems
+                }
+            };
+
+            const res = await api.post(`/api/menu/${resId}/${platformKey}/queue-changes`, payload);
+            if (res.data?.success) {
+                notify.success("Pending changes queued for retry successfully!");
+                fetchHistory();
+            } else {
+                notify.error(res.data?.message || "Failed to retry pending items.");
+            }
+        } catch (error) {
+            console.error("Failed to retry pending items", error);
+            notify.error("Failed to retry pending items.");
+        } finally {
+            setRetryingId(null);
+        }
+    };
+
+    const handleCancelJob = async (job) => {
+        try {
+            setRetryingId(job._id);
+            const platformKey = activePlatform === 'ownly' ? 'ownly' : 'swiggy';
+            const res = await api.post(`/api/menu/${resId}/${platformKey}/sync-history`, {
+                syncId: job._id,
+                action: "cancel"
+            });
+            if (res.data?.success) {
+                notify.success("Sync job marked as completed.");
+                fetchHistory();
+            } else {
+                notify.error(res.data?.message || "Failed to cancel sync job.");
+            }
+        } catch (error) {
+            console.error("Failed to cancel job", error);
+            notify.error("Failed to cancel sync job.");
+        } finally {
+            setRetryingId(null);
+        }
+    };
+
     const handleRetryAllAsNew = async (job) => {
         try {
             setRetryingId(job._id);
@@ -724,7 +873,7 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
                                 </div>
                                 <div>
                                     <h2 className="font-bold text-gray-900">Sync Queue History</h2>
-                                    <p className="text-xs text-gray-500">Monitor Swiggy menu sync jobs</p>
+                                    <p className="text-xs text-gray-500">Monitor {activePlatform === 'ownly' ? 'Ownly' : 'Swiggy'} menu sync jobs</p>
                                 </div>
                             </div>
                             <div className="flex items-center gap-1">
@@ -763,9 +912,12 @@ export default function SyncHistoryPanel({ isOpen, onClose, resId }) {
                                             job={job} 
                                             onRetry={handleRetry}
                                             onRetryFailed={handleRetryFailed}
+                                            onRetryPending={handleRetryPending}
+                                            onCancelJob={handleCancelJob}
                                             onRetryAllAsNew={handleRetryAllAsNew}
                                             onImportToLocal={handleImportToLocalMenu}
                                             isRetrying={retryingId === job._id}
+                                            isOwnly={activePlatform === 'ownly'}
                                         />
                                     ))}
                                 </div>

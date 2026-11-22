@@ -23,115 +23,156 @@ export function parseOwnlyMenu(rawResponse, resId) {
     let totalItems = 0;
     let totalImages = 0;
 
+    const parseItem = (item) => {
+        totalItems++;
+
+        // 1. Food type normalization
+        let is_veg = "VEG";
+        const ft = String(item.foodType || "").toLowerCase();
+        if (ft === "egg") {
+            is_veg = "EGG";
+        } else if (ft.includes("non")) {
+            is_veg = "NON_VEG";
+        }
+
+        // 2. Parse variant groups & options
+        const itemVariants = [];
+        for (const vgId of item.variantGroupIds || []) {
+            const vg = vgMap.get(String(vgId));
+            if (!vg) continue;
+
+            const options = (vg.variantIds || [])
+                .map((vId) => vMap.get(String(vId)))
+                .filter(Boolean)
+                .map((v) => ({
+                    option_name: v.name || "",
+                    option_id: String(v.id || v.providerId || ""),
+                    variant_id: String(v.id || v.providerId || ""),
+                    price: Number(v.price ?? 0),
+                    markupPrice: Number(v.markupPrice ?? v.price ?? 0),
+                    inStock: v.inStock !== false,
+                    is_default: false,
+                }))
+                .sort((a, b) => a.price - b.price);
+
+            if (options.length > 0) {
+                options.forEach((opt, idx) => {
+                    opt.is_default = idx === 0;
+                });
+
+                itemVariants.push({
+                    property_name: vg.name?.trim() || "Variations",
+                    property_id: String(vg.id || vg.providerId || ""),
+                    options,
+                });
+            }
+        }
+
+        // 3. Price calculation
+        let basePrice = Number(item.price || 0);
+        let minPrice = basePrice;
+        let maxPrice = basePrice;
+
+        if (itemVariants.length > 0) {
+            const allVariantPrices = itemVariants
+                .flatMap((v) => v.options.map((o) => o.price))
+                .filter((p) => typeof p === "number" && !isNaN(p) && p >= 0);
+
+            if (allVariantPrices.length > 0) {
+                minPrice = Math.min(...allVariantPrices);
+                maxPrice = Math.max(...allVariantPrices);
+                basePrice = minPrice;
+            }
+        }
+
+        // 4. Media
+        const media = [];
+        const imageUrl = item.imageUrl || item.image_url || (Array.isArray(item.media) && item.media[0]?.url) || "";
+        if (imageUrl) {
+            totalImages++;
+            media.push({
+                url: imageUrl,
+                thumbUrl: imageUrl,
+            });
+        }
+
+        return {
+            id: String(item.id || item.providerId),
+            temp_id: "",
+            name: item.name?.trim() || "",
+            description: item.description?.trim() || "",
+            base_price: basePrice,
+            price: basePrice,
+            min_price: minPrice,
+            max_price: maxPrice,
+            is_veg,
+            imageUrl,
+            image_url: imageUrl,
+            packing_charges: 0,
+            media,
+            variants: itemVariants,
+            addons: [],
+            status: item.inStock !== false,
+            inStock: item.inStock !== false,
+            raw: item,
+        };
+    };
+
     const parsedMenu = categories.map((cat, catIdx) => {
         const catId = String(cat.id || cat.providerId || `cat-${catIdx}`);
         const catName = cat.name?.trim() || `Category ${catIdx + 1}`;
+        const subCategories = [];
 
-        const parsedItems = (cat.items || []).map((item) => {
-            totalItems++;
-
-            // 1. Food type normalization
-            let is_veg = "VEG";
-            const ft = String(item.foodType || "").toLowerCase();
-            if (ft === "egg") {
-                is_veg = "EGG";
-            } else if (ft.includes("non")) {
-                is_veg = "NON_VEG";
-            }
-
-            // 2. Parse variant groups & options
-            const itemVariants = [];
-            for (const vgId of item.variantGroupIds || []) {
-                const vg = vgMap.get(String(vgId));
-                if (!vg) continue;
-
-                const options = (vg.variantIds || [])
-                    .map((vId) => vMap.get(String(vId)))
-                    .filter(Boolean)
-                    .map((v) => ({
-                        option_name: v.name || "",
-                        option_id: String(v.id || v.providerId || ""),
-                        variant_id: String(v.id || v.providerId || ""),
-                        price: Number(v.price ?? 0),
-                        markupPrice: Number(v.markupPrice ?? v.price ?? 0),
-                        inStock: v.inStock !== false,
-                        is_default: false,
-                    }))
-                    .sort((a, b) => a.price - b.price);
-
-                if (options.length > 0) {
-                    options.forEach((opt, idx) => {
-                        opt.is_default = idx === 0;
-                    });
-
-                    itemVariants.push({
-                        property_name: vg.name?.trim() || "Variations",
-                        property_id: String(vg.id || vg.providerId || ""),
-                        options,
-                    });
-                }
-            }
-
-            // 3. Price calculation
-            let basePrice = Number(item.price || 0);
-            let minPrice = basePrice;
-            let maxPrice = basePrice;
-
-            if (itemVariants.length > 0) {
-                const allVariantPrices = itemVariants
-                    .flatMap((v) => v.options.map((o) => o.price))
-                    .filter((p) => typeof p === "number" && !isNaN(p) && p >= 0);
-
-                if (allVariantPrices.length > 0) {
-                    minPrice = Math.min(...allVariantPrices);
-                    maxPrice = Math.max(...allVariantPrices);
-                    basePrice = minPrice;
-                }
-            }
-
-            // 4. Media
-            const media = [];
-            if (item.imageUrl) {
-                totalImages++;
-                media.push({
-                    url: item.imageUrl,
-                    thumbUrl: item.imageUrl,
+        // 1. Check for subcategories: cat.subcategories or cat.subCategories
+        const rawSubcats = cat.subcategories || cat.subCategories || [];
+        if (Array.isArray(rawSubcats) && rawSubcats.length > 0) {
+            for (let sIdx = 0; sIdx < rawSubcats.length; sIdx++) {
+                const sub = rawSubcats[sIdx];
+                const subId = String(sub.id || sub.providerId || `sub-${catId}-${sIdx}`);
+                const subName = sub.name?.trim() || catName;
+                const subItems = (sub.items || []).map(parseItem);
+                subCategories.push({
+                    id: subId,
+                    categoryId: catId,
+                    temp_id: "",
+                    name: subName,
+                    sortOrder: sub.sortOrder ?? sIdx,
+                    items: subItems,
                 });
             }
+        }
 
-            return {
-                id: String(item.id || item.providerId),
+        // 2. Also check if there are direct items on the category itself
+        if (Array.isArray(cat.items) && cat.items.length > 0) {
+            const directItems = cat.items.map(parseItem);
+            subCategories.push({
+                id: `sub-${catId}`,
+                categoryId: catId,
                 temp_id: "",
-                name: item.name?.trim() || "",
-                description: item.description?.trim() || "",
-                base_price: basePrice,
-                price: basePrice,
-                min_price: minPrice,
-                max_price: maxPrice,
-                is_veg,
-                packing_charges: 0,
-                media,
-                variants: itemVariants,
-                addons: [],
-                status: item.inStock !== false,
-                inStock: item.inStock !== false,
-                raw: item,
-            };
-        });
+                name: catName,
+                sortOrder: 0,
+                items: directItems,
+            });
+        }
+
+        // 3. Fallback if category has no subcategories and no direct items
+        if (subCategories.length === 0) {
+            subCategories.push({
+                id: `sub-${catId}`,
+                categoryId: catId,
+                temp_id: "",
+                name: catName,
+                sortOrder: 0,
+                items: [],
+            });
+        }
 
         return {
             id: catId,
             temp_id: "",
             name: catName,
             sortOrder: cat.sortOrder ?? catIdx,
-            sub_category: [
-                {
-                    id: `sub-${catId}`,
-                    temp_id: "",
-                    name: catName,
-                    items: parsedItems,
-                },
-            ],
+            sub_category: subCategories,
         };
     });
 

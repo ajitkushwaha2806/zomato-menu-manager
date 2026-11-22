@@ -358,6 +358,7 @@ const menuSlice = createSlice({
             if (String(categoryId).startsWith('temp-')) {
                 state.menuData = state.menuData?.filter(cat => cat.id !== categoryId) || [];
                 state.updated_menu.categories = state.updated_menu.categories.filter(entry => entry.id !== categoryId);
+                state.updated_menu.items = state.updated_menu.items.filter(entry => entry.categoryId !== categoryId);
             } else {
                 upsertUpdatedMenuEntry(state.updated_menu.categories, { id: categoryId, action: "delete" });
                 const category = state.menuData?.find(cat => cat.id === categoryId);
@@ -366,9 +367,22 @@ const menuSlice = createSlice({
                     category.temp_id = `delete-${categoryId}`;
                     category.sub_category?.forEach(sub => {
                         sub.status = 'delete';
+                        sub.temp_id = `delete-${sub.id}`;
                         sub.items?.forEach(item => {
                             item.status = 'delete';
+                            item.temp_id = `delete-${item.id}`;
                             item.variants?.forEach(variant => variant.status = 'delete');
+                            if (state.activePlatform === 'ownly' && !String(item.id).startsWith('temp-')) {
+                                upsertUpdatedMenuEntry(state.updated_menu.items, {
+                                    id: item.id,
+                                    name: item.name,
+                                    categoryId: category.id,
+                                    categoryName: category.name,
+                                    subCategoryId: sub.id,
+                                    subCategoryName: sub.name,
+                                    action: "delete",
+                                });
+                            }
                         });
                     });
                 }
@@ -416,6 +430,7 @@ const menuSlice = createSlice({
                     if (String(subCategoryId).startsWith('temp-')) {
                         cat.sub_category = cat.sub_category.filter(s => s.id !== subCategoryId);
                         state.updated_menu.sub_categories = state.updated_menu.sub_categories.filter(entry => entry.id !== subCategoryId);
+                        state.updated_menu.items = state.updated_menu.items.filter(entry => entry.subCategoryId !== subCategoryId);
                     } else {
                         upsertUpdatedMenuEntry(state.updated_menu.sub_categories, { id: subCategoryId, categoryId: cat.id, action: "delete" });
                         const sub = cat.sub_category.find(s => s.id === subCategoryId);
@@ -424,7 +439,19 @@ const menuSlice = createSlice({
                             sub.temp_id = `delete-${subCategoryId}`;
                             sub.items?.forEach(item => {
                                 item.status = 'delete';
+                                item.temp_id = `delete-${item.id}`;
                                 item.variants?.forEach(variant => variant.status = 'delete');
+                                if (state.activePlatform === 'ownly' && !String(item.id).startsWith('temp-')) {
+                                    upsertUpdatedMenuEntry(state.updated_menu.items, {
+                                        id: item.id,
+                                        name: item.name,
+                                        categoryId: cat.id,
+                                        categoryName: cat.name,
+                                        subCategoryId: sub.id,
+                                        subCategoryName: sub.name,
+                                        action: "delete",
+                                    });
+                                }
                             });
                         }
                     }
@@ -443,7 +470,17 @@ const menuSlice = createSlice({
                 if (sub) {
                     if (!sub.items) sub.items = [];
                     const newItemId = item.id || ('temp-' + crypto.randomUUID());
-                    const newItem = { ...item, id: newItemId };
+                    const priceVal = Number(item.base_price !== undefined && item.base_price !== null && item.base_price !== "" 
+                        ? item.base_price 
+                        : (item.price ?? 0));
+                    const newItem = { 
+                        ...item, 
+                        id: newItemId,
+                        price: priceVal,
+                        base_price: priceVal,
+                        min_price: priceVal,
+                        max_price: priceVal
+                    };
                     sub.items.push(newItem);
                     upsertUpdatedMenuEntry(state.updated_menu.items, { ...newItem, id: newItemId, categoryId: cat.id, categoryName: cat.name, subCategoryId, subCategoryName: sub.name, action: "create" });
                     
@@ -474,6 +511,21 @@ const menuSlice = createSlice({
             if (state.activePlatform === 'petpooja') {
                 delete safeUpdates.base_price;
                 delete safeUpdates.price;
+            } else {
+                // Ensure base_price, price, min_price, max_price are always synchronized
+                if (safeUpdates.base_price !== undefined && safeUpdates.base_price !== null && safeUpdates.base_price !== "") {
+                    const numPrice = Number(safeUpdates.base_price);
+                    safeUpdates.base_price = numPrice;
+                    safeUpdates.price = numPrice;
+                    safeUpdates.min_price = numPrice;
+                    safeUpdates.max_price = numPrice;
+                } else if (safeUpdates.price !== undefined && safeUpdates.price !== null && safeUpdates.price !== "") {
+                    const numPrice = Number(safeUpdates.price);
+                    safeUpdates.price = numPrice;
+                    safeUpdates.base_price = numPrice;
+                    safeUpdates.min_price = numPrice;
+                    safeUpdates.max_price = numPrice;
+                }
             }
             state.menuData?.forEach(cat => {
                 cat.sub_category?.forEach(sub => {
@@ -600,12 +652,57 @@ const menuSlice = createSlice({
                 if (categoryIds.includes(cat.id) && cat.id !== targetCategoryId) {
                     if (cat.sub_category && cat.sub_category.length > 0) {
                         if (!targetCat.sub_category) targetCat.sub_category = [];
+                        cat.sub_category.forEach(sub => {
+                            sub.categoryId = targetCat.id;
+                            sub.category_id = targetCat.id;
+                            sub.categoryName = targetCat.name;
+                            const subUpdateTag = String(sub.id).startsWith('temp-') ? sub.temp_id : `update-${sub.id}`;
+                            sub.temp_id = subUpdateTag;
+
+                            if (state.updated_menu.sub_categories) {
+                                const existingSubEntry = state.updated_menu.sub_categories.find(entry => entry.id === sub.id);
+                                upsertUpdatedMenuEntry(state.updated_menu.sub_categories, {
+                                    id: sub.id,
+                                    name: sub.name,
+                                    categoryId: targetCat.id,
+                                    categoryName: targetCat.name,
+                                    action: existingSubEntry?.action || (String(sub.id).startsWith('temp-') ? "create" : "update"),
+                                });
+                            }
+
+                            sub.items?.forEach(item => {
+                                item.categoryId = targetCat.id;
+                                item.category_id = targetCat.id;
+                                item.categoryName = targetCat.name;
+                                item.category = { id: targetCat.id, name: targetCat.name, providerId: targetCat.providerId || targetCat.id };
+                                const itemUpdateTag = String(item.id).startsWith('temp-') ? item.temp_id : `update-${item.id}`;
+                                item.temp_id = itemUpdateTag;
+
+                                const existingItemEntry = state.updated_menu.items.find(entry => entry.id === item.id);
+                                upsertUpdatedMenuEntry(state.updated_menu.items, {
+                                    id: item.id,
+                                    name: item.name,
+                                    price: item.price ?? item.base_price,
+                                    base_price: item.base_price ?? item.price,
+                                    categoryId: targetCat.id,
+                                    categoryName: targetCat.name,
+                                    category: { id: targetCat.id, name: targetCat.name, providerId: targetCat.id },
+                                    subCategoryId: sub.id,
+                                    subCategoryName: sub.name,
+                                    subcategory: { id: sub.id, name: sub.name, providerId: sub.id },
+                                    action: existingItemEntry?.action || (String(item.id).startsWith('temp-') ? "create" : "update"),
+                                }, item);
+                            });
+                        });
                         targetCat.sub_category.push(...cat.sub_category);
                     }
                     if (String(cat.id).startsWith('temp-')) {
                         state.menuData = state.menuData.filter(c => c.id !== cat.id);
                     } else {
                         cat.status = 'delete';
+                        if (state.updated_menu.categories) {
+                            upsertUpdatedMenuEntry(state.updated_menu.categories, { id: cat.id, action: "delete" });
+                        }
                     }
                 }
             });
@@ -615,11 +712,15 @@ const menuSlice = createSlice({
             if (!subCategoryIds?.length || !targetSubCategoryId) return;
 
             let targetSub = null;
+            let targetCat = null;
             state.menuData?.forEach(cat => {
                 const found = cat.sub_category?.find(s => s.id === targetSubCategoryId);
-                if (found) targetSub = found;
+                if (found) {
+                    targetSub = found;
+                    targetCat = cat;
+                }
             });
-            if (!targetSub) return;
+            if (!targetSub || !targetCat) return;
 
             state.menuData?.forEach(cat => {
                 if (cat.sub_category) {
@@ -628,12 +729,43 @@ const menuSlice = createSlice({
                         if (subCategoryIds.includes(sub.id) && sub.id !== targetSubCategoryId) {
                             if (sub.items && sub.items.length > 0) {
                                 if (!targetSub.items) targetSub.items = [];
+                                sub.items.forEach(item => {
+                                    item.categoryId = targetCat.id;
+                                    item.category_id = targetCat.id;
+                                    item.categoryName = targetCat.name;
+                                    item.category = { id: targetCat.id, name: targetCat.name, providerId: targetCat.providerId || targetCat.id };
+                                    item.subCategoryId = targetSub.id;
+                                    item.sub_category_id = targetSub.id;
+                                    item.subCategoryName = targetSub.name;
+                                    item.subcategory = { id: targetSub.id, name: targetSub.name, providerId: targetSub.providerId || targetSub.id };
+
+                                    const itemUpdateTag = String(item.id).startsWith('temp-') ? item.temp_id : `update-${item.id}`;
+                                    item.temp_id = itemUpdateTag;
+
+                                    const existingItemEntry = state.updated_menu.items.find(entry => entry.id === item.id);
+                                    upsertUpdatedMenuEntry(state.updated_menu.items, {
+                                        id: item.id,
+                                        name: item.name,
+                                        price: item.price ?? item.base_price,
+                                        base_price: item.base_price ?? item.price,
+                                        categoryId: targetCat.id,
+                                        categoryName: targetCat.name,
+                                        category: { id: targetCat.id, name: targetCat.name, providerId: targetCat.id },
+                                        subCategoryId: targetSub.id,
+                                        subCategoryName: targetSub.name,
+                                        subcategory: { id: targetSub.id, name: targetSub.name, providerId: targetSub.id },
+                                        action: existingItemEntry?.action || (String(item.id).startsWith('temp-') ? "create" : "update"),
+                                    }, item);
+                                });
                                 targetSub.items.push(...sub.items);
                             }
                             if (String(sub.id).startsWith('temp-')) {
                                 cat.sub_category.splice(i, 1);
                             } else {
                                 sub.status = 'delete';
+                                if (state.updated_menu.sub_categories) {
+                                    upsertUpdatedMenuEntry(state.updated_menu.sub_categories, { id: sub.id, action: "delete" });
+                                }
                             }
                         }
                     }
@@ -651,6 +783,16 @@ const menuSlice = createSlice({
 
             // Rename target
             targetCat.name = newName.trim();
+            const catUpdateTag = String(targetCat.id).startsWith('temp-') ? targetCat.temp_id : `update-${targetCat.id}`;
+            targetCat.temp_id = catUpdateTag;
+            if (state.updated_menu.categories) {
+                const existingCatEntry = state.updated_menu.categories.find(entry => entry.id === targetCat.id);
+                upsertUpdatedMenuEntry(state.updated_menu.categories, {
+                    id: targetCat.id,
+                    name: targetCat.name,
+                    action: existingCatEntry?.action || (String(targetCat.id).startsWith('temp-') ? "create" : "update"),
+                });
+            }
 
             // Merge the rest into target
             state.menuData?.forEach(cat => {
@@ -659,27 +801,62 @@ const menuSlice = createSlice({
                         if (!targetCat.sub_category) targetCat.sub_category = [];
 
                         cat.sub_category.forEach(sub => {
+                            sub.categoryId = targetCat.id;
+                            sub.category_id = targetCat.id;
+                            sub.categoryName = targetCat.name;
+                            const subUpdateTag = String(sub.id).startsWith('temp-') ? sub.temp_id : `update-${sub.id}`;
+                            sub.temp_id = subUpdateTag;
+
                             const existingSub = targetCat.sub_category.find(s =>
                                 s.name?.toLowerCase().trim() === sub.name?.toLowerCase().trim() &&
                                 s.status !== 'delete' && s.status !== 'deleted'
                             );
 
-                            if (existingSub) {
-                                // Subcategory with same name already exists in target category.
-                                // Merge items into the existing subcategory to prevent duplicate subcategories.
-                                if (sub.items && sub.items.length > 0) {
-                                    if (!existingSub.items) existingSub.items = [];
-                                    sub.items.forEach(item => {
-                                        const existingItem = existingSub.items.find(i =>
+                            const destinationSub = existingSub || sub;
+
+                            if (sub.items && sub.items.length > 0) {
+                                if (!destinationSub.items) destinationSub.items = [];
+                                sub.items.forEach(item => {
+                                    item.categoryId = targetCat.id;
+                                    item.category_id = targetCat.id;
+                                    item.categoryName = targetCat.name;
+                                    item.category = { id: targetCat.id, name: targetCat.name, providerId: targetCat.id };
+                                    item.subCategoryId = destinationSub.id;
+                                    item.sub_category_id = destinationSub.id;
+                                    item.subCategoryName = destinationSub.name;
+                                    item.subcategory = { id: destinationSub.id, name: destinationSub.name, providerId: destinationSub.id };
+
+                                    const itemUpdateTag = String(item.id).startsWith('temp-') ? item.temp_id : `update-${item.id}`;
+                                    item.temp_id = itemUpdateTag;
+
+                                    const existingItemEntry = state.updated_menu.items.find(entry => entry.id === item.id);
+                                    upsertUpdatedMenuEntry(state.updated_menu.items, {
+                                        id: item.id,
+                                        name: item.name,
+                                        price: item.price ?? item.base_price,
+                                        base_price: item.base_price ?? item.price,
+                                        categoryId: targetCat.id,
+                                        categoryName: targetCat.name,
+                                        category: { id: targetCat.id, name: targetCat.name, providerId: targetCat.id },
+                                        subCategoryId: destinationSub.id,
+                                        subCategoryName: destinationSub.name,
+                                        subcategory: { id: destinationSub.id, name: destinationSub.name, providerId: destinationSub.id },
+                                        action: existingItemEntry?.action || (String(item.id).startsWith('temp-') ? "create" : "update"),
+                                    }, item);
+
+                                    if (existingSub) {
+                                        const duplicateItem = existingSub.items.find(i =>
                                             i.name?.toLowerCase().trim() === item.name?.toLowerCase().trim() &&
                                             i.status !== 'delete' && i.status !== 'deleted'
                                         );
-                                        if (!existingItem) {
+                                        if (!duplicateItem) {
                                             existingSub.items.push(item);
                                         }
-                                    });
-                                }
-                            } else {
+                                    }
+                                });
+                            }
+
+                            if (!existingSub) {
                                 targetCat.sub_category.push(sub);
                             }
                         });
@@ -688,6 +865,9 @@ const menuSlice = createSlice({
                         state.menuData = state.menuData.filter(c => c.id !== cat.id);
                     } else {
                         cat.status = 'delete';
+                        if (state.updated_menu.categories) {
+                            upsertUpdatedMenuEntry(state.updated_menu.categories, { id: cat.id, action: "delete" });
+                        }
                     }
                 }
             });
@@ -699,14 +879,30 @@ const menuSlice = createSlice({
             // Pick the first one as the target
             const targetId = subCategoryIds[0];
             let targetSub = null;
+            let targetCat = null;
             state.menuData?.forEach(cat => {
                 const found = cat.sub_category?.find(s => s.id === targetId);
-                if (found) targetSub = found;
+                if (found) {
+                    targetSub = found;
+                    targetCat = cat;
+                }
             });
-            if (!targetSub) return;
+            if (!targetSub || !targetCat) return;
 
             // Rename target
             targetSub.name = newName.trim();
+            const subUpdateTag = String(targetSub.id).startsWith('temp-') ? targetSub.temp_id : `update-${targetSub.id}`;
+            targetSub.temp_id = subUpdateTag;
+            if (state.updated_menu.sub_categories) {
+                const existingSubEntry = state.updated_menu.sub_categories.find(entry => entry.id === targetSub.id);
+                upsertUpdatedMenuEntry(state.updated_menu.sub_categories, {
+                    id: targetSub.id,
+                    name: targetSub.name,
+                    categoryId: targetCat.id,
+                    categoryName: targetCat.name,
+                    action: existingSubEntry?.action || (String(targetSub.id).startsWith('temp-') ? "create" : "update"),
+                });
+            }
 
             // Merge the rest into target
             state.menuData?.forEach(cat => {
@@ -718,6 +914,33 @@ const menuSlice = createSlice({
                                 if (!targetSub.items) targetSub.items = [];
 
                                 sub.items.forEach(item => {
+                                    item.categoryId = targetCat.id;
+                                    item.category_id = targetCat.id;
+                                    item.categoryName = targetCat.name;
+                                    item.category = { id: targetCat.id, name: targetCat.name, providerId: targetCat.id };
+                                    item.subCategoryId = targetSub.id;
+                                    item.sub_category_id = targetSub.id;
+                                    item.subCategoryName = targetSub.name;
+                                    item.subcategory = { id: targetSub.id, name: targetSub.name, providerId: targetSub.id };
+
+                                    const itemUpdateTag = String(item.id).startsWith('temp-') ? item.temp_id : `update-${item.id}`;
+                                    item.temp_id = itemUpdateTag;
+
+                                    const existingItemEntry = state.updated_menu.items.find(entry => entry.id === item.id);
+                                    upsertUpdatedMenuEntry(state.updated_menu.items, {
+                                        id: item.id,
+                                        name: item.name,
+                                        price: item.price ?? item.base_price,
+                                        base_price: item.base_price ?? item.price,
+                                        categoryId: targetCat.id,
+                                        categoryName: targetCat.name,
+                                        category: { id: targetCat.id, name: targetCat.name, providerId: targetCat.id },
+                                        subCategoryId: targetSub.id,
+                                        subCategoryName: targetSub.name,
+                                        subcategory: { id: targetSub.id, name: targetSub.name, providerId: targetSub.id },
+                                        action: existingItemEntry?.action || (String(item.id).startsWith('temp-') ? "create" : "update"),
+                                    }, item);
+
                                     const existingItem = targetSub.items.find(i =>
                                         i.name?.toLowerCase().trim() === item.name?.toLowerCase().trim() &&
                                         i.status !== 'delete' && i.status !== 'deleted'
@@ -731,6 +954,9 @@ const menuSlice = createSlice({
                                 cat.sub_category.splice(i, 1);
                             } else {
                                 sub.status = 'delete';
+                                if (state.updated_menu.sub_categories) {
+                                    upsertUpdatedMenuEntry(state.updated_menu.sub_categories, { id: sub.id, action: "delete" });
+                                }
                             }
                         }
                     }
@@ -740,6 +966,19 @@ const menuSlice = createSlice({
         bulkMoveItems: (state, action) => {
             const { itemIds, targetSubCategoryId } = action.payload;
             if (!itemIds?.length || !targetSubCategoryId) return;
+
+            let targetCat = null;
+            let targetSub = null;
+            state.menuData?.forEach(cat => {
+                cat.sub_category?.forEach(sub => {
+                    if (sub.id === targetSubCategoryId) {
+                        targetCat = cat;
+                        targetSub = sub;
+                    }
+                });
+            });
+
+            if (!targetSub || !targetCat) return;
 
             const itemsToMove = [];
 
@@ -757,21 +996,54 @@ const menuSlice = createSlice({
                 });
             });
 
-            // 2. Add to target
+            // 2. Add to target and update category/subcategory IDs + mark updated
             if (itemsToMove.length > 0) {
-                state.menuData?.forEach(cat => {
-                    cat.sub_category?.forEach(sub => {
-                        if (sub.id === targetSubCategoryId) {
-                            if (!sub.items) sub.items = [];
-                            sub.items.push(...itemsToMove);
-                        }
-                    });
+                if (!targetSub.items) targetSub.items = [];
+                itemsToMove.forEach(item => {
+                    item.categoryId = targetCat.id;
+                    item.category_id = targetCat.id;
+                    item.categoryName = targetCat.name;
+                    item.category = {
+                        id: targetCat.id,
+                        name: targetCat.name,
+                        providerId: targetCat.providerId || targetCat.id,
+                    };
+                    item.subCategoryId = targetSub.id;
+                    item.sub_category_id = targetSub.id;
+                    item.subCategoryName = targetSub.name;
+                    item.subcategory = {
+                        id: targetSub.id,
+                        name: targetSub.name,
+                        providerId: targetSub.providerId || targetSub.id,
+                    };
+
+                    const updateTag = String(item.id).startsWith('temp-') ? item.temp_id : `update-${item.id}`;
+                    item.temp_id = updateTag;
+
+                    const existingEntry = state.updated_menu.items.find(entry => entry.id === item.id);
+                    upsertUpdatedMenuEntry(state.updated_menu.items, {
+                        id: item.id,
+                        name: item.name,
+                        price: item.price ?? item.base_price,
+                        base_price: item.base_price ?? item.price,
+                        categoryId: targetCat.id,
+                        categoryName: targetCat.name,
+                        category: { id: targetCat.id, name: targetCat.name, providerId: targetCat.id },
+                        subCategoryId: targetSub.id,
+                        subCategoryName: targetSub.name,
+                        subcategory: { id: targetSub.id, name: targetSub.name, providerId: targetSub.id },
+                        action: existingEntry?.action || (String(item.id).startsWith('temp-') ? "create" : "update"),
+                    }, item);
                 });
+                targetSub.items.push(...itemsToMove);
             }
         },
         bulkMoveSubCategories: (state, action) => {
             const { subCategoryIds, targetCategoryId } = action.payload;
             if (!subCategoryIds?.length || !targetCategoryId) return;
+
+            const targetCat = state.menuData?.find(c => c.id === targetCategoryId);
+            if (!targetCat) return;
 
             const subsToMove = [];
 
@@ -787,13 +1059,53 @@ const menuSlice = createSlice({
                 }
             });
 
-            // 2. Add to target
+            // 2. Add to target and update category references
             if (subsToMove.length > 0) {
-                const targetCat = state.menuData?.find(c => c.id === targetCategoryId);
-                if (targetCat) {
-                    if (!targetCat.sub_category) targetCat.sub_category = [];
-                    targetCat.sub_category.push(...subsToMove);
-                }
+                if (!targetCat.sub_category) targetCat.sub_category = [];
+                subsToMove.forEach(sub => {
+                    sub.categoryId = targetCat.id;
+                    sub.category_id = targetCat.id;
+                    sub.categoryName = targetCat.name;
+                    const subUpdateTag = String(sub.id).startsWith('temp-') ? sub.temp_id : `update-${sub.id}`;
+                    sub.temp_id = subUpdateTag;
+
+                    const existingSubEntry = state.updated_menu.sub_categories?.find(entry => entry.id === sub.id);
+                    if (state.updated_menu.sub_categories) {
+                        upsertUpdatedMenuEntry(state.updated_menu.sub_categories, {
+                            id: sub.id,
+                            name: sub.name,
+                            categoryId: targetCat.id,
+                            categoryName: targetCat.name,
+                            action: existingSubEntry?.action || (String(sub.id).startsWith('temp-') ? "create" : "update"),
+                        });
+                    }
+
+                    // Update all items inside sub to have targetCat's categoryId & categoryName
+                    sub.items?.forEach(item => {
+                        item.categoryId = targetCat.id;
+                        item.category_id = targetCat.id;
+                        item.categoryName = targetCat.name;
+                        item.category = { id: targetCat.id, name: targetCat.name, providerId: targetCat.id };
+                        const itemUpdateTag = String(item.id).startsWith('temp-') ? item.temp_id : `update-${item.id}`;
+                        item.temp_id = itemUpdateTag;
+
+                        const existingItemEntry = state.updated_menu.items.find(entry => entry.id === item.id);
+                        upsertUpdatedMenuEntry(state.updated_menu.items, {
+                            id: item.id,
+                            name: item.name,
+                            price: item.price ?? item.base_price,
+                            base_price: item.base_price ?? item.price,
+                            categoryId: targetCat.id,
+                            categoryName: targetCat.name,
+                            category: { id: targetCat.id, name: targetCat.name, providerId: targetCat.id },
+                            subCategoryId: sub.id,
+                            subCategoryName: sub.name,
+                            subcategory: { id: sub.id, name: sub.name, providerId: sub.id },
+                            action: existingItemEntry?.action || (String(item.id).startsWith('temp-') ? "create" : "update"),
+                        }, item);
+                    });
+                });
+                targetCat.sub_category.push(...subsToMove);
             }
         },
         bulkMakeSubCategoriesAsCategories: (state, action) => {

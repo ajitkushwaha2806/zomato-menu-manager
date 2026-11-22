@@ -4,7 +4,9 @@ import { useState, useMemo, useEffect } from "react";
 import { useMenu } from "@/store/hooks/useMenu";
 import useRestaurant from "@/store/hooks/useRestaurant";
 import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
+import useOwnlyRestaurant from "@/store/hooks/useOwnlyRestaurant";
 import useNotification from "@/store/hooks/useNotification";
+import CookieStorage from "@/services/cookie";
 import api from "@/lib/api/axios";
 import { Button } from "@/components/ui/button";
 import { Loader2, Send, ChevronsUpDown, Check, Store, Search } from "lucide-react";
@@ -39,6 +41,7 @@ export default function TransferMenuEditor() {
     const [platform, setPlatform] = useState("zomato");
     const { restaurants: zomatoRes, isLoading: isZomatoLoading } = useRestaurant();
     const { restaurants: swiggyRes, isLoading: isSwiggyLoading, isError: isSwiggyError, error: swiggyError, refetch: refetchSwiggy } = useSwiggyRestaurant();
+    const { restaurants: ownlyRes, isLoading: isOwnlyLoading } = useOwnlyRestaurant();
     const notification = useNotification();
     const [targetResId, setTargetResId] = useState("");
     const [isTransferring, setIsTransferring] = useState(false);
@@ -54,11 +57,14 @@ export default function TransferMenuEditor() {
     }, [platform, isSwiggyError, swiggyError]);
 
     const availableRestaurants = useMemo(() => {
-        const entities = platform === "zomato" ? zomatoRes?.entities : swiggyRes?.entities;
-        return entities?.filter(r => r.id !== activeResId) || [];
-    }, [platform, zomatoRes, swiggyRes, activeResId]);
+        let entities = [];
+        if (platform === "zomato") entities = zomatoRes?.entities;
+        else if (platform === "swiggy") entities = swiggyRes?.entities;
+        else if (platform === "ownly") entities = ownlyRes?.entities;
+        return (entities || []).filter(r => String(r.id) !== String(activeResId));
+    }, [platform, zomatoRes, swiggyRes, ownlyRes, activeResId]);
     
-    const isRestaurantsLoading = platform === "zomato" ? isZomatoLoading : isSwiggyLoading;
+    const isRestaurantsLoading = platform === "zomato" ? isZomatoLoading : platform === "swiggy" ? isSwiggyLoading : isOwnlyLoading;
 
     const filteredRestaurants = useMemo(() => {
         if (!searchQuery.trim()) return availableRestaurants;
@@ -73,9 +79,12 @@ export default function TransferMenuEditor() {
     }, [availableRestaurants, targetResId]);
 
     const activeRestaurant = useMemo(() => {
-        const entities = activePlatform === "swiggy" ? swiggyRes?.entities : zomatoRes?.entities;
-        return entities?.find(r => r.id === activeResId) || null;
-    }, [activePlatform, swiggyRes, zomatoRes, activeResId]);
+        let entities = [];
+        if (activePlatform === "swiggy") entities = swiggyRes?.entities;
+        else if (activePlatform === "ownly") entities = ownlyRes?.entities;
+        else entities = zomatoRes?.entities;
+        return (entities || []).find(r => String(r.id) === String(activeResId)) || null;
+    }, [activePlatform, swiggyRes, zomatoRes, ownlyRes, activeResId]);
 
     const handleTransfer = async () => {
         if (!targetResId) {
@@ -87,11 +96,15 @@ export default function TransferMenuEditor() {
             setIsTransferring(true);
             const endpoint = platform === "zomato"
                 ? `/api/menu/${activeResId}/zomato/transfer`
-                : `/api/menu/${activeResId}/swiggy/transfer`;
+                : platform === "swiggy"
+                ? `/api/menu/${activeResId}/swiggy/transfer`
+                : `/api/menu/${activeResId}/ownly/transfer`;
 
             const payload = platform === "zomato" 
                 ? { res_id_to: targetResId, platform_from: activePlatform || "zomato", platform_to: "zomato" }
-                : { res_id_to: targetResId, sourceMenu: menuData, platform_from: activePlatform || "zomato", platform_to: "swiggy" };
+                : platform === "swiggy"
+                ? { res_id_to: targetResId, sourceMenu: menuData, platform_from: activePlatform || "zomato", platform_to: "swiggy" }
+                : { res_id_to: targetResId, sourceMenu: menuData, platform_from: activePlatform || "zomato", platform_to: "ownly" };
 
             const response = await api.post(endpoint, payload);
 
@@ -110,7 +123,7 @@ export default function TransferMenuEditor() {
                             toResName: selectedTarget?.name || "Unknown Target",
                             platform: `${activePlatform || "zomato"} -> ${platform}`,
                             details: {
-                                accountName: localStorage.getItem("swiggy_account") || "",
+                                accountName: platform === "ownly" ? (CookieStorage.getAccountName() || "") : (localStorage.getItem("swiggy_account") || ""),
                             }
                         }),
                     });
@@ -118,7 +131,7 @@ export default function TransferMenuEditor() {
                     console.error("Failed to save transfer to db:", dbError);
                 }
 
-                notification.success("Menu transferred successfully!");
+                notification.success(`Menu transferred successfully to ${platform === "ownly" ? "Ownly" : platform === "swiggy" ? "Swiggy" : "Zomato"}!`);
                 setActiveResId({ id: targetResId, platform: platform });
             }
         } catch (error) {
@@ -145,20 +158,27 @@ export default function TransferMenuEditor() {
                             <label className="text-sm font-medium leading-none">
                                 Select Platform
                             </label>
-                            <div className="flex space-x-4">
+                            <div className="grid grid-cols-3 gap-3">
                                 <Button
                                     variant={platform === "zomato" ? "default" : "outline"}
                                     onClick={() => { setPlatform("zomato"); setTargetResId(""); setSearchQuery(""); }}
-                                    className="w-1/2"
+                                    className="w-full font-medium"
                                 >
                                     Zomato
                                 </Button>
                                 <Button
                                     variant={platform === "swiggy" ? "default" : "outline"}
                                     onClick={() => { setPlatform("swiggy"); setTargetResId(""); setSearchQuery(""); }}
-                                    className="w-1/2"
+                                    className="w-full font-medium"
                                 >
                                     Swiggy
+                                </Button>
+                                <Button
+                                    variant={platform === "ownly" ? "default" : "outline"}
+                                    onClick={() => { setPlatform("ownly"); setTargetResId(""); setSearchQuery(""); }}
+                                    className="w-full font-medium"
+                                >
+                                    Ownly
                                 </Button>
                             </div>
                         </div>

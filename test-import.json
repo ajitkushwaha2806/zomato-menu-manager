@@ -1,0 +1,2689 @@
+{
+    "restaurant": {
+        "id": "RN562883",
+        "name": "the hot kitchen ",
+        "menuSharingCode": "RN562883",
+        "providerId": "RN562883",
+        "provider": "OWNLY",
+        "providerAbbreviation": "",
+        "isBrand": true,
+        "brandId": "BR507122",
+        "brandIdOnPos": "",
+        "operationalTiming": {
+            "id": "",
+            "days": [
+                {
+                    "day": "Monday",
+                    "slots": null
+                },
+                {
+                    "day": "Tuesday",
+                    "slots": [
+                        {
+                            "startTime": "18:30",
+                            "endTime": "23:59"
+                        }
+                    ]
+                },
+                {
+                    "day": "Wednesday",
+                    "slots": [
+                        {
+                            "startTime": "18:25",
+                            "endTime": "23:59"
+                        }
+                    ]
+                },
+                {
+                    "day": "Thursday",
+                    "slots": [
+                        {
+                            "startTime": "18:30",
+                            "endTime": "23:59"
+                        }
+                    ]
+                },
+                {
+                    "day": "Friday",
+                    "slots": [
+                        {
+                            "startTime": "18:30",
+                            "endTime": "23:59"
+                        }
+                    ]
+                },
+                {
+                    "day": "Saturday",
+                    "slots": [
+                        {
+                            "startTime": "18:30",
+                            "endTime": "23:59"
+                        }
+                    ]
+                },
+                {
+                    "day": "Sunday",
+                    "slots": null
+                }
+            ]
+        },
+        "orderingEnabled": true,
+        "ownerPhone": "7019345565",
+        "ownerName": "BHUSHAN YADAV",
+        "address": {
+            "city": "Bangalore",
+            "area": "Jayanagar",
+            "fullAddress": "46, 1st Main Rd, 5T Block, Marenahalli, DK Naik Nagar, Jayanagar, Bengaluru, Karnataka 560041, India",
+            "pinCode": "",
+            "landmark": "Jayanagar",
+            "isInsideComplex": false
+        },
+        "location": {
+            "googleMapsLink": "",
+            "latitude": "12.9179042",
+            "longitude": "77.5892107"
+        },
+        "restaurantPoc": {
+            "name": "BHUSHAN YADAV, aakash kumar",
+            "email": "bhushanyadav0701@gmail.com",
+            "phone": "7019345565, 8130205579"
+        },
+        "isVegetarian": true,
+        "googleRating": {
+            "value": 0,
+            "ratingCount": 0
+        },
+        "popularityRating": 0,
+        "cuisines": [
+            "Beverages",
+            "North Indian",
+            "Bihari"
+        ],
+        "isCloudKitchen": false,
+        "gstDetails": {
+            "gstName": "",
+            "gstNumber": "",
+            "documentUrl": ""
+        },
+        "fssaiDetails": {
+            "fssaiNumber": "21226193002120",
+            "documentUrl": "parquet/RN562883_fssai_document_RN562883_20261104131629.png"
+        },
+        "minimumPreparationTime": 0
+    },
+    "menu": {
+        "restaurant": {
+            "id": "RN562883",
+            "menuSharingCode": "RN562883",
+            "providerId": "RN562883",
+            "provider": "OWNLY",
+            "orderingEnabled": true
+        },
+        "categories": [
+            {
+                "id": "RN562883_83397",
+                "providerId": "RN562883_83397",
+                "name": "North Indian",
+                "sortOrder": 0,
+                "items": [
+                    {
+                        "id": "RN562883_42168",
+                        "providerId": "RN562883_42168",
+                        "restaurantId": "RN562883",
+                        "name": "Veg Bihari Thali",
+                        "description": "",
+                        "price": 159,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_83397",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896764,
+                        "brandSkuId": "BR507122377614"
+                    },
+                    {
+                        "id": "RN562883_89219",
+                        "providerId": "RN562883_89219",
+                        "restaurantId": "RN562883",
+                        "name": "Dal Khichdi",
+                        "price": 129,
+                        "inStock": false,
+                        "foodType": "veg",
+                        "tags": [],
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_83397",
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896764,
+                        "brandSkuId": "BR507122376619"
+                    },
+                    {
+                        "id": "RN562883_57531",
+                        "providerId": "RN562883_57531",
+                        "restaurantId": "RN562883",
+                        "name": "Dal, Bhat, Bhujiya",
+                        "description": "",
+                        "price": 159,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_83397",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896764,
+                        "brandSkuId": "BR507122581613"
+                    },
+                    {
+                        "id": "RN562883_59531",
+                        "providerId": "RN562883_59531",
+                        "restaurantId": "RN562883",
+                        "name": "Special Veg Meals",
+                        "price": 299,
+                        "inStock": false,
+                        "foodType": "veg",
+                        "tags": [],
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_83397",
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122977658"
+                    },
+                    {
+                        "id": "RN562883_35131",
+                        "providerId": "RN562883_35131",
+                        "restaurantId": "RN562883",
+                        "name": "Dal, Bhat, Choka",
+                        "description": "",
+                        "price": 159,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_83397",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122522458"
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_83397%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_83397%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_50754",
+                "providerId": "RN562883_50754",
+                "name": "Paratha",
+                "sortOrder": 0,
+                "items": [
+                    {
+                        "id": "RN562883_34939",
+                        "providerId": "RN562883_34939",
+                        "restaurantId": "RN562883",
+                        "name": "Gobi Paratha",
+                        "price": 99,
+                        "inStock": true,
+                        "foodType": "veg",
+                        "tags": [],
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_50754",
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122725573"
+                    },
+                    {
+                        "id": "RN562883_10675",
+                        "providerId": "RN562883_10675",
+                        "restaurantId": "RN562883",
+                        "name": "Satu Paratha",
+                        "price": 99,
+                        "inStock": true,
+                        "foodType": "veg",
+                        "tags": [],
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_50754",
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122692981"
+                    },
+                    {
+                        "id": "RN562883_69238",
+                        "providerId": "RN562883_69238",
+                        "restaurantId": "RN562883",
+                        "name": "Oninion Paratha",
+                        "price": 89,
+                        "inStock": true,
+                        "foodType": "veg",
+                        "tags": [],
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_50754",
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122694686"
+                    },
+                    {
+                        "id": "RN562883_38334",
+                        "providerId": "RN562883_38334",
+                        "restaurantId": "RN562883",
+                        "name": "Muli Paratha",
+                        "price": 89,
+                        "inStock": true,
+                        "foodType": "veg",
+                        "tags": [],
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_50754",
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122697328"
+                    },
+                    {
+                        "id": "RN562883_86987",
+                        "providerId": "RN562883_86987",
+                        "restaurantId": "RN562883",
+                        "name": "Aloo Paratha",
+                        "price": 99,
+                        "inStock": true,
+                        "foodType": "veg",
+                        "tags": [],
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_50754",
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122710323"
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_50754%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_50754%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_64775",
+                "providerId": "RN562883_64775",
+                "name": "Chinies Food",
+                "sortOrder": 0,
+                "items": [
+                    {
+                        "id": "RN562883_58224",
+                        "providerId": "RN562883_58224",
+                        "restaurantId": "RN562883",
+                        "name": "Veg Noodles",
+                        "description": "",
+                        "price": 169,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_64775",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122889223"
+                    },
+                    {
+                        "id": "RN562883_94001",
+                        "providerId": "RN562883_94001",
+                        "restaurantId": "RN562883",
+                        "name": "Schezwan Fried Rice",
+                        "description": "",
+                        "price": 189,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_64775",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122963484"
+                    },
+                    {
+                        "id": "RN562883_50799",
+                        "providerId": "RN562883_50799",
+                        "restaurantId": "RN562883",
+                        "name": "Panner Fried Rice",
+                        "price": 249,
+                        "inStock": true,
+                        "foodType": "veg",
+                        "tags": [],
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_64775",
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122137806"
+                    },
+                    {
+                        "id": "RN562883_97770",
+                        "providerId": "RN562883_97770",
+                        "restaurantId": "RN562883",
+                        "name": "Schezwan Noodles",
+                        "description": "",
+                        "price": 189,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_64775",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122539439"
+                    },
+                    {
+                        "id": "RN562883_21892",
+                        "providerId": "RN562883_21892",
+                        "restaurantId": "RN562883",
+                        "name": "Veg Fried Rice",
+                        "description": "",
+                        "price": 169,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_64775",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122431918"
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_64775%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_64775%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_23047",
+                "providerId": "RN562883_23047",
+                "name": "Breads",
+                "sortOrder": 0,
+                "items": [
+                    {
+                        "id": "RN562883_59405",
+                        "providerId": "RN562883_59405",
+                        "restaurantId": "RN562883",
+                        "name": "Ghee Tawa Roti",
+                        "description": "",
+                        "price": 39,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_23047",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "goods",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122601409"
+                    },
+                    {
+                        "id": "RN562883_13135",
+                        "providerId": "RN562883_13135",
+                        "restaurantId": "RN562883",
+                        "name": "Butter Tawa Roti",
+                        "description": "",
+                        "price": 39,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_23047",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122482815"
+                    },
+                    {
+                        "id": "RN562883_10257",
+                        "providerId": "RN562883_10257",
+                        "restaurantId": "RN562883",
+                        "name": "Phulka",
+                        "description": "",
+                        "price": 21,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_23047",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122880765"
+                    },
+                    {
+                        "id": "RN562883_52462",
+                        "providerId": "RN562883_52462",
+                        "restaurantId": "RN562883",
+                        "name": "Tawa Roti",
+                        "description": "",
+                        "price": 21,
+                        "inStock": true,
+                        "recommended": false,
+                        "isFavorite": false,
+                        "foodType": "veg",
+                        "tags": null,
+                        "isBestseller": false,
+                        "variantGroupIds": [],
+                        "addonGroupIds": [],
+                        "billComponents": {
+                            "charges": null,
+                            "taxIds": [
+                                "GST_5"
+                            ]
+                        },
+                        "fulfillmentModes": null,
+                        "sortOrder": 0,
+                        "categoryId": "RN562883_23047",
+                        "ignoreOn": {
+                            "tax": false,
+                            "discounts": false
+                        },
+                        "gstType": "services",
+                        "preparationTimeTimings": [
+                            {
+                                "prepTimeInMinutes": 5,
+                                "prepTimeDisplayValue": "5 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 15,
+                                "prepTimeDisplayValue": "15 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 30,
+                                "prepTimeDisplayValue": "30 mins",
+                                "isSelected": false
+                            },
+                            {
+                                "prepTimeInMinutes": 45,
+                                "prepTimeDisplayValue": "45 mins",
+                                "isSelected": false
+                            }
+                        ],
+                        "uiMeta": {
+                            "editMenuInfo": {
+                                "showButton": true,
+                                "enabled": true,
+                                "showStockToggle": true,
+                                "action": "edit_menu",
+                                "errorMessage": ""
+                            }
+                        },
+                        "createdAt": 1794915896765,
+                        "brandSkuId": "BR507122914460"
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_23047%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_23047%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_CAT_1794914590_ezez5w",
+                "providerId": "RN562883_CAT_1794914590_ezez5w",
+                "name": "test",
+                "description": "",
+                "imageUrl": "",
+                "sortOrder": 1,
+                "subcategories": [
+                    {
+                        "id": "RN562883_SUB_1794914590_fdcg08",
+                        "providerId": "RN562883_SUB_1794914590_fdcg08",
+                        "name": "test",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 1,
+                        "items": [
+                            {
+                                "id": "RN562883_1794914590_3q2vtbl6",
+                                "providerId": "RN562883_1794914590_3q2vtbl6",
+                                "restaurantId": "RN562883",
+                                "name": "Paneer Butter Masala",
+                                "description": "",
+                                "price": 199,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794914590_ezez5w",
+                                "subcategoryId": "RN562883_SUB_1794914590_fdcg08",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122462789"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    },
+                    {
+                        "id": "RN562883_SUB_1794915026_73f382",
+                        "providerId": "RN562883_SUB_1794915026_73f382",
+                        "name": "test",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 2,
+                        "items": [
+                            {
+                                "id": "RN562883_1794915026_74yg3oy2",
+                                "providerId": "RN562883_1794915026_74yg3oy2",
+                                "restaurantId": "RN562883",
+                                "name": "New Item",
+                                "description": "",
+                                "price": 40,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794914590_ezez5w",
+                                "subcategoryId": "RN562883_SUB_1794915026_73f382",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122724872"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_CAT_1794914590_ezez5w%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_CAT_1794914590_ezez5w%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_CAT_1794915296_h0x3d0",
+                "providerId": "RN562883_CAT_1794915296_h0x3d0",
+                "name": "test234",
+                "description": "",
+                "imageUrl": "",
+                "sortOrder": 2,
+                "subcategories": [
+                    {
+                        "id": "RN562883_SUB_1794915296_2dep34",
+                        "providerId": "RN562883_SUB_1794915296_2dep34",
+                        "name": "test2340",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 1,
+                        "items": [
+                            {
+                                "id": "RN562883_1794915296_2tx51sd0",
+                                "providerId": "RN562883_1794915296_2tx51sd0",
+                                "restaurantId": "RN562883",
+                                "name": "Kadhai paneer",
+                                "description": "",
+                                "price": 199,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794915296_h0x3d0",
+                                "subcategoryId": "RN562883_SUB_1794915296_2dep34",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122560595"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915296_h0x3d0%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915296_h0x3d0%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_CAT_1794915890_820u03",
+                "providerId": "RN562883_CAT_1794915890_820u03",
+                "name": "Main Course",
+                "description": "",
+                "imageUrl": "",
+                "sortOrder": 3,
+                "subcategories": [
+                    {
+                        "id": "RN562883_SUB_1794915890_dgkwgx",
+                        "providerId": "RN562883_SUB_1794915890_dgkwgx",
+                        "name": "Main Course",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 1,
+                        "items": [
+                            {
+                                "id": "RN562883_1794915890_qcjwqnjl",
+                                "providerId": "RN562883_1794915890_qcjwqnjl",
+                                "restaurantId": "RN562883",
+                                "name": "Shahi Chaap",
+                                "description": "Juicy soya chaap simmered in a rich, creamy royal-style gravy.",
+                                "imageUrl": "https://pd-onl-rtn-media.storage.googleapis.com/menu-images/RN562883_item_RN562883_1794915890_qcjwqnjl_20261117171456.jpg",
+                                "price": 89,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [
+                                    "7a8395fc-3fe7-442b-bd99-d24e5413f49b"
+                                ],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794915890_820u03",
+                                "subcategoryId": "RN562883_SUB_1794915890_dgkwgx",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122269604"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915890_820u03%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915890_820u03%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_CAT_1794915891_xi3li4",
+                "providerId": "RN562883_CAT_1794915891_xi3li4",
+                "name": "Main Course",
+                "description": "",
+                "imageUrl": "",
+                "sortOrder": 4,
+                "subcategories": [
+                    {
+                        "id": "RN562883_SUB_1794915891_dru2iz",
+                        "providerId": "RN562883_SUB_1794915891_dru2iz",
+                        "name": "Main Course",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 1,
+                        "items": [
+                            {
+                                "id": "RN562883_1794915891_6kx2mntu",
+                                "providerId": "RN562883_1794915891_6kx2mntu",
+                                "restaurantId": "RN562883",
+                                "name": "Rajma Makhani",
+                                "description": "Tender kidney beans cooked in a rich, buttery tomato gravy.",
+                                "imageUrl": "https://pd-onl-rtn-media.storage.googleapis.com/menu-images/RN562883_item_RN562883_1794915891_6kx2mntu_20261117171456.jpg",
+                                "price": 89,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [
+                                    "d0c0e81e-3d79-48e1-93aa-e352bb61bfa0"
+                                ],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794915891_xi3li4",
+                                "subcategoryId": "RN562883_SUB_1794915891_dru2iz",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122430086"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915891_xi3li4%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915891_xi3li4%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_CAT_1794915892_qbnj2q",
+                "providerId": "RN562883_CAT_1794915892_qbnj2q",
+                "name": "Main Course",
+                "description": "",
+                "imageUrl": "",
+                "sortOrder": 5,
+                "subcategories": [
+                    {
+                        "id": "RN562883_SUB_1794915892_p7ez01",
+                        "providerId": "RN562883_SUB_1794915892_p7ez01",
+                        "name": "Main Course",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 1,
+                        "items": [
+                            {
+                                "id": "RN562883_1794915892_uip69ytn",
+                                "providerId": "RN562883_1794915892_uip69ytn",
+                                "restaurantId": "RN562883",
+                                "name": "Aloo Gobhi",
+                                "description": "A classic Indian dry curry of potatoes and cauliflower tossed with aromatic spices.",
+                                "imageUrl": "https://pd-onl-rtn-media.storage.googleapis.com/menu-images/RN562883_item_RN562883_1794915892_uip69ytn_20261117171456.jpg",
+                                "price": 89,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [
+                                    "8ba5396e-e3f6-4a1b-9b73-a590c3bf751e"
+                                ],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794915892_qbnj2q",
+                                "subcategoryId": "RN562883_SUB_1794915892_p7ez01",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122809823"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915892_qbnj2q%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915892_qbnj2q%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_CAT_1794915893_opwrrg",
+                "providerId": "RN562883_CAT_1794915893_opwrrg",
+                "name": "Main Course",
+                "description": "",
+                "imageUrl": "",
+                "sortOrder": 6,
+                "subcategories": [
+                    {
+                        "id": "RN562883_SUB_1794915893_bqyjj3",
+                        "providerId": "RN562883_SUB_1794915893_bqyjj3",
+                        "name": "Main Course",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 1,
+                        "items": [
+                            {
+                                "id": "RN562883_1794915893_ba9rr8lq",
+                                "providerId": "RN562883_1794915893_ba9rr8lq",
+                                "restaurantId": "RN562883",
+                                "name": "Dal Fry",
+                                "description": "Comforting yellow lentils tempered with aromatic spices, onions, tomatoes, and herbs.",
+                                "imageUrl": "https://pd-onl-rtn-media.storage.googleapis.com/menu-images/RN562883_item_RN562883_1794915893_ba9rr8lq_20261117171456.jpg",
+                                "price": 69,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [
+                                    "bb5008c0-f2d4-4225-a518-30ff6d2615b4"
+                                ],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794915893_opwrrg",
+                                "subcategoryId": "RN562883_SUB_1794915893_bqyjj3",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122925558"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915893_opwrrg%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915893_opwrrg%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_CAT_1794915894_yzlg6s",
+                "providerId": "RN562883_CAT_1794915894_yzlg6s",
+                "name": "Main Course",
+                "description": "",
+                "imageUrl": "",
+                "sortOrder": 7,
+                "subcategories": [
+                    {
+                        "id": "RN562883_SUB_1794915894_qnrbpw",
+                        "providerId": "RN562883_SUB_1794915894_qnrbpw",
+                        "name": "Main Course",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 1,
+                        "items": [
+                            {
+                                "id": "RN562883_1794915894_vuvt0j7c",
+                                "providerId": "RN562883_1794915894_vuvt0j7c",
+                                "restaurantId": "RN562883",
+                                "name": "Rajma",
+                                "description": "Tender kidney beans cooked in a homestyle onion-tomato gravy with traditional spices.",
+                                "imageUrl": "https://pd-onl-rtn-media.storage.googleapis.com/menu-images/RN562883_item_RN562883_1794915894_vuvt0j7c_20261117171456.jpg",
+                                "price": 59,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [
+                                    "79410e90-0fd5-4fc5-bd85-f21942d11231"
+                                ],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794915894_yzlg6s",
+                                "subcategoryId": "RN562883_SUB_1794915894_qnrbpw",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122408243"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915894_yzlg6s%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915894_yzlg6s%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_CAT_1794915895_txd0vv",
+                "providerId": "RN562883_CAT_1794915895_txd0vv",
+                "name": "Main Course",
+                "description": "",
+                "imageUrl": "",
+                "sortOrder": 8,
+                "subcategories": [
+                    {
+                        "id": "RN562883_SUB_1794915895_p7vp0h",
+                        "providerId": "RN562883_SUB_1794915895_p7vp0h",
+                        "name": "Main Course",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 1,
+                        "items": [
+                            {
+                                "id": "RN562883_1794915895_6bmh6dx4",
+                                "providerId": "RN562883_1794915895_6bmh6dx4",
+                                "restaurantId": "RN562883",
+                                "name": "Matar Paneer",
+                                "description": "Soft paneer cubes and green peas cooked in a flavorful tomato-based gravy.",
+                                "imageUrl": "https://pd-onl-rtn-media.storage.googleapis.com/menu-images/RN562883_item_RN562883_1794915895_6bmh6dx4_20261117171456.jpg",
+                                "price": 109,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [
+                                    "545215a9-1cb8-4165-ad3e-38884be5d0f9"
+                                ],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794915895_txd0vv",
+                                "subcategoryId": "RN562883_SUB_1794915895_p7vp0h",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122789162"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915895_txd0vv%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915895_txd0vv%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            },
+            {
+                "id": "RN562883_CAT_1794915896_0x4lga",
+                "providerId": "RN562883_CAT_1794915896_0x4lga",
+                "name": "Main Course",
+                "description": "",
+                "imageUrl": "",
+                "sortOrder": 9,
+                "subcategories": [
+                    {
+                        "id": "RN562883_SUB_1794915896_pmbci1",
+                        "providerId": "RN562883_SUB_1794915896_pmbci1",
+                        "name": "Main Course",
+                        "description": "",
+                        "imageUrl": "",
+                        "sortOrder": 1,
+                        "items": [
+                            {
+                                "id": "RN562883_1794915895_ktwfb6jm",
+                                "providerId": "RN562883_1794915895_ktwfb6jm",
+                                "restaurantId": "RN562883",
+                                "name": "Paneer Butter Masala",
+                                "description": "Soft paneer cubes in a luscious, creamy tomato gravy with a buttery finish.",
+                                "imageUrl": "https://pd-onl-rtn-media.storage.googleapis.com/menu-images/RN562883_item_RN562883_1794915895_ktwfb6jm_20261117171456.jpg",
+                                "price": 119,
+                                "inStock": false,
+                                "recommended": false,
+                                "isFavorite": false,
+                                "foodType": "veg",
+                                "tags": null,
+                                "isBestseller": false,
+                                "variantGroupIds": [
+                                    "f03f0518-e104-4c2f-858e-22d43fbd7508"
+                                ],
+                                "addonGroupIds": [],
+                                "billComponents": {
+                                    "charges": null,
+                                    "taxIds": [
+                                        "GST_5"
+                                    ]
+                                },
+                                "fulfillmentModes": null,
+                                "sortOrder": 1,
+                                "categoryId": "RN562883_CAT_1794915896_0x4lga",
+                                "subcategoryId": "RN562883_SUB_1794915896_pmbci1",
+                                "ignoreOn": {
+                                    "tax": false,
+                                    "discounts": false
+                                },
+                                "gstType": "services",
+                                "preparationTimeTimings": [
+                                    {
+                                        "prepTimeInMinutes": 5,
+                                        "prepTimeDisplayValue": "5 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 15,
+                                        "prepTimeDisplayValue": "15 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 30,
+                                        "prepTimeDisplayValue": "30 mins",
+                                        "isSelected": false
+                                    },
+                                    {
+                                        "prepTimeInMinutes": 45,
+                                        "prepTimeDisplayValue": "45 mins",
+                                        "isSelected": false
+                                    }
+                                ],
+                                "uiMeta": {
+                                    "editMenuInfo": {
+                                        "showButton": true,
+                                        "enabled": true,
+                                        "showStockToggle": true,
+                                        "action": "edit_menu",
+                                        "errorMessage": ""
+                                    }
+                                },
+                                "createdAt": 1794915896765,
+                                "brandSkuId": "BR507122462789"
+                            }
+                        ],
+                        "uiMeta": {
+                            "editOptionsVisible": true
+                        }
+                    }
+                ],
+                "uiMeta": {
+                    "editOptionsVisible": true,
+                    "reducePriceInfo": {
+                        "visible": true,
+                        "text": "Reduce Price",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Freduce-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915896_0x4lga%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Apply a % or ₹ reduction to all items"
+                    },
+                    "removePriceInfo": {
+                        "visible": false,
+                        "text": "Remove",
+                        "action": "action://deeplink/ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fremove-price%2Fui%3FcategoryId%3DRN562883_CAT_1794915896_0x4lga%26restaurant-id%3DRN562883\u0026method=GET",
+                        "description": "Remove the applied price reduction"
+                    }
+                }
+            }
+        ],
+        "timings": null,
+        "addonGroups": null,
+        "variantGroups": [
+            {
+                "id": "7a8395fc-3fe7-442b-bd99-d24e5413f49b",
+                "providerId": "7a8395fc-3fe7-442b-bd99-d24e5413f49b",
+                "name": "Variations",
+                "variantIds": [
+                    "52401593-d714-4395-bfd5-2c54688ce4e4",
+                    "c0623492-d6d0-4da1-8e0b-9f5f9ef92ad1"
+                ],
+                "sortOrder": 1
+            },
+            {
+                "id": "d0c0e81e-3d79-48e1-93aa-e352bb61bfa0",
+                "providerId": "d0c0e81e-3d79-48e1-93aa-e352bb61bfa0",
+                "name": "Variations",
+                "variantIds": [
+                    "ed4209f8-03fc-40b8-b64c-26dcd1b72378",
+                    "1a305d38-fff9-49db-8082-9bf9676905a0"
+                ],
+                "sortOrder": 2
+            },
+            {
+                "id": "8ba5396e-e3f6-4a1b-9b73-a590c3bf751e",
+                "providerId": "8ba5396e-e3f6-4a1b-9b73-a590c3bf751e",
+                "name": "Variations",
+                "variantIds": [
+                    "fb2f5324-6d0b-4711-8ed2-d1cb1b95ec5b",
+                    "aaa6afe1-de49-4881-a346-f43154832824"
+                ],
+                "sortOrder": 3
+            },
+            {
+                "id": "bb5008c0-f2d4-4225-a518-30ff6d2615b4",
+                "providerId": "bb5008c0-f2d4-4225-a518-30ff6d2615b4",
+                "name": "Variations",
+                "variantIds": [
+                    "0c92e00d-a166-4b84-811f-d16bb19bc6e8",
+                    "f170f955-3636-4ef8-9d5c-78783820a64b"
+                ],
+                "sortOrder": 4
+            },
+            {
+                "id": "79410e90-0fd5-4fc5-bd85-f21942d11231",
+                "providerId": "79410e90-0fd5-4fc5-bd85-f21942d11231",
+                "name": "Variations",
+                "variantIds": [
+                    "4c0e9aac-0671-4dee-ad24-5a0570669a73",
+                    "1e2cbbfb-c096-46b0-b95d-03af16cc6336"
+                ],
+                "sortOrder": 5
+            },
+            {
+                "id": "545215a9-1cb8-4165-ad3e-38884be5d0f9",
+                "providerId": "545215a9-1cb8-4165-ad3e-38884be5d0f9",
+                "name": "Variations",
+                "variantIds": [
+                    "56c24f94-e4e2-4be9-b91f-af7ab012552d",
+                    "fef6b90c-999a-4442-953b-9a8fd4f671ff"
+                ],
+                "sortOrder": 6
+            },
+            {
+                "id": "f03f0518-e104-4c2f-858e-22d43fbd7508",
+                "providerId": "f03f0518-e104-4c2f-858e-22d43fbd7508",
+                "name": "Variations",
+                "variantIds": [
+                    "a441ae14-403d-4019-829d-2bfd5ad10cf8",
+                    "01e0da43-139c-4c21-9d5f-aa427dc49ef8"
+                ],
+                "sortOrder": 7
+            }
+        ],
+        "variants": [
+            {
+                "id": "52401593-d714-4395-bfd5-2c54688ce4e4",
+                "providerId": "52401593-d714-4395-bfd5-2c54688ce4e4",
+                "name": "Half",
+                "price": 89,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": -13
+            },
+            {
+                "id": "ed4209f8-03fc-40b8-b64c-26dcd1b72378",
+                "providerId": "ed4209f8-03fc-40b8-b64c-26dcd1b72378",
+                "name": "Half",
+                "price": 89,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": -9
+            },
+            {
+                "id": "fb2f5324-6d0b-4711-8ed2-d1cb1b95ec5b",
+                "providerId": "fb2f5324-6d0b-4711-8ed2-d1cb1b95ec5b",
+                "name": "Half",
+                "price": 89,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": -5
+            },
+            {
+                "id": "0c92e00d-a166-4b84-811f-d16bb19bc6e8",
+                "providerId": "0c92e00d-a166-4b84-811f-d16bb19bc6e8",
+                "name": "Half",
+                "price": 69,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": -1
+            },
+            {
+                "id": "c0623492-d6d0-4da1-8e0b-9f5f9ef92ad1",
+                "providerId": "c0623492-d6d0-4da1-8e0b-9f5f9ef92ad1",
+                "name": "Full",
+                "price": 159,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 2
+            },
+            {
+                "id": "4c0e9aac-0671-4dee-ad24-5a0570669a73",
+                "providerId": "4c0e9aac-0671-4dee-ad24-5a0570669a73",
+                "name": "Half",
+                "price": 59,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 3
+            },
+            {
+                "id": "1a305d38-fff9-49db-8082-9bf9676905a0",
+                "providerId": "1a305d38-fff9-49db-8082-9bf9676905a0",
+                "name": "Full",
+                "price": 169,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 4
+            },
+            {
+                "id": "aaa6afe1-de49-4881-a346-f43154832824",
+                "providerId": "aaa6afe1-de49-4881-a346-f43154832824",
+                "name": "Full",
+                "price": 159,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 6
+            },
+            {
+                "id": "f170f955-3636-4ef8-9d5c-78783820a64b",
+                "providerId": "f170f955-3636-4ef8-9d5c-78783820a64b",
+                "name": "Full",
+                "price": 129,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 8
+            },
+            {
+                "id": "56c24f94-e4e2-4be9-b91f-af7ab012552d",
+                "providerId": "56c24f94-e4e2-4be9-b91f-af7ab012552d",
+                "name": "Half",
+                "price": 109,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 7
+            },
+            {
+                "id": "1e2cbbfb-c096-46b0-b95d-03af16cc6336",
+                "providerId": "1e2cbbfb-c096-46b0-b95d-03af16cc6336",
+                "name": "Full",
+                "price": 109,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 10
+            },
+            {
+                "id": "fef6b90c-999a-4442-953b-9a8fd4f671ff",
+                "providerId": "fef6b90c-999a-4442-953b-9a8fd4f671ff",
+                "name": "Full",
+                "price": 179,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 12
+            },
+            {
+                "id": "a441ae14-403d-4019-829d-2bfd5ad10cf8",
+                "providerId": "a441ae14-403d-4019-829d-2bfd5ad10cf8",
+                "name": "Half",
+                "price": 119,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 11
+            },
+            {
+                "id": "01e0da43-139c-4c21-9d5f-aa427dc49ef8",
+                "providerId": "01e0da43-139c-4c21-9d5f-aa427dc49ef8",
+                "name": "Full",
+                "price": 199,
+                "inStock": true,
+                "foodType": "veg",
+                "fulfillmentModes": [],
+                "variantGroupIds": [],
+                "addonGroupIds": [],
+                "sortOrder": 14
+            }
+        ],
+        "billComponents": {
+            "charges": null,
+            "taxes": [
+                {
+                    "id": "GST_5",
+                    "providerId": "GST_5",
+                    "name": "GST (2.5% CGST + 2.5% SGST)",
+                    "description": "5%",
+                    "value": 5,
+                    "fulfillmentModes": null
+                },
+                {
+                    "id": "GST_18",
+                    "providerId": "GST_18",
+                    "name": "GST (9% CGST + 9% SGST)",
+                    "description": "18%",
+                    "value": 18,
+                    "fulfillmentModes": null
+                }
+            ]
+        },
+        "uiMeta": {
+            "updateMenuButtonInfo": {
+                "showButton": true,
+                "text": "Change Menu"
+            }
+        }
+    },
+    "metadata": {
+        "categoryPriceReduction": {
+            "showCategoryPriceReduction": true,
+            "showPosPrice": false
+        },
+        "priceParityInfo": {
+            "bandName": "P1",
+            "title": "Price Champion",
+            "subtitle": "Top Value, Maximum Visibility",
+            "visibility": true,
+            "icon": "https://pd-onl-app-assets.storage.googleapis.com/tick-dark.webp",
+            "bannerType": "success"
+        },
+        "bulkPriceUpdateBanner": {
+            "visible": true,
+            "title": "Bulk price update",
+            "subtitle": "Reduce all prices by a percentage, or upload a filled CSV",
+            "badgeText": "NEW",
+            "deeplinkUrl": "ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fbulk-price-update%2Fui%3Fbrand-id%3DBR507122%26restaurant-id%3DRN562883\u0026method=GET"
+        },
+        "menuChangeLogBanner": {
+            "visible": true,
+            "title": "Menu change log",
+            "subtitle": "See which prices changed, and when",
+            "deeplinkUrl": "ownly://rmsapp/dynamic_form?apiUrl=v1%2Fmenu%2Fmenu-log%2Fui%3Fpos-provider%3DOWNLY%26range%3D7d%26restaurant-id%3DRN562883%26restaurant-name%3Dthe%2Bhot%2Bkitchen%2B\u0026method=GET"
+        }
+    },
+    "brandRestaurantsList": [
+        {
+            "isSelected": true,
+            "restaurant": {
+                "id": "RN562883",
+                "address": {
+                    "city": "Bangalore",
+                    "area": "Jayanagar",
+                    "fullAddress": "46, 1st Main Rd, 5T Block, Marenahalli, DK Naik Nagar, Jayanagar, Bengaluru, Karnataka 560041, India",
+                    "pinCode": "",
+                    "landmark": "Jayanagar",
+                    "isInsideComplex": false
+                }
+            },
+            "isDeliverable": false
+        }
+    ]
+}

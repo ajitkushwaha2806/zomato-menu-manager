@@ -21,6 +21,12 @@ export async function GET(req) {
             });
         }
 
+        const resIdsParam = searchParams.get("resIds");
+        let resIds = [];
+        if (resIdsParam) {
+            resIds = resIdsParam.split(",").map((s) => s.trim()).filter(Boolean);
+        }
+
         const cleanQuery = query
             .replace(/\(.*?\)|\[.*?\]|\{.*?\}/g, " ")
             .replace(/-\s*(serves|half|full|pcs|pieces|\d+).*/i, " ")
@@ -28,6 +34,13 @@ export async function GET(req) {
 
         const escapedQuery = query.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const escapedCleanQuery = cleanQuery.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+        const words = cleanQuery
+            .replace(/[^a-zA-Z0-9\s]/g, " ")
+            .trim()
+            .split(/\s+/)
+            .filter((w) => w.length >= 2)
+            .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
 
         let nameCondition;
         if (exact) {
@@ -38,13 +51,6 @@ export async function GET(req) {
                 ]
             };
         } else {
-            const words = cleanQuery
-                .replace(/[^a-zA-Z0-9\s]/g, " ")
-                .trim()
-                .split(/\s+/)
-                .filter((w) => w.length >= 2)
-                .map((w) => w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"));
-
             const orClauses = [
                 { "menu.sub_category.items.name": { $regex: escapedQuery, $options: "i" } }
             ];
@@ -54,6 +60,11 @@ export async function GET(req) {
             if (words.length > 1) {
                 orClauses.push({
                     $and: words.map((w) => ({ "menu.sub_category.items.name": { $regex: w, $options: "i" } }))
+                });
+                words.forEach((w) => {
+                    if (w.length >= 3) {
+                        orClauses.push({ "menu.sub_category.items.name": { $regex: w, $options: "i" } });
+                    }
                 });
             }
 
@@ -73,6 +84,10 @@ export async function GET(req) {
             ]
         };
 
+        if (resIds.length > 0) {
+            matchStage.$and.push({ resId: { $in: resIds } });
+        }
+
         const pipeline = [
             { $match: matchStage },
             { $unwind: "$menu" },
@@ -84,6 +99,7 @@ export async function GET(req) {
                     id: "$menu.sub_category.items.id",
                     name: "$menu.sub_category.items.name",
                     is_veg: "$menu.sub_category.items.is_veg",
+                    resId: "$resId",
                     restaurantName: "$name",
                     platform: "$platform",
                     category: "$menu.name",
@@ -153,6 +169,7 @@ export async function GET(req) {
                     allNames: { $addToSet: "$name" },
                     allVegStatuses: { $addToSet: "$is_veg" },
                     is_veg: { $first: "$is_veg" },
+                    resId: { $first: "$resId" },
                     restaurantName: { $first: "$restaurantName" },
                     platform: { $first: "$platform" },
                     category: { $first: "$category" },
@@ -204,18 +221,43 @@ export async function GET(req) {
                 thumbUrl: item.thumbUrl || imgUrl,
                 count: item.count || 1,
                 mediaId: item.mediaId || null,
-                category: item.category || "Internal DB",
-                restaurantName: item.restaurantName || "",
+                category: item.category || "Outlet DB",
+                resId: item.resId || "",
+                restaurantName: item.restaurantName || item.resId || "",
                 approved: true,
                 premium: false,
-                _source: "internal"
+                _source: "outlet"
             };
         }).filter(img => img.image_url);
 
+        // Score results so the closest match appears first
+        const wordsLower = (words || []).map(w => w.toLowerCase());
+        const scoredResults = results.map(item => {
+            const titleLower = (item.title || "").toLowerCase().trim();
+            let score = 0;
+            if (titleLower === targetQueryLower || titleLower === cleanQueryLower) {
+                score = 100;
+            } else if (titleLower.includes(targetQueryLower) || targetQueryLower.includes(titleLower)) {
+                score = 80;
+            } else {
+                const itemWords = titleLower.split(/\s+/);
+                let matchedWords = 0;
+                wordsLower.forEach(w => {
+                    if (itemWords.some(iw => iw.includes(w) || w.includes(iw))) {
+                        matchedWords++;
+                    }
+                });
+                score = (matchedWords / Math.max(1, wordsLower.length)) * 70;
+            }
+            return { ...item, _matchScore: score };
+        });
+
+        scoredResults.sort((a, b) => (b._matchScore || 0) - (a._matchScore || 0));
+
         return NextResponse.json({
             success: true,
-            data: results,
-            total: results.length,
+            data: scoredResults,
+            total: scoredResults.length,
         });
 
     } catch (error) {
