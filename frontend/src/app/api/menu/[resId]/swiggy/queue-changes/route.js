@@ -2,6 +2,7 @@ import MenuSync from "@/model/menu-sync";
 import Trigger from "@/model/trigger";
 import { NextResponse } from "next/server";
 import { swiggyProcessorJob } from "@/lib/bullmq/job/swiggy-processor";
+import { getRestaurantName } from "@/lib/restaurantResolver";
 
 export async function POST(req, { params }) {
     try {
@@ -87,16 +88,36 @@ export async function POST(req, { params }) {
             );
         }
 
+        const restaurantName = await getRestaurantName(resId, body.restaurantName || menuDoc?.name);
+        const userName = body.userName || body.user || "Team Member";
+        const userEmail = body.userEmail || "";
+        const effectiveTaskId = taskId || "OTP_VERIFIED";
+
         const sync = await MenuSync.create({
             resId,
+            restaurantName,
+            platform: "swiggy",
             status: "pending",
             accountName,
-            taskId,
+            taskId: effectiveTaskId,
+            user: userName,
+            userEmail,
             updated_menu,
         });
 
-        if (taskId) {
-            await Trigger.create({ resId: String(resId), platform: "swiggy", taskId, status: "SUCCESS" });
+        try {
+            await Trigger.create({
+                resId: String(resId),
+                restaurantName,
+                platform: "swiggy",
+                taskId: effectiveTaskId,
+                status: "SUCCESS",
+                user: userName,
+                userEmail,
+                actionType: "MENU_TRIGGER",
+            });
+        } catch (tErr) {
+            console.warn("Could not log Swiggy trigger:", tErr?.message);
         }
 
         console.log(sync);
@@ -118,8 +139,25 @@ export async function POST(req, { params }) {
         );
     } catch (error) {
         console.error(error);
-        if (body?.taskId) {
-            await Trigger.create({ resId: String((await params).resId), platform: "swiggy", taskId: body.taskId, status: "FAILED", error: error.message });
+        const restaurantName = await getRestaurantName((await params)?.resId, body?.restaurantName);
+        const userName = body?.userName || body?.user || "Team Member";
+        const userEmail = body?.userEmail || "";
+        const effectiveTaskId = body?.taskId || "OTP_VERIFIED";
+
+        try {
+            await Trigger.create({
+                resId: String((await params).resId),
+                restaurantName,
+                platform: "swiggy",
+                taskId: effectiveTaskId,
+                status: "FAILED",
+                user: userName,
+                userEmail,
+                actionType: "MENU_TRIGGER",
+                error: error.message,
+            });
+        } catch (tErr) {
+            console.warn("Could not log failed Swiggy trigger:", tErr?.message);
         }
 
         return NextResponse.json(

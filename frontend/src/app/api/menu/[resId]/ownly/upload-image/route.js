@@ -6,6 +6,7 @@ import dbConnect from "@/lib/dbConnect";
 import Menu from "@/model/menu";
 import axios from "axios";
 import { buildOwnlyItemPayload } from "../items/[itemId]/route";
+import { executeOwnlyItemUpdate } from "@/lib/payload/ownly/item-payload";
 
 export const dynamic = "force-dynamic";
 
@@ -189,17 +190,19 @@ export async function POST(req, { params }) {
                 }
 
                 if (currentItem) {
-                    const itemPayload = buildOwnlyItemPayload(resId, itemId, currentItem, parentCat, { imageUrl: uploadedUrl });
-                    await ownlyClient({
+                    await executeOwnlyItemUpdate({
                         req,
-                        endpoint: "/api/v1/menu/item",
-                        method: "PUT",
-                        data: itemPayload,
+                        resId,
+                        itemId,
+                        currentItem,
+                        category: parentCat,
+                        body: { imageUrl: uploadedUrl },
+                        menuDoc,
                     });
                     liveItemUpdated = true;
                 }
             } catch (ownlyUpdateErr) {
-                console.warn("Could not immediately update Ownly item image via PUT /api/v1/menu/item:", ownlyUpdateErr.response?.data || ownlyUpdateErr.message);
+                console.warn("Could not immediately update Ownly item image:", ownlyUpdateErr.response?.data || ownlyUpdateErr.message);
             }
 
             await syncImageToDb(resId, itemId, uploadedUrl, imageUrl || "");

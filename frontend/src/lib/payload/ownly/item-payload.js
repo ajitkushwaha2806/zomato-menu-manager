@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { ownlyClient } from "@/lib/api/ownly-client";
 
 /**
  * Normalizes food type to Ownly's expected values: "veg" | "non-veg" | "egg"
@@ -256,8 +257,401 @@ export function buildOwnlyCreateItemPayload({
 }
 
 /**
- * Builds the exact JSON payload for updating an item on Ownly:
- * PUT https://rxapi.ownly.food/api/v1/menu/item
+ * Resolves the brandId for an Ownly restaurant item
+ */
+export function resolveOwnlyBrandId({ currentItem = {}, menuDoc = {}, resId = "" }) {
+    if (currentItem?.brandId) return currentItem.brandId;
+    if (currentItem?.brandSkuId && String(currentItem.brandSkuId).startsWith("BR")) {
+        return String(currentItem.brandSkuId).slice(0, 8);
+    }
+    if (currentItem?.raw?.brandId) return currentItem.raw.brandId;
+    if (currentItem?.raw?.brandSkuId && String(currentItem.raw.brandSkuId).startsWith("BR")) {
+        return String(currentItem.raw.brandSkuId).slice(0, 8);
+    }
+    if (menuDoc?.brandId) return menuDoc.brandId;
+    if (menuDoc?.raw?.restaurant?.brandId) return menuDoc.raw.restaurant.brandId;
+
+    if (Array.isArray(menuDoc?.menu)) {
+        for (const cat of menuDoc.menu) {
+            for (const sub of cat.sub_category || []) {
+                for (const it of sub.items || []) {
+                    if (it.brandId) return it.brandId;
+                    if (it.brandSkuId && String(it.brandSkuId).startsWith("BR")) {
+                        return String(it.brandSkuId).slice(0, 8);
+                    }
+                    if (it.raw?.brandSkuId && String(it.raw.brandSkuId).startsWith("BR")) {
+                        return String(it.raw.brandSkuId).slice(0, 8);
+                    }
+                }
+            }
+        }
+    }
+
+    const numeric = String(resId).replace(/\D/g, "");
+    return `BR${numeric}`;
+}
+
+/**
+ * Resolves standard Ownly restaurant ID with "RN" prefix
+ */
+export function resolveOwnlyRestaurantId({ resId = "", currentItem = {}, itemId = "" }) {
+    if (currentItem?.restaurantId && String(currentItem.restaurantId).startsWith("RN")) {
+        return String(currentItem.restaurantId);
+    }
+    if (currentItem?.raw?.restaurantId && String(currentItem.raw.restaurantId).startsWith("RN")) {
+        return String(currentItem.raw.restaurantId);
+    }
+    if (itemId && String(itemId).startsWith("RN") && String(itemId).includes("_")) {
+        return String(itemId).split("_")[0];
+    }
+    const clean = String(resId || "").trim();
+    if (!clean) return "";
+    return clean.startsWith("RN") ? clean : `RN${clean}`;
+}
+
+/**
+ * Builds the exact JSON payload for Step 1 of Ownly's item update:
+ * POST https://rxapi.ownly.food/api/v1/menu/item-attributes/prepare
+ */
+export function buildOwnlyItemPreparePayload({
+    resId,
+    itemId,
+    currentItem = {},
+    body = {},
+    category = null,
+    subcategory = null,
+}) {
+    const raw = currentItem?.raw || {};
+    const rnId = resolveOwnlyRestaurantId({ resId, currentItem, itemId });
+
+    // 1. Food type
+    const baselineFoodType = normalizeFoodType(
+        currentItem.foodType || currentItem.is_veg || raw.foodType || "veg"
+    );
+    const draftFoodType = normalizeFoodType(
+        body.foodType || body.is_veg || baselineFoodType
+    );
+
+    // 2. Prices
+    const baselinePrice = Number(
+        currentItem.price !== undefined && currentItem.price !== null
+            ? currentItem.price
+            : (currentItem.base_price ?? raw.price ?? 0)
+    );
+    const baselineMarkup = Number(currentItem.markupPrice ?? raw.markupPrice ?? 0);
+
+    let draftPrice = baselinePrice;
+    if (body.price !== undefined && body.price !== null && body.price !== "") {
+        draftPrice = Number(body.price);
+    } else if (body.base_price !== undefined && body.base_price !== null && body.base_price !== "") {
+        draftPrice = Number(body.base_price);
+    }
+    const draftMarkup = Number(body.markupPrice ?? baselineMarkup);
+
+    // 3. Category & Subcategory
+    let catObj = null;
+    if (category) {
+        catObj = formatOwnlyCategory(category);
+    } else if (body.category) {
+        catObj = formatOwnlyCategory(body.category);
+    } else if (currentItem.category || raw.category) {
+        catObj = formatOwnlyCategory(currentItem.category || raw.category);
+    }
+
+    let subcatObj = null;
+    if (subcategory) {
+        subcatObj = formatOwnlySubcategory(subcategory);
+    } else if (body.subcategory) {
+        subcatObj = formatOwnlySubcategory(body.subcategory);
+    } else if (currentItem.subcategory || raw.subcategory) {
+        subcatObj = formatOwnlySubcategory(currentItem.subcategory || raw.subcategory);
+    }
+
+    // 4. Image URL
+    const baselineImageUrl =
+        currentItem.imageUrl ||
+        currentItem.image_url ||
+        (Array.isArray(currentItem.media) && currentItem.media[0]?.url) ||
+        raw.imageUrl ||
+        null;
+
+    const draftImageUrl =
+        body.imageUrl ||
+        body.image_url ||
+        (Array.isArray(body.media) && body.media[0]?.url) ||
+        baselineImageUrl;
+
+    // 5. Stock / In-Stock
+    const baselineInStock =
+        currentItem.inStock !== undefined
+            ? Boolean(currentItem.inStock)
+            : (currentItem.status !== undefined ? Boolean(currentItem.status) : (raw.inStock !== false));
+
+    const draftInStock =
+        body.inStock !== undefined
+            ? Boolean(body.inStock)
+            : (body.status !== undefined ? Boolean(body.status) : baselineInStock);
+
+    // 6. Bill components & Ignore on
+    const billComponents = getOwnlyBillComponents(currentItem.billComponents || raw.billComponents);
+    const ignoreOn = currentItem.ignoreOn || raw.ignoreOn || { tax: false, discounts: false };
+
+    // 7. Variant groups
+    const baselineVariantGroups = buildOwnlyVariantGroups(
+        currentItem.variants || currentItem.variantGroups || raw.variantGroups || [],
+        baselineFoodType
+    );
+    const draftVariantGroups = (body.variantGroups || body.variants)
+        ? buildOwnlyVariantGroups(body.variantGroups || body.variants, draftFoodType)
+        : baselineVariantGroups;
+
+    const baseline = {
+        itemId: String(itemId),
+        restaurantId: String(rnId),
+        name: currentItem.name || raw.name || "Item",
+        description: currentItem.description !== undefined ? currentItem.description : (raw.description ?? null),
+        price: baselinePrice,
+        markupPrice: baselineMarkup,
+        imageUrl: baselineImageUrl,
+        inStock: baselineInStock,
+        recommended: Boolean(currentItem.recommended ?? raw.recommended ?? false),
+        isFavorite: Boolean(currentItem.isFavorite ?? raw.isFavorite ?? false),
+        foodType: baselineFoodType,
+        gstType: currentItem.gstType || raw.gstType || "services",
+        tags: currentItem.tags || raw.tags || [],
+        customTags: currentItem.customTags || raw.customTags || null,
+        fulfillmentModes: currentItem.fulfillmentModes || raw.fulfillmentModes || [],
+        timings: currentItem.timings || raw.timings || null,
+        category: catObj,
+        subcategory: subcatObj,
+        billComponents,
+        ignoreOn,
+        variantGroups: baselineVariantGroups,
+        addonGroups: currentItem.addonGroups || raw.addonGroups || [],
+        preparationTime: currentItem.preparationTime || raw.preparationTime || null,
+    };
+
+    const draft = {
+        ...baseline,
+        name: body.name !== undefined ? String(body.name).trim() : baseline.name,
+        description: body.description !== undefined ? (body.description ? String(body.description).trim() : null) : baseline.description,
+        price: draftPrice,
+        markupPrice: draftMarkup,
+        imageUrl: draftImageUrl,
+        inStock: draftInStock,
+        foodType: draftFoodType,
+        category: catObj,
+        subcategory: subcatObj,
+        variantGroups: draftVariantGroups,
+    };
+
+    return {
+        restaurant_id: String(rnId),
+        item_id: String(itemId),
+        baseline,
+        draft,
+    };
+}
+
+/**
+ * Extracts prepared attribute values from Step 1 (/api/v1/menu/item-attributes/prepare) response components
+ */
+export function extractOwnlyPreparedAttributes(prepareResponse, fallbackPayload = {}) {
+    const components = prepareResponse?.screen?.body?.components || prepareResponse?.data?.screen?.body?.components || [];
+    const dataMap = {};
+    for (const c of components) {
+        if (c && c.type === "data" && c.id) {
+            dataMap[c.id] = c.value;
+        }
+    }
+
+    if (!dataMap.restaurant_id && !dataMap.item_id && !dataMap.update_request) {
+        return null;
+    }
+
+    const restaurantId = dataMap.restaurant_id || fallbackPayload.restaurant_id;
+
+    return {
+        restaurant_id: restaurantId,
+        item_id: dataMap.item_id || fallbackPayload.item_id,
+        update_request: dataMap.update_request || fallbackPayload.update_request,
+        price_request: dataMap.price_request !== undefined ? dataMap.price_request : (fallbackPayload.price_request ?? null),
+        selected_outlets: dataMap.selected_outlets || fallbackPayload.selected_outlets || (restaurantId ? { [restaurantId]: true } : {}),
+    };
+}
+
+/**
+ * Builds payload for Ownly's item update endpoint:
+ * POST https://rxapi.ownly.food/api/v1/menu/item-attributes
+ */
+export function buildOwnlyItemAttributesPayload({
+    resId,
+    itemId,
+    currentItem = {},
+    body = {},
+    menuDoc = {},
+}) {
+    const rnId = resolveOwnlyRestaurantId({ resId, currentItem, itemId });
+    const brandId = resolveOwnlyBrandId({ currentItem, menuDoc, resId: rnId });
+
+    const itemUpdate = {
+        id: String(itemId),
+        gstType: currentItem?.gstType || currentItem?.raw?.gstType || "services",
+    };
+
+    // Name
+    const name = body.name !== undefined ? body.name : currentItem.name;
+    if (name) itemUpdate.name = String(name).trim();
+
+    // Description
+    const description = body.description !== undefined ? body.description : currentItem.description;
+    if (description !== undefined && description !== null) {
+        itemUpdate.description = String(description).trim();
+    }
+
+    // Food Type
+    const vegVal = body.is_veg !== undefined ? body.is_veg : currentItem.is_veg;
+    if (vegVal) {
+        const s = String(vegVal).toUpperCase();
+        itemUpdate.foodType = (s === "NON_VEG" || s === "NON-VEG") ? "non-veg" : (s === "EGG" ? "egg" : "veg");
+    }
+
+    // Image URL
+    const imageUrl = body.imageUrl || body.image_url || (body.media && body.media[0]?.url) || currentItem.imageUrl || currentItem.image_url || (currentItem.media && currentItem.media[0]?.url);
+    if (imageUrl) {
+        itemUpdate.imageUrl = imageUrl;
+    }
+
+    // Price & Markup Price
+    const price = body.price !== undefined ? body.price : (body.base_price !== undefined ? body.base_price : currentItem.price);
+    if (price !== undefined && price !== null && !isNaN(Number(price))) {
+        itemUpdate.price = Number(price);
+        itemUpdate.markupPrice = Number(body.markupPrice ?? currentItem.markupPrice ?? 0);
+    }
+
+    // Stock / In-Stock
+    if (body.inStock !== undefined || body.status !== undefined) {
+        itemUpdate.inStock = Boolean(body.inStock ?? body.status);
+    }
+
+    return {
+        restaurant_id: String(rnId),
+        item_id: String(itemId),
+        update_request: {
+            brandId,
+            restaurantIds: null,
+            item: itemUpdate,
+        },
+        price_request: null,
+        selected_outlets: {
+            [String(rnId)]: true,
+        },
+    };
+}
+
+/**
+ * Orchestrates the full 2-step Ownly item update flow:
+ * Step 1: POST /api/v1/menu/item-attributes/prepare (extracts dynamic update_request & price_request)
+ * Step 2: POST /api/v1/menu/item-attributes (submits the prepared attributes)
+ * With graceful fallback to direct attributes POST or legacy PUT /api/v1/menu/item if needed.
+ */
+export async function executeOwnlyItemUpdate({
+    req,
+    accountName,
+    resId,
+    itemId,
+    currentItem = {},
+    category = null,
+    subcategory = null,
+    body = {},
+    menuDoc = {},
+}) {
+    const rnId = resolveOwnlyRestaurantId({ resId, currentItem, itemId });
+
+    // Build Step 1 prepare payload
+    const preparePayload = buildOwnlyItemPreparePayload({
+        resId: rnId,
+        itemId,
+        currentItem,
+        body,
+        category,
+        subcategory,
+    });
+
+    // Build direct attributes fallback payload (Step 2 fallback)
+    const fallbackAttributesPayload = buildOwnlyItemAttributesPayload({
+        resId: rnId,
+        itemId,
+        currentItem,
+        body,
+        menuDoc,
+    });
+
+    let attributesPayload = fallbackAttributesPayload;
+
+    // Step 1: Call prepare endpoint
+    try {
+        console.log(`[Ownly Item Update] Calling prepare API: /api/v1/menu/item-attributes/prepare for ${itemId}...`);
+        const prepareRes = await ownlyClient({
+            req,
+            accountName,
+            endpoint: "/api/v1/menu/item-attributes/prepare",
+            method: "POST",
+            data: preparePayload,
+        });
+
+        const extracted = extractOwnlyPreparedAttributes(prepareRes?.data, fallbackAttributesPayload);
+        if (extracted && (extracted.update_request || extracted.price_request)) {
+            console.log(`[Ownly Item Update] Successfully prepared attributes for ${itemId}:`, {
+                update_request: extracted.update_request,
+                price_request: extracted.price_request,
+            });
+            attributesPayload = extracted;
+        } else {
+            console.warn(`[Ownly Item Update] Prepare API returned unparseable structure for ${itemId}, using fallback payload.`);
+        }
+    } catch (prepErr) {
+        console.warn(`[Ownly Item Update] /item-attributes/prepare failed (${prepErr.response?.status || prepErr.message}), proceeding with fallback payload:`, prepErr.response?.data || prepErr.message);
+    }
+
+    // Step 2: Call item-attributes endpoint
+    let ownlyResponse;
+    try {
+        console.log(`[Ownly Item Update] Calling item-attributes API: /api/v1/menu/item-attributes for ${itemId}...`);
+        ownlyResponse = await ownlyClient({
+            req,
+            accountName,
+            endpoint: "/api/v1/menu/item-attributes",
+            method: "POST",
+            data: attributesPayload,
+        });
+    } catch (apiErr) {
+        console.warn(`[Ownly Item Update] /item-attributes failed (${apiErr.response?.status || apiErr.message}), attempting legacy PUT /api/v1/menu/item fallback:`, apiErr.response?.data || apiErr.message);
+        const legacyPayload = buildOwnlyUpdateItemPayload({
+            resId: rnId,
+            itemId,
+            currentItem,
+            category,
+            subcategory,
+            body,
+        });
+        ownlyResponse = await ownlyClient({
+            req,
+            accountName,
+            endpoint: "/api/v1/menu/item",
+            method: "PUT",
+            data: legacyPayload,
+        });
+    }
+
+    return {
+        ownlyResponse,
+        attributesPayload,
+    };
+}
+
+/**
+ * Builds the JSON payload for updating an item on Ownly (legacy fallback)
  */
 export function buildOwnlyUpdateItemPayload({
     resId,

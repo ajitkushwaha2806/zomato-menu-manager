@@ -1,6 +1,7 @@
 import MenuSync from "@/model/menu-sync";
 import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
+import { batchResolveRestaurantNames } from "@/lib/restaurantResolver";
 
 export async function GET(req) {
   try {
@@ -21,11 +22,6 @@ export async function GET(req) {
       });
     }
 
-    console.log("Syncs API Date filter:", { startDate, endDate });
-    const count = await MenuSync.countDocuments();
-    const countToday = await MenuSync.countDocuments(pipeline[0]?.$match || {});
-    console.log("Total syncs in DB:", count, "Today:", countToday);
-
     pipeline.push(
       {
         $lookup: {
@@ -37,7 +33,7 @@ export async function GET(req) {
       },
       {
         $addFields: {
-          restaurantName: { $arrayElemAt: ["$restaurant.name", 0] }
+          lookupRestaurantName: { $arrayElemAt: ["$restaurant.name", 0] }
         }
       },
       {
@@ -51,7 +47,19 @@ export async function GET(req) {
       }
     );
 
-    const syncs = await MenuSync.aggregate(pipeline);
+    const rawSyncs = await MenuSync.aggregate(pipeline);
+
+    // Resolve missing restaurant names
+    const missingResIds = rawSyncs
+      .filter((s) => !s.restaurantName && !s.lookupRestaurantName)
+      .map((s) => s.resId);
+
+    const nameMap = await batchResolveRestaurantNames(missingResIds);
+
+    const syncs = rawSyncs.map((s) => ({
+      ...s,
+      restaurantName: s.restaurantName || s.lookupRestaurantName || nameMap[s.resId] || `Outlet ${s.resId}`,
+    }));
 
     return NextResponse.json(
       {

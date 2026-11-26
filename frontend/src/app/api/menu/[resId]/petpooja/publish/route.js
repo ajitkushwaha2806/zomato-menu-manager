@@ -1,5 +1,9 @@
 import { NextResponse } from "next/server";
 import { petpoojaClient } from "@/lib/api/petpooja-client";
+import Trigger from "@/model/trigger";
+import MenuSync from "@/model/menu-sync";
+import dbConnect from "@/lib/dbConnect";
+import { getRestaurantName } from "@/lib/restaurantResolver";
 
 export const dynamic = "force-dynamic";
 
@@ -134,6 +138,37 @@ export async function POST(req, { params }) {
 
         const resMessage = publishRes?.message || publishRes?.msg || "Menu publish triggered successfully on aggregator!";
 
+        try {
+            await dbConnect();
+            const restaurantName = await getRestaurantName(resId, body?.restaurantName);
+            const userName = body?.userName || body?.user || "Team Member";
+            const userEmail = body?.userEmail || "";
+
+            await Trigger.create({
+                resId: String(resId),
+                restaurantName,
+                platform: "petpooja",
+                taskId: body?.taskId || "PETPOOJA_PUBLISH",
+                status: "SUCCESS",
+                user: userName,
+                userEmail,
+                actionType: "PETPOOJA_PUBLISH",
+            });
+
+            await MenuSync.create({
+                resId: String(resId),
+                restaurantName,
+                platform: "petpooja",
+                accountName: body?.accountName || "Petpooja",
+                status: "completed",
+                user: userName,
+                userEmail,
+                updated_menu: { integrations },
+            });
+        } catch (dbErr) {
+            console.warn("Could not log Petpooja publish trigger/sync:", dbErr?.message);
+        }
+
         return NextResponse.json({
             success: true,
             message: resMessage,
@@ -144,6 +179,28 @@ export async function POST(req, { params }) {
     } catch (error) {
         console.error("Petpooja Menu Trigger Publish Error:", error);
         const errMsg = error?.detailedError || error?.response?.data?.message || error?.message || "Failed to trigger menu publish on Petpooja";
+
+        try {
+            await dbConnect();
+            const restaurantName = await getRestaurantName((await params)?.resId, body?.restaurantName);
+            const userName = body?.userName || body?.user || "Team Member";
+            const userEmail = body?.userEmail || "";
+
+            await Trigger.create({
+                resId: String((await params)?.resId),
+                restaurantName,
+                platform: "petpooja",
+                taskId: body?.taskId || "PETPOOJA_PUBLISH",
+                status: "FAILED",
+                user: userName,
+                userEmail,
+                actionType: "PETPOOJA_PUBLISH",
+                error: errMsg,
+            });
+        } catch (dbErr) {
+            console.warn("Could not log failed Petpooja trigger:", dbErr?.message);
+        }
+
         return NextResponse.json(
             {
                 success: false,

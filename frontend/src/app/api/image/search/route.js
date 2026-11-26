@@ -20,7 +20,7 @@ const MAX_SERVER_CACHE_SIZE = 500;
 
 export async function GET(req) {
     const controller = new AbortController();
-    const timeout = setTimeout(() => controller.abort(), 5000);
+    const timeout = setTimeout(() => controller.abort(), 12000);
 
     try {
         const { searchParams } = new URL(req.url);
@@ -112,7 +112,23 @@ export async function GET(req) {
         }
 
         const payload = await response.json();
-        const results = extractResults(payload);
+        const rawResults = extractResults(payload);
+        const results = rawResults.map((item) => {
+            const fullUrl = item.image_url || item.url || item.imageUrl || item.optimised_image_url;
+            const rawThumb = item.optimised_image_url || item.thumb_url || item.thumbUrl || item.thumbnail || fullUrl;
+            const fastThumb = rawThumb && rawThumb.startsWith("http")
+                ? `/api/image/proxy?url=${encodeURIComponent(rawThumb)}&w=320&format=webp`
+                : rawThumb;
+            return {
+                ...item,
+                image_url: fullUrl,
+                url: fullUrl,
+                thumb_url: fastThumb,
+                thumbUrl: fastThumb,
+                fallback_thumb_url: rawThumb,
+                optimised_image_url: item.optimised_image_url || rawThumb,
+            };
+        });
 
         const responseBody = {
             success: true,

@@ -120,32 +120,6 @@ export default function PetpoojaUnlockModal({
             return;
         }
 
-        // Master admin key bypass
-        if (cleanTaskId === "142004") {
-            try {
-                setIsValidatingTask(true);
-                await fetch(`/api/menu/${resId}/otp/verify`, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        otp: "142004",
-                        resName,
-                    }),
-                });
-                if (typeof window !== "undefined") {
-                    localStorage.setItem(`otp_verified_${resId}`, "true");
-                }
-                notify.success("Admin key verified! Petpooja outlet unlocked.");
-                onSuccess?.(resId);
-                onClose?.();
-                return;
-            } catch (e) {
-                console.error("Admin key unlock error:", e);
-            } finally {
-                setIsValidatingTask(false);
-            }
-        }
-
         try {
             setIsValidatingTask(true);
             const validationRes = await fetch(`/api/validate-task?taskId=${cleanTaskId}`);

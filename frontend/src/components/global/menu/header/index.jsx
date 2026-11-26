@@ -253,7 +253,11 @@ export function MenuEditorHeader({
     const handleTriggerPetpoojaPublish = async () => {
         try {
             setIsPetpoojaPublishing(true);
-            const payload = {};
+            const payload = {
+                restaurantName: activeResName,
+                userName: user?.userName || user?.name || user?.user?.name || "Team Member",
+                userEmail: user?.userEmail || user?.email || user?.user?.email || "",
+            };
             if (selectedTriggerPlatform === "all") {
                 payload.platform = "all";
             } else if (petpoojaCurrentChannel) {
@@ -290,7 +294,6 @@ export function MenuEditorHeader({
 
     const menuArray = Array.isArray(menuData) ? menuData : [];
     const totalCategories = menuArray.length;
-    const isWhitelistedRes = String(resId) === '21';
 
     const stats = React.useMemo(() => {
         let total = 0;
@@ -555,14 +558,15 @@ export function MenuEditorHeader({
             return;
         }
 
-        if (!bypassTaskValidation && !isOtpVerified) {
-            if (!triggerTaskId.trim()) {
+        // Only allow trigger if verified via OTP or validated via CRM Task ID
+        if (!isOtpVerified) {
+            if (!triggerTaskId || !triggerTaskId.trim()) {
                 notify.error("Task ID or Admin OTP verification is required to trigger the menu");
                 return;
             }
 
             try {
-                const validationRes = await fetch(`/api/validate-task?taskId=${triggerTaskId}`);
+                const validationRes = await fetch(`/api/validate-task?taskId=${triggerTaskId.trim()}`);
                 if (validationRes.ok) {
                     const result = await validationRes.json();
                     if (result.success) {
@@ -634,14 +638,28 @@ export function MenuEditorHeader({
         try {
             setIsTriggering(true);
 
+            const currentUserName = user?.userName || user?.name || user?.user?.name || "Team Member";
+            const currentUserEmail = user?.userEmail || user?.email || user?.user?.email || "";
+
             let url = `/api/menu/${resId}/zomato/update-menu`;
-            let payload = { taskId: triggerTaskId };
+            let payload = {
+                taskId: triggerTaskId,
+                restaurantName: activeResName,
+                userName: currentUserName,
+                userEmail: currentUserEmail,
+            };
 
             if (isSwiggy || isOwnly) {
                 const platformKey = isOwnly ? "ownly" : "swiggy";
                 url = `/api/menu/${resId}/${platformKey}/queue-changes`;
                 const accountName = isOwnly ? CookieStorage.getAccountName() : localStorage.getItem("swiggy_account");
-                payload = { accountName, taskId: triggerTaskId };
+                payload = {
+                    accountName,
+                    taskId: triggerTaskId,
+                    restaurantName: activeResName,
+                    userName: currentUserName,
+                    userEmail: currentUserEmail,
+                };
 
                 let final_updated_menu = updated_menu;
                 const isUpdatedMenuEmpty = !updated_menu ||
@@ -1280,20 +1298,7 @@ export function MenuEditorHeader({
                                                     </div>
                                                 )} */}
 
-                                                {isWhitelistedRes ? (
-                                                    <div className="space-y-4">
-                                                        <div className="space-y-2">
-                                                            <h4 className="font-medium leading-none">Trigger Menu</h4>
-                                                            <p className="text-sm text-muted-foreground">
-                                                                This restaurant is whitelisted. You can trigger the menu directly.
-                                                            </p>
-                                                        </div>
-                                                        <Button onClick={() => handleTriggerMenu(true)} disabled={isTriggering} className="w-full">
-                                                            {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                                            Confirm Trigger
-                                                        </Button>
-                                                    </div>
-                                                ) : isOtpVerified ? (
+                                                {isOtpVerified ? (
                                                     <div className="space-y-4">
                                                         <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex flex-col gap-1.5">
                                                             <div className="flex items-center gap-2">

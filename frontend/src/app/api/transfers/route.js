@@ -1,13 +1,14 @@
 import OutletTransfer from "@/model/outletTransfer";
 import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
+import { batchResolveRestaurantNames } from "@/lib/restaurantResolver";
 
 export async function POST(req) {
   try {
     await dbConnect();
     const body = await req.json();
 
-    const { fromResId, fromResName, toResId, toResName, platform, details } = body;
+    const { fromResId, fromResName, toResId, toResName, platform, details, userName, userEmail } = body;
 
     if (!fromResId || !fromResName || !toResId || !toResName) {
       return NextResponse.json(
@@ -25,6 +26,8 @@ export async function POST(req) {
       toResId,
       toResName,
       platform: platform || "zomato",
+      user: userName || body.user || "Team Member",
+      userEmail: userEmail || "",
       details: details || {},
     });
 

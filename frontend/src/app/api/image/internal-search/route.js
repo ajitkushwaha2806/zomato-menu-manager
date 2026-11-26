@@ -2,26 +2,43 @@ import { NextResponse } from "next/server";
 import Menu from "@/model/menu";
 import dbConnect from "@/lib/dbConnect";
 
+const serverCache = new Map();
+const SERVER_CACHE_TTL = 15 * 60 * 1000; // 15 minutes
+const MAX_SERVER_CACHE_SIZE = 300;
+
 export async function GET(req) {
     try {
-        await dbConnect();
-
         const { searchParams } = new URL(req.url);
         const query = searchParams.get("q")?.trim();
         const exact = searchParams.get("exact") === "true";
+        const page = Math.max(1, Number.parseInt(searchParams.get("page") ?? "1", 10));
         const limit = Math.min(
             60,
-            Math.max(1, Number.parseInt(searchParams.get("limit") ?? "12", 10)),
+            Math.max(1, Number.parseInt(searchParams.get("limit") ?? "24", 10)),
         );
+        const skip = (page - 1) * limit;
 
         if (!query) {
             return NextResponse.json({
                 success: true,
                 data: [],
+                hasMore: false,
             });
         }
 
         const resIdsParam = searchParams.get("resIds");
+        const cacheKey = `internal_${query.toLowerCase()}_${resIdsParam || 'all'}_${exact}_p${page}_l${limit}`;
+        const cached = serverCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < SERVER_CACHE_TTL) {
+            return NextResponse.json(cached.body, {
+                headers: {
+                    "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
+                    "X-Cache": "HIT",
+                },
+            });
+        }
+
+        await dbConnect();
         let resIds = [];
         if (resIdsParam) {
             resIds = resIdsParam.split(",").map((s) => s.trim()).filter(Boolean);
@@ -178,10 +195,13 @@ export async function GET(req) {
                 }
             },
             { $sort: { count: -1 } },
-            { $limit: limit }
+            { $skip: skip },
+            { $limit: limit + 1 }
         ];
 
-        const matchedItems = await Menu.aggregate(pipeline);
+        const rawMatchedItems = await Menu.aggregate(pipeline);
+        const hasMore = rawMatchedItems.length > limit;
+        const matchedItems = hasMore ? rawMatchedItems.slice(0, limit) : rawMatchedItems;
 
         // Map to standard format matching the manager.foodsnap.in API
         const targetQueryLower = query.toLowerCase().trim();
@@ -206,6 +226,15 @@ export async function GET(req) {
                 : (item.is_veg || "VEG");
 
             const imgUrl = item._id;
+            const rawThumb = item.thumbUrl || imgUrl;
+            let fastThumb = rawThumb;
+            if (rawThumb && rawThumb.includes("b.zmtcdn.com/") && !rawThumb.includes("fit=")) {
+                fastThumb = `${rawThumb}${rawThumb.includes("?") ? "&" : "?"}fit=around|300:300&crop=300:300;*,*`;
+            } else if (rawThumb && rawThumb.includes("media-assets.swiggy.com/swiggy/image/upload/")) {
+                fastThumb = rawThumb.replace(/\/swiggy\/image\/upload\/([^/]+\/)?/, "/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_300/");
+            } else if (rawThumb && rawThumb.startsWith("http")) {
+                fastThumb = `/api/image/proxy?url=${encodeURIComponent(rawThumb)}&w=320&format=webp`;
+            }
 
             return {
                 _id: item.id || imgUrl,
@@ -217,8 +246,9 @@ export async function GET(req) {
                 food_type: isVeg === "VEG" ? "veg" : (isVeg === "EGG" ? "egg" : "non_veg"),
                 image_url: imgUrl,
                 url: imgUrl,
-                thumb_url: item.thumbUrl || imgUrl,
-                thumbUrl: item.thumbUrl || imgUrl,
+                thumb_url: fastThumb,
+                thumbUrl: fastThumb,
+                fallback_thumb_url: rawThumb,
                 count: item.count || 1,
                 mediaId: item.mediaId || null,
                 category: item.category || "Outlet DB",
@@ -254,10 +284,24 @@ export async function GET(req) {
 
         scoredResults.sort((a, b) => (b._matchScore || 0) - (a._matchScore || 0));
 
-        return NextResponse.json({
+        const responseBody = {
             success: true,
             data: scoredResults,
             total: scoredResults.length,
+            hasMore,
+        };
+
+        if (serverCache.size >= MAX_SERVER_CACHE_SIZE) {
+            const oldestKey = serverCache.keys().next().value;
+            if (oldestKey) serverCache.delete(oldestKey);
+        }
+        serverCache.set(cacheKey, { body: responseBody, timestamp: Date.now() });
+
+        return NextResponse.json(responseBody, {
+            headers: {
+                "Cache-Control": "public, s-maxage=120, stale-while-revalidate=600",
+                "X-Cache": "MISS",
+            },
         });
 
     } catch (error) {

@@ -11,6 +11,7 @@ export const dynamic = "force-dynamic";
  */
 export function parseOwnlyMenu(rawResponse, resId) {
     const restaurantName = rawResponse?.restaurant?.name || `Ownly Restaurant #${resId}`;
+    const brandId = rawResponse?.restaurant?.brandId || null;
     const menuData = rawResponse?.menu || {};
     const categories = Array.isArray(menuData.categories) ? menuData.categories : [];
     const variantGroups = Array.isArray(menuData.variantGroups) ? menuData.variantGroups : [];
@@ -114,6 +115,8 @@ export function parseOwnlyMenu(rawResponse, resId) {
             addons: [],
             status: item.inStock !== false,
             inStock: item.inStock !== false,
+            brandId: item.brandId || (item.brandSkuId ? item.brandSkuId.slice(0, 8) : brandId) || null,
+            brandSkuId: item.brandSkuId || null,
             raw: item,
         };
     };
@@ -178,6 +181,7 @@ export function parseOwnlyMenu(rawResponse, resId) {
 
     return {
         restaurantName,
+        brandId,
         parsedMenu,
         totalItems,
         totalImages,
@@ -208,7 +212,7 @@ async function handleImport(req, resId) {
         }
 
         // 2. Parse into Menu Manager standard format
-        const { restaurantName, parsedMenu, totalItems, totalImages } = parseOwnlyMenu(rawData, resId);
+        const { restaurantName, brandId, parsedMenu, totalItems, totalImages } = parseOwnlyMenu(rawData, resId);
 
         // 3. Upsert into MongoDB Menu collection
         const updatedMenuDoc = await Menu.findOneAndUpdate(
@@ -217,6 +221,7 @@ async function handleImport(req, resId) {
                 resId: String(resId),
                 platform: "ownly",
                 name: restaurantName,
+                brandId,
                 menu: parsedMenu,
                 addons: [],
             },
@@ -230,6 +235,7 @@ async function handleImport(req, resId) {
                 {
                     name: restaurantName,
                     platform: "ownly",
+                    brandId,
                 },
                 { upsert: true }
             );

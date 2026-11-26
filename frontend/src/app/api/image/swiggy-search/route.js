@@ -1,6 +1,10 @@
 import { NextResponse } from 'next/server';
 import axios from 'axios';
 
+const serverCache = new Map();
+const SERVER_CACHE_TTL = 30 * 60 * 1000; // 30 minutes
+const MAX_SERVER_CACHE_SIZE = 500;
+
 // Calculate how many words match between query and text
 function scoreMatch(query, text) {
     if (!text) return 0;
@@ -43,12 +47,23 @@ function extractSwiggyImages(obj, resultsMap = new Map()) {
 export async function GET(request) {
     try {
         const { searchParams } = new URL(request.url);
-        const rawQuery = searchParams.get('q');
+        const rawQuery = searchParams.get('q')?.trim();
         const page = parseInt(searchParams.get('page') || '1', 10);
-        const limit = 48;
+        const limit = Math.min(60, Math.max(1, parseInt(searchParams.get('limit') || '48', 10)));
 
         if (!rawQuery) {
             return NextResponse.json({ success: false, message: 'Query is required' }, { status: 400 });
+        }
+
+        const cacheKey = `swiggy_${rawQuery.toLowerCase()}_p${page}_l${limit}`;
+        const cached = serverCache.get(cacheKey);
+        if (cached && Date.now() - cached.timestamp < SERVER_CACHE_TTL) {
+            return NextResponse.json(cached.body, {
+                headers: {
+                    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=1800',
+                    'X-Cache': 'HIT',
+                },
+            });
         }
 
         const commonHeaders = {
@@ -70,13 +85,13 @@ export async function GET(request) {
         const tokens = rawQuery.split(' ');
         const broadenedQuery = tokens.length > 2 ? tokens.slice(0, 2).join(' ') : rawQuery + ' veg';
 
-        // Hit Swiggy Search API twice in parallel (Raw Query + Broadened Query)
+        // Hit Swiggy Search API twice in parallel (Raw Query + Broadened Query) with 5s timeout
         const searchUrl1 = `https://www.swiggy.com/dapi/restaurants/search/v3?lat=28.63270&lng=77.21980&str=${encodeURIComponent(rawQuery)}&trackingId=undefined&submitAction=ENTER&queryUniqueId=40b301fa-9bad-b301-f196-d9095b2398c4`;
         const searchUrl2 = `https://www.swiggy.com/dapi/restaurants/search/v3?lat=28.63270&lng=77.21980&str=${encodeURIComponent(broadenedQuery)}&trackingId=undefined&submitAction=ENTER&queryUniqueId=40b301fa-9bad-b301-f196-d9095b2398c4`;
         
         const [res1, res2] = await Promise.all([
-            axios.get(searchUrl1, { headers: commonHeaders }).catch(() => ({ data: {} })),
-            axios.get(searchUrl2, { headers: commonHeaders }).catch(() => ({ data: {} }))
+            axios.get(searchUrl1, { headers: commonHeaders, timeout: 5000 }).catch(() => ({ data: {} })),
+            axios.get(searchUrl2, { headers: commonHeaders, timeout: 5000 }).catch(() => ({ data: {} }))
         ]);
 
         // Extract image maps from both responses
@@ -99,21 +114,44 @@ export async function GET(request) {
         const paginatedIds = rankedImageIds.slice(startIndex, endIndex);
         const hasMore = endIndex < rankedImageIds.length;
         
-        // Map Swiggy image IDs to our frontend grid format with full CDN paths
-        const swiggyBaseUrl = 'https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/';
-        const formattedImages = paginatedIds.map((id, index) => ({
-            _id: `swiggy_${id}_${startIndex + index}`,
-            id: `swiggy_${id}_${startIndex + index}`,
-            image_url: `${swiggyBaseUrl}${id}`,
-            url: `${swiggyBaseUrl}${id}`,
-            title: mergedMap.get(id) ? `${mergedMap.get(id)} (Swiggy)` : `${rawQuery} (Swiggy)`,
-            category: 'Food Delivery'
-        }));
+        // Use lightweight w_300 CDN thumbnail for instant sidebar loading, and w_1024 for full upload
+        const swiggyThumbBaseUrl = 'https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_300/';
+        const swiggyFullBaseUrl = 'https://media-assets.swiggy.com/swiggy/image/upload/fl_lossy,f_auto,q_auto,w_1024/';
 
-        return NextResponse.json({
+        const formattedImages = paginatedIds.map((id, index) => {
+            const title = mergedMap.get(id) ? `${mergedMap.get(id)} (Swiggy)` : `${rawQuery} (Swiggy)`;
+            const thumbUrl = `${swiggyThumbBaseUrl}${id}`;
+            const fullUrl = `${swiggyFullBaseUrl}${id}`;
+            return {
+                _id: `swiggy_${id}_${startIndex + index}`,
+                id: `swiggy_${id}_${startIndex + index}`,
+                thumb_url: thumbUrl,
+                thumbUrl: thumbUrl,
+                optimised_image_url: thumbUrl,
+                image_url: fullUrl,
+                url: fullUrl,
+                title,
+                category: 'Food Delivery'
+            };
+        });
+
+        const responseBody = {
             success: true,
             data: formattedImages,
             hasMore: hasMore
+        };
+
+        if (serverCache.size >= MAX_SERVER_CACHE_SIZE) {
+            const oldestKey = serverCache.keys().next().value;
+            if (oldestKey) serverCache.delete(oldestKey);
+        }
+        serverCache.set(cacheKey, { body: responseBody, timestamp: Date.now() });
+
+        return NextResponse.json(responseBody, {
+            headers: {
+                'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=1800',
+                'X-Cache': 'MISS',
+            },
         });
     } catch (error) {
         console.error('Swiggy Search API Error:', error);

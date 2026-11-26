@@ -2,20 +2,18 @@ import { NextResponse } from "next/server";
 import { ownlyClient } from "@/lib/api/ownly-client";
 import dbConnect from "@/lib/dbConnect";
 import Menu from "@/model/menu";
-import { buildOwnlyUpdateItemPayload, buildOwnlyCreateItemPayload } from "@/lib/payload/ownly/item-payload";
+import { buildOwnlyItemAttributesPayload, buildOwnlyUpdateItemPayload, buildOwnlyCreateItemPayload, executeOwnlyItemUpdate } from "@/lib/payload/ownly/item-payload";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Builds the exact JSON payload expected by Ownly's PUT /api/v1/menu/item
+ * Builds the exact JSON payload expected by Ownly's item-attributes API
  */
 export function buildOwnlyItemPayload(resId, itemId, currentItem, category, body = {}, subcategory = {}) {
-    return buildOwnlyUpdateItemPayload({
+    return buildOwnlyItemAttributesPayload({
         resId,
         itemId,
         currentItem,
-        category,
-        subcategory,
         body,
     });
 }
@@ -106,47 +104,56 @@ export async function PUT(req, { params }) {
             );
         }
 
-        // 2. Build the payload according to Ownly's schema
-        const payload = buildOwnlyItemPayload(resId, itemId, currentItem, parentCat, body, parentSub);
-
-        // 3. Send PUT request to Ownly live API
-        const ownlyResponse = await ownlyClient({
+        // 2. Execute 2-step Ownly item update (POST /item-attributes/prepare -> POST /item-attributes)
+        const { ownlyResponse, attributesPayload } = await executeOwnlyItemUpdate({
             req,
-            endpoint: "/api/v1/menu/item",
-            method: "PUT",
-            data: payload,
+            resId,
+            itemId,
+            currentItem,
+            category: parentCat,
+            subcategory: parentSub,
+            body,
+            menuDoc,
         });
 
         const resData = ownlyResponse.data;
+        const updatedItemData = attributesPayload.update_request?.item || {};
 
         // 4. Update MongoDB item fields
-        currentItem.name = payload.name;
-        currentItem.description = payload.description;
-        currentItem.price = payload.price;
-        currentItem.base_price = payload.price;
-        currentItem.min_price = payload.price;
-        currentItem.max_price = payload.price;
-        currentItem.imageUrl = payload.imageUrl;
-        currentItem.image_url = payload.imageUrl;
-        currentItem.is_veg = payload.foodType === "non-veg" ? "NON_VEG" : (payload.foodType === "egg" ? "EGG" : "VEG");
-
-        if (payload.imageUrl) {
+        if (updatedItemData.name) currentItem.name = updatedItemData.name;
+        if (updatedItemData.description !== undefined) currentItem.description = updatedItemData.description;
+        if (updatedItemData.price !== undefined) {
+            currentItem.price = updatedItemData.price;
+            currentItem.base_price = updatedItemData.price;
+            currentItem.min_price = updatedItemData.price;
+            currentItem.max_price = updatedItemData.price;
+        }
+        if (updatedItemData.imageUrl) {
+            currentItem.imageUrl = updatedItemData.imageUrl;
+            currentItem.image_url = updatedItemData.imageUrl;
             currentItem.media = [
                 {
-                    url: payload.imageUrl,
-                    thumbUrl: payload.imageUrl,
+                    url: updatedItemData.imageUrl,
+                    thumbUrl: updatedItemData.imageUrl,
                     sourceUrl: body.sourceUrl || "",
                     isNewlyUploaded: true,
                 },
             ];
         }
+        if (updatedItemData.foodType) {
+            currentItem.is_veg = updatedItemData.foodType === "non-veg" ? "NON_VEG" : (updatedItemData.foodType === "egg" ? "EGG" : "VEG");
+        }
+        if (updatedItemData.inStock !== undefined) {
+            currentItem.status = updatedItemData.inStock;
+            currentItem.inStock = updatedItemData.inStock;
+        }
 
         if (currentItem.raw && typeof currentItem.raw === "object") {
-            currentItem.raw.name = payload.name;
-            currentItem.raw.description = payload.description;
-            currentItem.raw.price = payload.price;
-            currentItem.raw.imageUrl = payload.imageUrl;
-            currentItem.raw.foodType = payload.foodType;
+            if (updatedItemData.name) currentItem.raw.name = updatedItemData.name;
+            if (updatedItemData.description !== undefined) currentItem.raw.description = updatedItemData.description;
+            if (updatedItemData.price !== undefined) currentItem.raw.price = updatedItemData.price;
+            if (updatedItemData.imageUrl) currentItem.raw.imageUrl = updatedItemData.imageUrl;
+            if (updatedItemData.foodType) currentItem.raw.foodType = updatedItemData.foodType;
         }
 
         await Menu.updateOne(

@@ -17,6 +17,7 @@ import { Switch } from "@/components/ui/switch";
 import { useSelector } from "react-redux";
 import api from "@/lib/api/axios";
 import axios from "axios";
+import { fetchImagesWithCache } from "@/services/imageSearchCacheService";
 
 const cleanQuery = (name) => {
     if (!name) return "";
@@ -106,7 +107,6 @@ export default function QuickReviewModal({
     const safeResList = Array.isArray(resList) ? resList : (Array.isArray(resList?.entities) ? resList.entities : (Array.isArray(resList?.data) ? resList.data : []));
     const currentRes = safeResList.find(r => String(r.id) === String(activeResId) || String(r._id) === String(activeResId));
     const activeResName = currentRes?.name || currentRes?.restaurant_name || "Unknown Restaurant";
-    const isWhitelistedRes = String(activeResId) === '21';
 
     useEffect(() => {
         if (!activeResId) return;
@@ -217,14 +217,15 @@ export default function QuickReviewModal({
             return;
         }
 
-        if (!bypassTaskValidation && !isOtpVerified) {
-            if (!triggerTaskId.trim()) {
+        // Only allow trigger if verified via OTP or validated via CRM Task ID
+        if (!isOtpVerified) {
+            if (!triggerTaskId || !triggerTaskId.trim()) {
                 toast.error("Task ID or Admin OTP verification is required to trigger the menu");
                 return;
             }
 
             try {
-                const validationRes = await fetch(`/api/validate-task?taskId=${triggerTaskId}`);
+                const validationRes = await fetch(`/api/validate-task?taskId=${triggerTaskId.trim()}`);
                 if (validationRes.ok) {
                     const result = await validationRes.json();
                     if (result.success) {
@@ -261,7 +262,12 @@ export default function QuickReviewModal({
 
         try {
             setIsTriggering(true);
-            await api.post(`/api/menu/${activeResId}/zomato/update-menu`, { taskId: triggerTaskId });
+            await api.post(`/api/menu/${activeResId}/zomato/update-menu`, {
+                taskId: triggerTaskId,
+                restaurantName: activeResName,
+                userName: user?.userName || user?.name || user?.user?.name || "Team Member",
+                userEmail: user?.userEmail || user?.email || user?.user?.email || "",
+            });
             toast.success("Menu saved to Zomato successfully!");
             setTaskId(triggerTaskId);
         } catch (error) {
@@ -328,21 +334,21 @@ export default function QuickReviewModal({
 
         try {
             const [datasetRes, swiggyRes] = await Promise.allSettled([
-                axios.get(`/api/image/search?q=${encodeURIComponent(query)}&limit=30&page=1`),
-                axios.get(`/api/image/swiggy-search?q=${encodeURIComponent(query)}&page=1`)
+                fetchImagesWithCache(query, 1, "dataset", { urgent: true, limit: 24 }),
+                fetchImagesWithCache(query, 1, "swiggy", { urgent: true, limit: 24 }),
             ]);
 
             let newDataset = [];
             let newSwiggy = [];
 
-            if (datasetRes.status === "fulfilled" && datasetRes.value.data?.success) {
-                newDataset = (datasetRes.value.data.data || []).map(img => ({ ...img, _source: 'dataset' }));
-                setHasMoreDataset(datasetRes.value.data.hasMore);
+            if (datasetRes.status === "fulfilled" && datasetRes.value?.data) {
+                newDataset = datasetRes.value.data.map(img => ({ ...img, _source: 'dataset' }));
+                setHasMoreDataset(Boolean(datasetRes.value.hasMore));
             }
 
-            if (swiggyRes.status === "fulfilled" && swiggyRes.value.data?.success) {
-                newSwiggy = (swiggyRes.value.data.data || []).map(img => ({ ...img, _source: 'swiggy' }));
-                setHasMoreSwiggy(swiggyRes.value.data.hasMore);
+            if (swiggyRes.status === "fulfilled" && swiggyRes.value?.data) {
+                newSwiggy = swiggyRes.value.data.map(img => ({ ...img, _source: 'swiggy' }));
+                setHasMoreSwiggy(Boolean(swiggyRes.value.hasMore));
             }
 
             setDatasetImagesList(newDataset);
@@ -367,23 +373,23 @@ export default function QuickReviewModal({
 
         try {
             const [datasetRes, swiggyRes] = await Promise.allSettled([
-                hasMoreDataset ? axios.get(`/api/image/search?q=${encodeURIComponent(customQuery)}&limit=30&page=${nextPage}`) : Promise.resolve(null),
-                hasMoreSwiggy ? axios.get(`/api/image/swiggy-search?q=${encodeURIComponent(customQuery)}&page=${nextPage}`) : Promise.resolve(null)
+                hasMoreDataset ? fetchImagesWithCache(customQuery, nextPage, "dataset", { urgent: true, limit: 24 }) : Promise.resolve(null),
+                hasMoreSwiggy ? fetchImagesWithCache(customQuery, nextPage, "swiggy", { urgent: true, limit: 24 }) : Promise.resolve(null),
             ]);
 
             let newDataset = [...datasetImagesList];
             let newSwiggy = [...swiggyImagesList];
 
-            if (datasetRes?.status === "fulfilled" && datasetRes.value?.data?.success) {
-                const data = (datasetRes.value.data.data || []).map(img => ({ ...img, _source: 'dataset' }));
+            if (datasetRes?.status === "fulfilled" && datasetRes.value?.data) {
+                const data = datasetRes.value.data.map(img => ({ ...img, _source: 'dataset' }));
                 newDataset = [...newDataset, ...data];
-                setHasMoreDataset(datasetRes.value.data.hasMore);
+                setHasMoreDataset(Boolean(datasetRes.value.hasMore));
             }
 
-            if (swiggyRes?.status === "fulfilled" && swiggyRes.value?.data?.success) {
-                const data = (swiggyRes.value.data.data || []).map(img => ({ ...img, _source: 'swiggy' }));
+            if (swiggyRes?.status === "fulfilled" && swiggyRes.value?.data) {
+                const data = swiggyRes.value.data.map(img => ({ ...img, _source: 'swiggy' }));
                 newSwiggy = [...newSwiggy, ...data];
-                setHasMoreSwiggy(swiggyRes.value.data.hasMore);
+                setHasMoreSwiggy(Boolean(swiggyRes.value.hasMore));
             }
 
             setDatasetImagesList(newDataset);
@@ -667,20 +673,7 @@ export default function QuickReviewModal({
                                                 </div>
                                             )} */}
 
-                                            {isWhitelistedRes ? (
-                                                <div className="space-y-4">
-                                                    <div className="space-y-2">
-                                                        <h4 className="font-medium leading-none">Trigger Menu</h4>
-                                                        <p className="text-sm text-muted-foreground">
-                                                            This restaurant is whitelisted. You can trigger the menu directly.
-                                                        </p>
-                                                    </div>
-                                                    <Button onClick={() => handleTriggerMenu(true)} disabled={isTriggering || zomatoHasAddons} className="w-full">
-                                                        {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : null}
-                                                        Confirm Trigger
-                                                    </Button>
-                                                </div>
-                                            ) : isOtpVerified ? (
+                                            {isOtpVerified ? (
                                                 <div className="space-y-4">
                                                     <div className="p-3 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs flex flex-col gap-1.5">
                                                         <div className="flex items-center gap-2">
@@ -892,12 +885,21 @@ export default function QuickReviewModal({
                                             uploadStatus === 'uploading' && !isProcessingThis && "opacity-50 pointer-events-none"
                                         )}
                                     >
-                                        <div className="aspect-square w-full bg-slate-100 relative">
+                                        <div className="aspect-square w-full bg-slate-100 relative overflow-hidden">
                                             <img
-                                                src={img.image_url || img.image || img.url}
+                                                src={img.thumb_url || img.thumbUrl || img.optimised_image_url || img.image_url || img.image || img.url}
                                                 alt={img.title}
                                                 className="w-full h-full object-cover"
-                                                loading="lazy"
+                                                loading={idx < 8 ? "eager" : "lazy"}
+                                                decoding="async"
+                                                fetchPriority={idx < 4 ? "high" : "auto"}
+                                                onError={(e) => {
+                                                    const fallback = img.fallback_thumb_url || img.image_url || img.url;
+                                                    if (fallback && e.currentTarget.src !== fallback && !e.currentTarget.dataset.retried) {
+                                                        e.currentTarget.dataset.retried = "1";
+                                                        e.currentTarget.src = fallback;
+                                                    }
+                                                }}
                                             />
 
                                             {/* Source Badge */}

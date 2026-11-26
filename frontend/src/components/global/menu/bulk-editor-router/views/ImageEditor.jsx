@@ -43,7 +43,12 @@ const ImageCard = ({ item, onClick, onDrop, isActive }) => {
             itemId={item?.id}
             itemName={item?.name}
             onClick={() => onClick(item)}
-            onMouseEnter={() => prefetchDishOnHover(item?.name, "dataset")}
+            onMouseEnter={() => {
+                if (item?.name) {
+                    prefetchDishOnHover(item.name, "dataset");
+                    prefetchDishOnHover(item.name, "foodsnap");
+                }
+            }}
             onUploadSuccess={(mediaArray) => {
                 setImgLoadFailed(false);
                 onDrop(item.id, mediaArray);

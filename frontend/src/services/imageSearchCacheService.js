@@ -8,7 +8,7 @@ const searchCache = new Map();
 const inFlightMap = new Map();
 
 // Maximum number of cached queries to keep in memory to prevent memory bloat
-const MAX_CACHE_ENTRIES = 250;
+const MAX_CACHE_ENTRIES = 500;
 
 // Cache expiration: 15 minutes
 const CACHE_TTL_MS = 15 * 60 * 1000;
@@ -65,7 +65,7 @@ export function setCachedResult(query, page = 1, source = "dataset", data, hasMo
     });
 }
 
-function getEndpoint(query, page = 1, source = "dataset", limit = 48, options = {}) {
+function getEndpoint(query, page = 1, source = "dataset", limit = 24, options = {}) {
     const encoded = encodeURIComponent(query.trim());
     if (source === "outlet" || source === "internal") {
         const resIdsPart = options?.resIds ? `&resIds=${encodeURIComponent(options.resIds)}` : "";
@@ -85,15 +85,24 @@ function getEndpoint(query, page = 1, source = "dataset", limit = 48, options = 
 
 // Pre-warm browser image cache for top thumbnails without blocking execution
 function prewarmThumbnails(images = []) {
-    if (typeof window === "undefined") return;
-    const topImages = images.slice(0, 3);
-    topImages.forEach(img => {
-        const url = img?.image_url || img?.url;
-        if (url && typeof url === "string" && !url.startsWith("data:")) {
-            const preloader = new Image();
-            preloader.src = url;
-        }
-    });
+    if (typeof window === "undefined" || !Array.isArray(images)) return;
+    const topImages = images.slice(0, 12);
+    const prewarm = () => {
+        topImages.forEach(img => {
+            const url = img?.thumb_url || img?.thumbUrl || img?.optimised_image_url || img?.image_url || img?.url;
+            if (url && typeof url === "string" && !url.startsWith("data:")) {
+                const preloader = new Image();
+                preloader.decoding = "async";
+                preloader.src = url;
+            }
+        });
+    };
+
+    if (typeof window.requestIdleCallback === "function") {
+        window.requestIdleCallback(prewarm, { timeout: 1000 });
+    } else {
+        setTimeout(prewarm, 16);
+    }
 }
 
 // Process the request queue with polite concurrency and rate limiting
@@ -200,6 +209,36 @@ export function fetchImagesWithCache(query, page = 1, source = "dataset", option
     const isUrgent = options.urgent || false;
     const priority = options.priority !== undefined ? options.priority : isUrgent ? 100 : 10;
 
+    // Fast-lane for urgent interactive requests: execute immediately without waiting behind background queue
+    if (isUrgent) {
+        const endpoint = getEndpoint(norm, page, source, options.limit || 24, options);
+        const promise = axios
+            .get(endpoint, { signal: options.signal })
+            .then(res => {
+                if (res.data?.success) {
+                    const fetchedData = res.data.data || res.data.posts || [];
+                    const hasMore = Boolean(res.data.hasMore);
+                    setCachedResult(norm, page, source, fetchedData, hasMore, options);
+                    prewarmThumbnails(fetchedData);
+                    return { data: fetchedData, hasMore, fromCache: false };
+                }
+                return { data: [], hasMore: false, fromCache: false };
+            })
+            .catch(err => {
+                if (axios.isCancel(err) || err.name === "CanceledError") {
+                    throw err;
+                }
+                console.warn(`[ImageCache] Error fetching images for "${norm}":`, err?.message || err);
+                return { data: [], hasMore: false, fromCache: false, error: err };
+            })
+            .finally(() => {
+                inFlightMap.delete(inFlightKey);
+            });
+
+        inFlightMap.set(inFlightKey, promise);
+        return promise;
+    }
+
     if (existingIndex !== -1) {
         if (priority > queue[existingIndex].priority) {
             queue[existingIndex].priority = priority;
@@ -221,7 +260,7 @@ export function fetchImagesWithCache(query, page = 1, source = "dataset", option
             query: norm,
             page,
             source,
-            limit: options.limit || 48,
+            limit: options.limit || 24,
             priority,
             abortController,
             resolve,
@@ -294,9 +333,9 @@ export function startMenuImagePrefetch(allItems = [], source = "dataset") {
  * Prefetch an individual item (e.g. on mouse hover)
  * Immediately jumps to urgent priority so it starts loading before the user even clicks!
  */
-export function prefetchDishOnHover(dishName, source = "dataset") {
+export function prefetchDishOnHover(dishName, source = "dataset", options = {}) {
     if (!dishName) return;
-    fetchImagesWithCache(dishName, 1, source, { urgent: true, priority: 90 }).catch(() => {});
+    fetchImagesWithCache(dishName, 1, source, { urgent: true, priority: 90, ...options }).catch(() => {});
 }
 
 /**

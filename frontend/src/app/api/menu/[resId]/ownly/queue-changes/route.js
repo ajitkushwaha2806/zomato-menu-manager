@@ -4,6 +4,7 @@ import Menu from "@/model/menu";
 import dbConnect from "@/lib/dbConnect";
 import { NextResponse } from "next/server";
 import { ownlyProcessorJob } from "@/lib/bullmq/job/ownly-processor";
+import { getRestaurantName } from "@/lib/restaurantResolver";
 
 export const dynamic = "force-dynamic";
 
@@ -176,25 +177,36 @@ export async function POST(req, { params }) {
             items: itemsWithStatus,
         };
 
+        const restaurantName = await getRestaurantName(resId, body.restaurantName || menuDoc?.name);
+        const userName = body.userName || body.user || "Team Member";
+        const userEmail = body.userEmail || "";
+        const effectiveTaskId = taskId || "OTP_VERIFIED";
+
         const sync = await MenuSync.create({
             resId,
+            restaurantName,
+            platform: "ownly",
             status: "pending",
             accountName: accountName || "Ownly Account",
-            taskId: taskId || null,
+            taskId: effectiveTaskId,
+            user: userName,
+            userEmail,
             updated_menu: finalUpdatedMenu,
         });
 
-        if (taskId) {
-            try {
-                await Trigger.create({
-                    resId: String(resId),
-                    platform: "ownly",
-                    taskId,
-                    status: "SUCCESS",
-                });
-            } catch (tErr) {
-                console.warn("Could not log trigger:", tErr.message);
-            }
+        try {
+            await Trigger.create({
+                resId: String(resId),
+                restaurantName,
+                platform: "ownly",
+                taskId: effectiveTaskId,
+                status: "SUCCESS",
+                user: userName,
+                userEmail,
+                actionType: "MENU_TRIGGER",
+            });
+        } catch (tErr) {
+            console.warn("Could not log Ownly trigger:", tErr.message);
         }
 
         console.log(`[Ownly Queue] Created MenuSync ${sync._id} for resId ${resId}`);

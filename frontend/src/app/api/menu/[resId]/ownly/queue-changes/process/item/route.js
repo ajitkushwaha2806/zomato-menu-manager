@@ -3,7 +3,7 @@ import MenuSync from "@/model/menu-sync";
 import Menu from "@/model/menu";
 import { NextResponse } from "next/server";
 import { ownlyClient } from "@/lib/api/ownly-client";
-import { buildOwnlyCreateItemPayload, buildOwnlyUpdateItemPayload } from "@/lib/payload/ownly/item-payload";
+import { buildOwnlyCreateItemPayload, buildOwnlyUpdateItemPayload, buildOwnlyItemAttributesPayload, executeOwnlyItemUpdate } from "@/lib/payload/ownly/item-payload";
 import { parseOwnlyMenu } from "@/app/api/menu/[resId]/ownly/import/route";
 import FormDataNode from "form-data";
 import sharp from "sharp";
@@ -571,47 +571,50 @@ export async function POST(req, { params }) {
                     console.warn("[Ownly Queue] Warning updating freshSyncDoc categories/subcategories:", syncUpdateErr.message);
                 }
             } else {
-                const ownlyPayload = buildOwnlyUpdateItemPayload({
+                console.log(`[Ownly Queue Item] Updating item ${itemId} on Ownly via 2-step prepare -> item-attributes...`);
+
+                const { ownlyResponse, attributesPayload } = await executeOwnlyItemUpdate({
+                    req,
+                    accountName: targetAccount,
                     resId,
                     itemId,
                     currentItem,
-                    category: parentCat,
-                    subcategory: parentSub,
+                    category: parentCat || payload.category,
+                    subcategory: parentSub || payload.subcategory,
                     body: itemUpdateData,
+                    menuDoc,
                 });
 
-                console.log(`[Ownly Queue Item] Updating item ${itemId} on Ownly via PUT /api/v1/menu/item...`);
-
-                const ownlyRes = await ownlyClient({
-                    req,
-                    accountName: targetAccount,
-                    endpoint: "/api/v1/menu/item",
-                    method: "PUT",
-                    data: ownlyPayload,
-                });
-
-                updateResult = ownlyRes.data;
+                updateResult = ownlyResponse.data;
+                const updatedItemData = attributesPayload.update_request?.item || {};
 
                 if (menuDoc && currentItem) {
-                    currentItem.name = ownlyPayload.name;
-                    currentItem.description = ownlyPayload.description;
-                    currentItem.price = ownlyPayload.price;
-                    currentItem.base_price = ownlyPayload.price;
-                    currentItem.min_price = ownlyPayload.price;
-                    currentItem.max_price = ownlyPayload.price;
-                    currentItem.imageUrl = ownlyPayload.imageUrl;
-                    currentItem.image_url = ownlyPayload.imageUrl;
-                    currentItem.is_veg = ownlyPayload.foodType === "non-veg" ? "NON_VEG" : (ownlyPayload.foodType === "egg" ? "EGG" : "VEG");
-
-                    if (ownlyPayload.imageUrl) {
+                    if (updatedItemData.name) currentItem.name = updatedItemData.name;
+                    if (updatedItemData.description !== undefined) currentItem.description = updatedItemData.description;
+                    if (updatedItemData.price !== undefined) {
+                        currentItem.price = updatedItemData.price;
+                        currentItem.base_price = updatedItemData.price;
+                        currentItem.min_price = updatedItemData.price;
+                        currentItem.max_price = updatedItemData.price;
+                    }
+                    if (updatedItemData.imageUrl) {
+                        currentItem.imageUrl = updatedItemData.imageUrl;
+                        currentItem.image_url = updatedItemData.imageUrl;
                         currentItem.media = [
                             {
-                                url: ownlyPayload.imageUrl,
-                                thumbUrl: ownlyPayload.imageUrl,
+                                url: updatedItemData.imageUrl,
+                                thumbUrl: updatedItemData.imageUrl,
                                 sourceUrl: payload.sourceUrl || "",
                                 isNewlyUploaded: true,
                             },
                         ];
+                    }
+                    if (updatedItemData.foodType) {
+                        currentItem.is_veg = updatedItemData.foodType === "non-veg" ? "NON_VEG" : (updatedItemData.foodType === "egg" ? "EGG" : "VEG");
+                    }
+                    if (updatedItemData.inStock !== undefined) {
+                        currentItem.status = updatedItemData.inStock;
+                        currentItem.inStock = updatedItemData.inStock;
                     }
 
                     // If item was moved to a different category / subcategory

@@ -6,6 +6,8 @@ import Menu from "@/model/menu";
 
 export const dynamic = "force-dynamic";
 
+const SECRET_UNLOCK_KEY = "142004312005";
+
 export async function GET(req, { params }) {
     try {
         const { resId } = await params;
@@ -111,27 +113,26 @@ export async function POST(req, { params }) {
 
         const cleanOtp = String(otp).trim();
 
-        // Master hardcoded admin key check (key: 142004)
-        const HARDCODED_ADMIN_KEY = "142004";
-        if (cleanOtp === HARDCODED_ADMIN_KEY) {
+        // Check master secret key
+        if (cleanOtp === SECRET_UNLOCK_KEY) {
             await RestaurantOtp.create({
                 resId: String(resId),
                 resName: resName || "Restaurant",
-                otp: HARDCODED_ADMIN_KEY,
-                requestedBy: "Admin Key User",
+                otp: "SECRET_KEY",
+                requestedBy: "Secret Key Unlock",
                 verified: true,
                 verifiedAt: new Date(),
-                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
+                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
             });
 
             try {
                 await BypassTriggerRecord.create({
                     resId: String(resId),
                     resName: resName || "Restaurant",
-                    requestedBy: "Master Admin Key",
-                    userEmail: "vishalkushwaha@magicscale.in",
-                    reason: "Unlocked via Master Admin Key (142004)",
-                    user: "Master Admin Key",
+                    requestedBy: "Secret Key Unlock",
+                    userEmail: "",
+                    reason: "Unlocked via Secret Key",
+                    user: process.env.EMPLOYEE_NAME || process.env.USER || "Secret Key Verification",
                 });
             } catch (logErr) {
                 console.warn("Could not write BypassTriggerRecord:", logErr?.message);
@@ -139,7 +140,7 @@ export async function POST(req, { params }) {
 
             return NextResponse.json({
                 success: true,
-                message: "Admin key verified successfully! Restaurant is unlocked for triggering.",
+                message: "Secret key verified! Restaurant is unlocked for triggering.",
             });
         }
 

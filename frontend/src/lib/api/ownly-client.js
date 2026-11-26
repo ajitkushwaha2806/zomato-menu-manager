@@ -51,6 +51,63 @@ export function extractPhoneFromJwt(jwtToken) {
     return null;
 }
 
+const outletRolesCache = new Map();
+
+export async function resolveOwnlyOutletRoles(token, customDeviceId = "6722be1c-499a-42fe-a45e-14a1674cf481") {
+    if (!token) return null;
+    const cleanToken = token.startsWith("Bearer ") ? token.slice(7) : token;
+    const cached = outletRolesCache.get(cleanToken);
+    if (cached && Date.now() - cached.timestamp < 15 * 60 * 1000) {
+        return cached.roles;
+    }
+
+    const phone = extractPhoneFromJwt(cleanToken) || "8130205579";
+    try {
+        const initRes = await axios({
+            url: "https://rxapi.ownly.food/api/v1/init",
+            method: "POST",
+            data: { phoneNumber: phone },
+            headers: {
+                accept: "application/json",
+                "content-type": "application/json",
+                "app-version": "0.42.1",
+                "build-number": "51",
+                "project-version": "51",
+                appid: "200",
+                authorization: `Bearer ${cleanToken}`,
+                "device-id": customDeviceId,
+                platform: "WEB",
+                origin: "https://partner.ownly.food",
+                referer: "https://partner.ownly.food/"
+            },
+            timeout: 8000
+        });
+
+        const stores = initRes.data?.stores || [];
+        if (stores.length > 0) {
+            const roleGroups = {};
+            for (const store of stores) {
+                const code = store.roleCode || (store.role === "Manager" ? 1 : 2);
+                const rawId = String(store.id || store.restaurantIdOnPos || "");
+                const numericId = rawId.replace(/^[A-Za-z]+/, "");
+                if (numericId) {
+                    if (!roleGroups[code]) roleGroups[code] = [];
+                    roleGroups[code].push(numericId);
+                }
+            }
+            const parts = Object.entries(roleGroups).map(([code, ids]) => `${code}:${ids.join(",")}`);
+            if (parts.length > 0) {
+                const outletRoles = `v1.${parts.join(";")}`;
+                outletRolesCache.set(cleanToken, { roles: outletRoles, timestamp: Date.now() });
+                return outletRoles;
+            }
+        }
+    } catch (err) {
+        console.warn("[Ownly Client] Could not fetch init for x-outlet-roles:", err.message);
+    }
+    return null;
+}
+
 export async function ownlyClient({
     req,
     baseURL = process.env.OWNLY_API_BASE_URL || "https://rxapi.ownly.food",
@@ -90,37 +147,43 @@ export async function ownlyClient({
     const isFormData = data && (typeof data.getHeaders === "function" || (typeof FormData !== "undefined" && data instanceof FormData));
     const formHeaders = (data && typeof data.getHeaders === "function") ? data.getHeaders() : {};
 
+    let outletRoles = headers?.["x-outlet-roles"] || headers?.["X-Outlet-Roles"];
+    if (!outletRoles && (endpoint.includes("item-attributes") || endpoint.includes("/menu/item"))) {
+        outletRoles = await resolveOwnlyOutletRoles(token);
+    }
+
     const defaultHeaders = {
         accept: "application/json",
         "accept-language": "en-US,en;q=0.9",
-        "app-version": "0.40.1",
+        "app-version": "0.42.1",
         appid: "200",
         authorization: token.startsWith("Bearer ") ? token : `Bearer ${token}`,
-        "build-number": "48",
+        "build-number": "51",
         "cache-control": "no-cache",
         city: "Bengaluru",
         ...(!isFormData ? { "content-type": "application/json" } : {}),
         "device-id": "6722be1c-499a-42fe-a45e-14a1674cf481",
+        ...(outletRoles ? { "x-outlet-roles": outletRoles } : {}),
         language: "en",
         origin: "https://partner.ownly.food",
         platform: "WEB",
         pragma: "no-cache",
         priority: "u=1, i",
-        "project-version": "48",
+        "project-version": "51",
         referer: "https://partner.ownly.food/",
-        "screen-height": "800",
-        "screen-size": "compact",
-        "screen-width": "360",
-        "sec-ch-ua": '"Google Chrome";v="155", "Chromium";v="155", "Not(A:Brand";v="24"',
-        "sec-ch-ua-mobile": "?1",
-        "sec-ch-ua-platform": '"Android"',
+        "screen-height": "801",
+        "screen-size": "expanded",
+        "screen-width": "906",
+        "sec-ch-ua": '"Not-A.Brand";v="99", "Google Chrome";v="157", "Chromium";v="157"',
+        "sec-ch-ua-mobile": "?0",
+        "sec-ch-ua-platform": '"macOS"',
         "sec-fetch-dest": "empty",
         "sec-fetch-mode": "cors",
         "sec-fetch-site": "same-site",
-        thememode: "light",
+        thememode: "dark",
         themename: "app",
         "user-agent":
-            "Mozilla/5.0 (Linux; Android 14; SM-A556B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/155.0.0.0 Mobile Safari/537.36",
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/157.0.0.0 Safari/537.36",
         ...formHeaders,
         ...headers,
     };

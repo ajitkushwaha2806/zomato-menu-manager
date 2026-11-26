@@ -4,6 +4,7 @@ import MenuSync from "@/model/menu-sync"
 import { NextResponse } from "next/server";
 import { apiClient } from "@/lib/api/client";
 import { buildZomatoMenuPayload } from "@/lib/payload/zomato/menu";
+import { getRestaurantName } from "@/lib/restaurantResolver";
 
 export async function POST(req, { params }) {
     try {
@@ -181,14 +182,34 @@ export async function POST(req, { params }) {
             );
         }
 
-        if (taskId) {
-            await Trigger.create({ resId: String(resId), platform: "zomato", taskId, status: "SUCCESS" });
+        const restaurantName = await getRestaurantName(resId, body.restaurantName || resMenu?.name);
+        const userName = body.userName || body.user || "Team Member";
+        const userEmail = body.userEmail || "";
+        const effectiveTaskId = taskId || "OTP_VERIFIED";
+
+        try {
+            await Trigger.create({
+                resId: String(resId),
+                restaurantName,
+                platform: "zomato",
+                taskId: effectiveTaskId,
+                status: "SUCCESS",
+                user: userName,
+                userEmail,
+                actionType: "MENU_TRIGGER",
+            });
+        } catch (tErr) {
+            console.warn("Could not log Zomato trigger:", tErr?.message);
         }
 
         await MenuSync.create({
             resId: String(resId),
+            restaurantName,
+            platform: "zomato",
             status: "completed",
-            taskId,
+            taskId: effectiveTaskId,
+            user: userName,
+            userEmail,
             updated_menu: payload?.update_menu || {},
         });
 
@@ -205,17 +226,42 @@ export async function POST(req, { params }) {
     } catch (err) {
         console.error("MENU_UPDATE_ERROR:", err);
 
-        if (taskId) {
-            await Trigger.create({ resId: String(resId), platform: "zomato", taskId, status: "FAILED", error: err?.response?.data?.message || err?.message || "Internal Server Error" });
+        const restaurantName = await getRestaurantName(resId, body?.restaurantName);
+        const userName = body?.userName || body?.user || "Team Member";
+        const userEmail = body?.userEmail || "";
+        const effectiveTaskId = body?.taskId || "OTP_VERIFIED";
+
+        try {
+            await Trigger.create({
+                resId: String(resId),
+                restaurantName,
+                platform: "zomato",
+                taskId: effectiveTaskId,
+                status: "FAILED",
+                user: userName,
+                userEmail,
+                actionType: "MENU_TRIGGER",
+                error: err?.response?.data?.message || err?.message || "Internal Server Error",
+            });
+        } catch (tErr) {
+            console.warn("Could not log failed Zomato trigger:", tErr?.message);
         }
 
-        await MenuSync.create({
-            resId: String(resId),
-            status: "failed",
-            taskId,
-            updated_menu: {},
-            error: err?.response?.data?.message || err?.message || "Internal Server Error",
-        });
+        try {
+            await MenuSync.create({
+                resId: String(resId),
+                restaurantName,
+                platform: "zomato",
+                status: "failed",
+                taskId: effectiveTaskId,
+                user: userName,
+                userEmail,
+                updated_menu: {},
+                error: err?.response?.data?.message || err?.message || "Internal Server Error",
+            });
+        } catch (sErr) {
+            console.warn("Could not log failed Zomato sync:", sErr?.message);
+        }
 
         return NextResponse.json(
             {

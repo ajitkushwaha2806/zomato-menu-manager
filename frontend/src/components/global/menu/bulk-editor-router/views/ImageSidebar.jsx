@@ -16,7 +16,7 @@ import {
 import { toast } from "sonner";
 import { uploadPlatformImage } from "@/services/imageService";
 import { queueImageUpload } from "@/services/imageQueueService";
-import { fetchImagesWithCache, getCachedResult } from "@/services/imageSearchCacheService";
+import { fetchImagesWithCache, getCachedResult, prefetchDishOnHover } from "@/services/imageSearchCacheService";
 import useRestaurant from "@/store/hooks/useRestaurant";
 import useSwiggyRestaurant from "@/store/hooks/useSwiggyRestaurant";
 import useOwnlyRestaurant from "@/store/hooks/useOwnlyRestaurant";
@@ -47,6 +47,13 @@ export default function ImageSidebar() {
 
     const prevItemKeyRef = useRef(null);
     const searchDebounceRef = useRef(null);
+    const activeAbortRef = useRef(null);
+    const searchSourceRef = useRef(searchSource);
+    const effectiveResIdsRef = useRef("");
+
+    useEffect(() => {
+        searchSourceRef.current = searchSource;
+    }, [searchSource]);
 
     // Extract all currently logged-in outlets across connected platforms
     const loggedInOutlets = useMemo(() => {
@@ -93,6 +100,10 @@ export default function ImageSidebar() {
         return loggedInOutlets.map((o) => o.id).join(",");
     }, [selectedOutletId, loggedInOutlets]);
 
+    useEffect(() => {
+        effectiveResIdsRef.current = effectiveResIds;
+    }, [effectiveResIds]);
+
     const fetchImages = useCallback(async (query, pageNum = 1, source = searchSource, resIds = effectiveResIds) => {
         if (!query || !query.trim()) {
             setImages([]);
@@ -100,7 +111,15 @@ export default function ImageSidebar() {
             return;
         }
 
-        const options = source === "outlet" ? { urgent: true, resIds } : { urgent: true };
+        if (activeAbortRef.current) {
+            activeAbortRef.current.abort();
+        }
+        const abortController = new AbortController();
+        activeAbortRef.current = abortController;
+
+        const options = source === "outlet"
+            ? { urgent: true, resIds, signal: abortController.signal }
+            : { urgent: true, signal: abortController.signal };
 
         // For page 1, check cache first for instantaneous 0ms display
         if (pageNum === 1) {
@@ -120,15 +139,16 @@ export default function ImageSidebar() {
 
         try {
             const res = await fetchImagesWithCache(query, pageNum, source, options);
+            if (abortController.signal.aborted) return;
             const fetchedData = res.data || [];
 
             if (pageNum === 1) {
                 setImages(fetchedData);
             } else {
                 setImages((prev) => {
-                    const existingIds = new Set(prev.map((img) => img._id || img.id || img.image_url));
+                    const existingIds = new Set(prev.map((img) => img._id || img.id || img.image_url || img.thumb_url));
                     const newImages = fetchedData.filter(
-                        (img) => !existingIds.has(img._id || img.id || img.image_url),
+                        (img) => !existingIds.has(img._id || img.id || img.image_url || img.thumb_url),
                     );
                     return [...prev, ...newImages];
                 });
@@ -136,34 +156,56 @@ export default function ImageSidebar() {
             setHasMore(res.hasMore || false);
             setPage(pageNum);
         } catch (error) {
+            if (error?.name === "CanceledError" || error?.name === "AbortError") return;
             console.error("Failed to search images:", error);
         } finally {
-            setLoading(false);
-            setIsLoadingMore(false);
+            if (!abortController.signal.aborted) {
+                setLoading(false);
+                setIsLoadingMore(false);
+            }
         }
     }, [searchSource, effectiveResIds]);
 
+    const prefetchOtherTabs = useCallback((dishName, currentSource, resIds) => {
+        if (!dishName || dishName.trim().length < 2) return;
+        const allSources = ["dataset", "foodsnap", "swiggy", "outlet"];
+        allSources.forEach((src) => {
+            if (src === currentSource) return;
+            const opts = src === "outlet" ? { resIds } : {};
+            prefetchDishOnHover(dishName, src, opts);
+        });
+    }, []);
+
     useEffect(() => {
-        if (isImageSidebarOpen && activeImageSearchItem?.name) {
-            const currentKey = `${activeImageSearchItem.id || ""}-${activeImageSearchItem.name || ""}-${searchSource}-${selectedOutletId}`;
+        if (!isImageSidebarOpen) {
+            prevItemKeyRef.current = null;
+            return;
+        }
+        if (activeImageSearchItem?.name) {
+            const currentKey = `${activeImageSearchItem.id || ""}-${activeImageSearchItem.name || ""}`;
             if (prevItemKeyRef.current === currentKey) return;
             prevItemKeyRef.current = currentKey;
 
             const dishName = activeImageSearchItem.name;
+            const activeSrc = searchSourceRef.current;
+            const resIds = effectiveResIdsRef.current;
             setSearchQuery(dishName);
 
-            const options = searchSource === "outlet" ? { resIds: effectiveResIds } : {};
-            const cached = getCachedResult(dishName, 1, searchSource, options);
+            const options = activeSrc === "outlet" ? { resIds } : {};
+            const cached = getCachedResult(dishName, 1, activeSrc, options);
             if (cached) {
                 setImages(cached.data);
                 setHasMore(cached.hasMore);
                 setPage(1);
                 setLoading(false);
+                prefetchOtherTabs(dishName, activeSrc, resIds);
             } else {
-                fetchImages(dishName, 1, searchSource, effectiveResIds);
+                fetchImages(dishName, 1, activeSrc, resIds).then(() => {
+                    prefetchOtherTabs(dishName, activeSrc, resIds);
+                });
             }
         }
-    }, [isImageSidebarOpen, activeImageSearchItem, searchSource, selectedOutletId, effectiveResIds, fetchImages]);
+    }, [isImageSidebarOpen, activeImageSearchItem, fetchImages, prefetchOtherTabs]);
 
     const handleSearchChange = (e) => {
         const query = e.target.value;
@@ -187,11 +229,11 @@ export default function ImageSidebar() {
             return;
         }
 
-        // Debounced search for manual user typing
+        // Debounced search for manual user typing (180ms for instant feel)
         if (query.trim().length > 1) {
             searchDebounceRef.current = setTimeout(() => {
                 fetchImages(query, 1, searchSource, effectiveResIds);
-            }, 300);
+            }, 180);
         }
     };
 
@@ -208,8 +250,9 @@ export default function ImageSidebar() {
     };
 
     const handleSelectImage = (imageDoc) => {
-        if (!activeImageSearchItem || !imageDoc.image_url) return;
-        const imgId = imageDoc._id || imageDoc.id || imageDoc.image_url;
+        const fullImageUrl = imageDoc.image_url || imageDoc.url || imageDoc.optimised_image_url || imageDoc.thumb_url;
+        if (!activeImageSearchItem || !fullImageUrl) return;
+        const imgId = imageDoc._id || imageDoc.id || fullImageUrl;
 
         // Flash approved checkmark on the sidebar thumbnail immediately
         setUploadStatuses((prev) => ({ ...prev, [imgId]: "approved" }));
@@ -225,7 +268,7 @@ export default function ImageSidebar() {
         queueImageUpload({
             itemId: activeImageSearchItem.originalId || activeImageSearchItem.id,
             itemName: activeImageSearchItem.name,
-            fileOrUrl: imageDoc.image_url,
+            fileOrUrl: fullImageUrl,
             isTicket: Boolean(activeImageSearchItem.isTicket),
             ticketId: activeImageSearchItem.ticketId,
             activePlatform,
@@ -273,6 +316,7 @@ export default function ImageSidebar() {
                             setSearchSource("dataset");
                             fetchImages(searchQuery, 1, "dataset");
                         }}
+                        onMouseEnter={() => prefetchDishOnHover(searchQuery, "dataset")}
                         className={cn(
                             "flex-1 text-xs font-semibold py-1.5 rounded-md transition-all",
                             searchSource === "dataset"
@@ -287,6 +331,7 @@ export default function ImageSidebar() {
                             setSearchSource("foodsnap");
                             fetchImages(searchQuery, 1, "foodsnap");
                         }}
+                        onMouseEnter={() => prefetchDishOnHover(searchQuery, "foodsnap")}
                         className={cn(
                             "flex-1 text-xs font-semibold py-1.5 rounded-md transition-all flex items-center justify-center gap-1.5",
                             searchSource === "foodsnap"
@@ -302,6 +347,7 @@ export default function ImageSidebar() {
                             setSearchSource("swiggy");
                             fetchImages(searchQuery, 1, "swiggy");
                         }}
+                        onMouseEnter={() => prefetchDishOnHover(searchQuery, "swiggy")}
                         className={cn(
                             "flex-1 text-xs font-semibold py-1.5 rounded-md transition-all flex items-center justify-center gap-1.5",
                             searchSource === "swiggy"
@@ -317,6 +363,7 @@ export default function ImageSidebar() {
                             setSearchSource("outlet");
                             fetchImages(searchQuery, 1, "outlet", effectiveResIds);
                         }}
+                        onMouseEnter={() => prefetchDishOnHover(searchQuery, "outlet", { resIds: effectiveResIds })}
                         className={cn(
                             "flex-1 text-xs font-semibold py-1.5 rounded-md transition-all flex items-center justify-center gap-1.5",
                             searchSource === "outlet"
@@ -376,6 +423,12 @@ export default function ImageSidebar() {
                     <Input
                         value={searchQuery}
                         onChange={handleSearchChange}
+                        onKeyDown={(e) => {
+                            if (e.key === "Enter" && searchQuery.trim().length > 1) {
+                                if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
+                                fetchImages(searchQuery, 1, searchSource, effectiveResIds);
+                            }
+                        }}
                         placeholder={
                             searchSource === "outlet"
                                 ? "Search dish in your logged-in outlets..."
@@ -385,111 +438,65 @@ export default function ImageSidebar() {
                                 ? "Search Swiggy Images or paste URL..."
                                 : "Search Foodsnap dataset..."
                         }
-                        className="pl-9 bg-white border-border/50 rounded-xl"
+                        className="pl-9 pr-8 bg-white border-border/50 rounded-xl"
                     />
+                    {searchQuery && (
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setSearchQuery("");
+                                setImages([]);
+                                setHasMore(false);
+                            }}
+                            className="absolute right-2.5 top-2.5 text-muted-foreground hover:text-foreground transition-colors"
+                            aria-label="Clear search"
+                        >
+                            <X className="h-4 w-4" />
+                        </button>
+                    )}
                 </div>
             </div>
 
             {/* Results Grid */}
             <div className="flex-1 overflow-y-auto p-4" onScroll={handleScroll}>
                 {loading ? (
-                    <div className="flex flex-col items-center justify-center h-40 gap-3">
-                        <Loader2 className="h-6 w-6 animate-spin text-primary/50" />
-                        <p className="text-sm text-muted-foreground">
-                            {searchSource === "outlet"
-                                ? "Searching your logged-in outlets..."
-                                : searchSource === "foodsnap"
-                                ? "Searching Foodsnap Plus..."
-                                : searchSource === "swiggy"
-                                ? "Searching Swiggy images..."
-                                : "Searching Foodsnap dataset..."}
-                        </p>
+                    <div className="pb-6">
+                        <div className="grid grid-cols-4 gap-3">
+                            {[...Array(8)].map((_, i) => (
+                                <div key={i} className="rounded-xl overflow-hidden border border-border/40 bg-white">
+                                    <div className="aspect-square w-full bg-slate-100 animate-pulse" />
+                                    <div className="p-2 space-y-1">
+                                        <div className="h-2.5 bg-slate-100 rounded w-3/4 animate-pulse" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                        <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground">
+                            <Loader2 className="h-3.5 w-3.5 animate-spin text-primary" />
+                            <span>
+                                {searchSource === "outlet"
+                                    ? "Searching your logged-in outlets..."
+                                    : searchSource === "foodsnap"
+                                    ? "Searching Foodsnap Plus..."
+                                    : searchSource === "swiggy"
+                                    ? "Searching Swiggy images..."
+                                    : "Searching Foodsnap dataset..."}
+                            </span>
+                        </div>
                     </div>
                 ) : images.length > 0 ? (
                     <div className="pb-6">
                         <div className="grid grid-cols-4 gap-3">
-                            {images.map((img) => {
-                                const imgKey = img._id || img.id || img.image_url;
-                                const isUploadingThis = uploadStatuses[imgKey] === "uploading";
-                                const isApprovedThis = uploadStatuses[imgKey] === "approved";
-                                const isRejectedThis = uploadStatuses[imgKey] === "rejected";
-
+                            {images.map((img, index) => {
+                                const imgKey = img._id || img.id || img.image_url || img.thumb_url;
                                 return (
-                                    <div
+                                    <ImageResultCard
                                         key={imgKey}
-                                        onClick={() => {
-                                            if (!isUploadingThis) handleSelectImage(img);
-                                        }}
-                                        className={cn(
-                                            "group relative rounded-xl overflow-hidden border cursor-pointer bg-white transition-all hover:shadow-md",
-                                            isRejectedThis
-                                                ? "border-red-500 ring-2 ring-red-500/70 shadow-md shadow-red-100"
-                                                : "border-border/50 hover:border-primary/40",
-                                            isUploadingThis && "opacity-70 pointer-events-none ring-2 ring-primary"
-                                        )}
-                                    >
-                                        <div className="aspect-square w-full bg-slate-100 relative">
-                                            {/* eslint-disable-next-line @next/next/no-img-element */}
-                                            <img
-                                                src={img.image_url}
-                                                alt={img.title || "Food item"}
-                                                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                                                loading="lazy"
-                                            />
-                                            {/* State Overlays */}
-                                            {isUploadingThis && (
-                                                <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center animate-in fade-in duration-200">
-                                                    <Loader2 className="animate-spin text-primary mb-2" size={24} />
-                                                    <span className="text-[10px] font-semibold text-neutral-700 tracking-wide uppercase">
-                                                        Validating...
-                                                    </span>
-                                                </div>
-                                            )}
-
-                                            {isApprovedThis && (
-                                                <div className="absolute top-2 right-2 z-20 bg-green-500/95 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm animate-in zoom-in duration-300">
-                                                    <CheckCircle2 size={12} /> Approved
-                                                </div>
-                                            )}
-
-                                            {isRejectedThis && (
-                                                <div 
-                                                    className="absolute inset-x-0 bottom-0 bg-red-600/95 text-white p-1.5 flex items-center justify-between gap-1 z-20 animate-in slide-in-from-bottom duration-200"
-                                                    onClick={(e) => e.stopPropagation()}
-                                                >
-                                                    <span className="text-[10px] font-semibold flex items-center gap-1">
-                                                        <XCircle size={11} className="shrink-0 text-red-200" /> Failed
-                                                    </span>
-                                                    <button
-                                                        type="button"
-                                                        onClick={(e) => {
-                                                            e.stopPropagation();
-                                                            handleSelectImage(img);
-                                                        }}
-                                                        className="bg-white hover:bg-neutral-100 active:scale-95 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-1 transition-all cursor-pointer"
-                                                    >
-                                                        <RotateCw size={10} className="shrink-0" /> Retry
-                                                    </button>
-                                                </div>
-                                            )}
-                                        </div>
-                                        <div className="p-2">
-                                            <p className="text-xs font-semibold truncate text-foreground">
-                                                {img.title || img.name}
-                                            </p>
-                                            {(img.restaurantName || img.category || img.cuisine) && (
-                                                <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                                                    {img.restaurantName ? (
-                                                        <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-medium truncate inline-block max-w-full">
-                                                            {img.restaurantName}
-                                                        </span>
-                                                    ) : (
-                                                        img.cuisine || img.category
-                                                    )}
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
+                                        img={img}
+                                        index={index}
+                                        uploadStatus={uploadStatuses[imgKey]}
+                                        onSelect={handleSelectImage}
+                                    />
                                 );
                             })}
                         </div>
@@ -524,5 +531,148 @@ export default function ImageSidebar() {
                 )}
             </div>
         </aside>
+    );
+}
+
+function ImageResultCard({ img, index, uploadStatus, onSelect }) {
+    const candidates = useMemo(() => {
+        const list = [
+            img.thumb_url,
+            img.thumbUrl,
+            img.fallback_thumb_url,
+            img.optimised_image_url,
+            img.image_url,
+            img.url,
+        ].filter((u) => typeof u === "string" && u.trim().length > 0);
+        return Array.from(new Set(list));
+    }, [img]);
+
+    const [srcIndex, setSrcIndex] = useState(0);
+    const [loaded, setLoaded] = useState(false);
+    const [allFailed, setAllFailed] = useState(false);
+    const imgRef = useRef(null);
+
+    const currentSrc = candidates[srcIndex] || "";
+
+    useEffect(() => {
+        setSrcIndex(0);
+        setAllFailed(false);
+        setLoaded(false);
+    }, [candidates]);
+
+    useEffect(() => {
+        if (imgRef.current && imgRef.current.complete && imgRef.current.naturalWidth > 0) {
+            setLoaded(true);
+        }
+    }, [currentSrc]);
+
+    const isUploadingThis = uploadStatus === "uploading";
+    const isApprovedThis = uploadStatus === "approved";
+    const isRejectedThis = uploadStatus === "rejected";
+
+    const handleImgError = () => {
+        if (srcIndex + 1 < candidates.length) {
+            setSrcIndex((prev) => prev + 1);
+            setLoaded(false);
+        } else {
+            setAllFailed(true);
+            setLoaded(true);
+        }
+    };
+
+    return (
+        <div
+            onClick={() => {
+                if (!isUploadingThis && !allFailed) onSelect(img);
+            }}
+            className={cn(
+                "group relative rounded-xl overflow-hidden border cursor-pointer bg-white transition-all hover:shadow-md",
+                isRejectedThis
+                    ? "border-red-500 ring-2 ring-red-500/70 shadow-md shadow-red-100"
+                    : "border-border/50 hover:border-primary/40",
+                isUploadingThis && "opacity-70 pointer-events-none ring-2 ring-primary"
+            )}
+        >
+            <div className="aspect-square w-full bg-slate-100 relative overflow-hidden">
+                {!loaded && !allFailed && (
+                    <div className="absolute inset-0 bg-slate-200/70 animate-pulse" />
+                )}
+
+                {allFailed ? (
+                    <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 text-slate-400 p-2 text-center">
+                        <XCircle className="h-5 w-5 mb-1 opacity-60" />
+                        <span className="text-[10px]">Unavailable</span>
+                    </div>
+                ) : (
+                    /* eslint-disable-next-line @next/next/no-img-element */
+                    <img
+                        ref={imgRef}
+                        src={currentSrc}
+                        alt={img.title || img.name || "Food item"}
+                        onLoad={() => setLoaded(true)}
+                        onError={handleImgError}
+                        className={cn(
+                            "w-full h-full object-cover group-hover:scale-105 transition-all duration-300",
+                            loaded ? "opacity-100" : "opacity-0"
+                        )}
+                        loading={index < 12 ? "eager" : "lazy"}
+                        decoding="async"
+                        fetchPriority={index < 8 ? "high" : "auto"}
+                    />
+                )}
+
+                {isUploadingThis && (
+                    <div className="absolute inset-0 bg-white/70 backdrop-blur-[2px] z-20 flex flex-col items-center justify-center animate-in fade-in duration-200">
+                        <Loader2 className="animate-spin text-primary mb-2" size={24} />
+                        <span className="text-[10px] font-semibold text-neutral-700 tracking-wide uppercase">
+                            Validating...
+                        </span>
+                    </div>
+                )}
+
+                {isApprovedThis && (
+                    <div className="absolute top-2 right-2 z-20 bg-green-500/95 text-white text-[10px] font-bold px-2 py-1 rounded-md flex items-center gap-1 shadow-sm animate-in zoom-in duration-300">
+                        <CheckCircle2 size={12} /> Approved
+                    </div>
+                )}
+
+                {isRejectedThis && (
+                    <div
+                        className="absolute inset-x-0 bottom-0 bg-red-600/95 text-white p-1.5 flex items-center justify-between gap-1 z-20 animate-in slide-in-from-bottom duration-200"
+                        onClick={(e) => e.stopPropagation()}
+                    >
+                        <span className="text-[10px] font-semibold flex items-center gap-1">
+                            <XCircle size={11} className="shrink-0 text-red-200" /> Failed
+                        </span>
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                onSelect(img);
+                            }}
+                            className="bg-white hover:bg-neutral-100 active:scale-95 text-red-700 text-[10px] font-bold px-2 py-0.5 rounded shadow-sm flex items-center gap-1 transition-all cursor-pointer"
+                        >
+                            <RotateCw size={10} className="shrink-0" /> Retry
+                        </button>
+                    </div>
+                )}
+            </div>
+            <div className="p-2">
+                <p className="text-xs font-semibold truncate text-foreground">
+                    {img.title || img.name}
+                </p>
+                {(img.restaurantName || img.category || img.cuisine) && (
+                    <p className="text-[10px] text-muted-foreground truncate mt-0.5">
+                        {img.restaurantName ? (
+                            <span className="text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded font-medium truncate inline-block max-w-full">
+                                {img.restaurantName}
+                            </span>
+                        ) : (
+                            img.cuisine || img.category
+                        )}
+                    </p>
+                )}
+            </div>
+        </div>
     );
 }
