@@ -138,7 +138,7 @@ export default function PetpoojaUnlockModal({
             }
 
             const restIds = result.data.restIds || [];
-            if (!restIds.includes(resId) && !restIds.includes(Number(resId))) {
+            if (!result.isSecretKey && !result.data?.isSecretKey && !restIds.includes(resId) && !restIds.includes(Number(resId))) {
                 const errMsg = `This Task ID is not assigned to restaurant #${resId}.`;
                 setTaskError(errMsg);
                 notify.error(errMsg);

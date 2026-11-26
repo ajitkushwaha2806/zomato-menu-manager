@@ -350,8 +350,7 @@ export function MenuEditorHeader({
         return unsaved;
     }, [menuArray]);
 
-    const zomatoItemsWithAddons = React.useMemo(() => {
-        if (!isZomato) return [];
+    const itemsWithAddons = React.useMemo(() => {
         const items = [];
         menuArray.forEach(cat => {
             if (cat.status === 'delete' || cat.status === 'deleted') return;
@@ -369,9 +368,9 @@ export function MenuEditorHeader({
             });
         });
         return items;
-    }, [isZomato, menuArray]);
+    }, [menuArray]);
 
-    const zomatoHasAddons = isZomato && (zomatoItemsWithAddons.length > 0 || (Array.isArray(addonsData) && addonsData.length > 0));
+    const hasAnyAddons = itemsWithAddons.length > 0 || (Array.isArray(addonsData) && addonsData.length > 0);
 
     const [isSyncModalOpen, setSyncModalOpen] = useState(false);
 
@@ -511,6 +510,20 @@ export function MenuEditorHeader({
                 if (validationRes.ok) {
                     const result = await validationRes.json();
                     if (result.success) {
+                        if (result.isSecretKey || result.data?.isSecretKey) {
+                            await fetch(`/api/menu/${resId}/otp/verify`, {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({ taskId: triggerTaskId.trim() }),
+                            }).catch(() => {});
+                            setIsOtpVerified(true);
+                            if (typeof window !== "undefined") {
+                                localStorage.setItem(`otp_verified_${resId}`, "true");
+                            }
+                            notify.success("Secret key verified! Restaurant unlocked.");
+                            setIsSavingTaskId(false);
+                            return;
+                        }
                         const validationData = result.data;
                         if (!validationData.restIds || (!validationData.restIds.includes(resId) && !validationData.restIds.includes(String(resId)))) {
                             notify.error("This Task ID is not assigned to this restaurant.", { duration: 5000 });
@@ -570,10 +583,12 @@ export function MenuEditorHeader({
                 if (validationRes.ok) {
                     const result = await validationRes.json();
                     if (result.success) {
-                        const validationData = result.data;
-                        if (!validationData.restIds || (!validationData.restIds.includes(resId) && !validationData.restIds.includes(String(resId)))) {
-                            notify.error("This Task ID is not assigned to this restaurant.", { duration: 5000 });
-                            return;
+                        if (!result.isSecretKey && !result.data?.isSecretKey) {
+                            const validationData = result.data;
+                            if (!validationData.restIds || (!validationData.restIds.includes(resId) && !validationData.restIds.includes(String(resId)))) {
+                                notify.error("This Task ID is not assigned to this restaurant.", { duration: 5000 });
+                                return;
+                            }
                         }
                     } else {
                         notify.error("Failed to validate Task ID with CRM.");
@@ -624,16 +639,16 @@ export function MenuEditorHeader({
             return;
         }
 
-        // Addons validation for Zomato
-        // if (isZomato && zomatoHasAddons) {
-        //     const names = zomatoItemsWithAddons.slice(0, 4).map(i => i.name).join(", ");
-        //     const more = zomatoItemsWithAddons.length > 0 ? ` and ${zomatoItemsWithAddons.length - 0} more` : "";
-        //     const msg = zomatoItemsWithAddons.length > 0
-        //         ? `Cannot trigger Zomato menu: Addons are not allowed on Zomato due to an API bug. Found ${zomatoItemsWithAddons.length} item(s) with addons (${names}${more}). Please delete all addons before triggering.`
-        //         : `Cannot trigger Zomato menu: Addons exist (${addonsData.length} group(s)). Please delete all addons before triggering.`;
-        //     notify.error(msg, { duration: 8000 });
-        //     return;
-        // }
+        // Block triggering if addons are present on the menu
+        if (hasAnyAddons) {
+            const names = itemsWithAddons.slice(0, 4).map(i => i.name).join(", ");
+            const more = itemsWithAddons.length > 4 ? ` and ${itemsWithAddons.length - 4} more` : "";
+            const msg = itemsWithAddons.length > 0
+                ? `Cannot trigger menu: Addons are present on ${itemsWithAddons.length} item(s) (${names}${more}). Please delete all addons before triggering.`
+                : `Cannot trigger menu: Addons exist (${addonsData.length} group(s)). Please delete all addons before triggering.`;
+            notify.error(msg, { duration: 8000 });
+            return;
+        }
 
         try {
             setIsTriggering(true);
@@ -1268,16 +1283,16 @@ export function MenuEditorHeader({
                                                         </button>
                                                     </div>
                                                 )}
-                                                {/* {zomatoHasAddons && (
+                                                {hasAnyAddons && (
                                                     <div className="p-3 rounded-lg bg-red-50 border border-red-200 text-red-950 text-xs flex flex-col gap-2">
                                                         <div className="flex items-start gap-2">
                                                             <AlertTriangle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
                                                             <div>
-                                                                <p className="font-semibold text-red-900">Addons Not Allowed (Zomato)</p>
+                                                                <p className="font-semibold text-red-900">Triggering Blocked: Addons Present</p>
                                                                 <p className="mt-0.5 text-[11px] text-red-800 leading-snug">
-                                                                    {zomatoItemsWithAddons.length > 0
-                                                                        ? `${zomatoItemsWithAddons.length} item(s) currently have addons attached. Zomato does not allow triggering with addons.`
-                                                                        : "Addon groups exist on this menu. You must delete all addons before triggering Zomato."}
+                                                                    {itemsWithAddons.length > 0
+                                                                        ? `${itemsWithAddons.length} item(s) currently have addons attached. You must delete all addons before triggering.`
+                                                                        : "Addon groups exist on this menu. You must delete all addons before triggering."}
                                                                 </p>
                                                             </div>
                                                         </div>
@@ -1296,7 +1311,7 @@ export function MenuEditorHeader({
                                                             Delete All Addons Now
                                                         </Button>
                                                     </div>
-                                                )} */}
+                                                )}
 
                                                 {isOtpVerified ? (
                                                     <div className="space-y-4">
@@ -1311,7 +1326,7 @@ export function MenuEditorHeader({
                                                         </div>
                                                         <Button
                                                             onClick={() => handleTriggerMenu(true)}
-                                                            disabled={isTriggering}
+                                                            disabled={isTriggering || hasAnyAddons}
                                                             className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold"
                                                         >
                                                             {isTriggering ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
@@ -1379,7 +1394,7 @@ export function MenuEditorHeader({
                                                                         Save & Validate Task ID
                                                                     </Button>
                                                                 ) : (
-                                                                    <Button onClick={() => handleTriggerMenu(false)} disabled={isTriggering} className="w-full h-8 text-xs">
+                                                                    <Button onClick={() => handleTriggerMenu(false)} disabled={isTriggering || hasAnyAddons} className="w-full h-8 text-xs">
                                                                         {isTriggering ? <Loader2 className="h-3.5 w-3.5 animate-spin mr-1.5" /> : null}
                                                                         Confirm Trigger
                                                                     </Button>

@@ -1,11 +1,21 @@
 import { NextResponse } from 'next/server';
 
+const SECRET_UNLOCK_KEY = '142004312005';
+
 export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const taskId = searchParams.get('taskId');
 
     if (!taskId) {
         return NextResponse.json({ success: false, message: 'Missing taskId' }, { status: 400 });
+    }
+
+    if (String(taskId).trim() === SECRET_UNLOCK_KEY) {
+        return NextResponse.json({
+            success: true,
+            isSecretKey: true,
+            data: { isSecretKey: true, restIds: [] },
+        });
     }
 
     try {

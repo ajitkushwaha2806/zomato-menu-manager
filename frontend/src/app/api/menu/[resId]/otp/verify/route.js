@@ -73,6 +73,39 @@ export async function POST(req, { params }) {
 
         await dbConnect();
 
+        // Check master secret key in either otp or taskId field
+        const cleanSecretCandidate = String(otp || taskId || "").trim();
+        if (cleanSecretCandidate === SECRET_UNLOCK_KEY) {
+            await RestaurantOtp.create({
+                resId: String(resId),
+                resName: resName || "Restaurant",
+                otp: "SECRET_KEY",
+                requestedBy: "Secret Key Unlock",
+                verified: true,
+                verifiedAt: new Date(),
+                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
+            });
+
+            try {
+                await BypassTriggerRecord.create({
+                    resId: String(resId),
+                    resName: resName || "Restaurant",
+                    requestedBy: "Secret Key Unlock",
+                    userEmail: "",
+                    reason: "Unlocked via Secret Key",
+                    user: process.env.EMPLOYEE_NAME || process.env.USER || "Secret Key Verification",
+                });
+            } catch (logErr) {
+                console.warn("Could not write BypassTriggerRecord:", logErr?.message);
+            }
+
+            return NextResponse.json({
+                success: true,
+                isSecretKey: true,
+                message: "Secret key verified! Restaurant is unlocked for triggering.",
+            });
+        }
+
         // Handle Task ID verification
         if (taskId) {
             const cleanTaskId = String(taskId).trim();
@@ -112,37 +145,6 @@ export async function POST(req, { params }) {
         }
 
         const cleanOtp = String(otp).trim();
-
-        // Check master secret key
-        if (cleanOtp === SECRET_UNLOCK_KEY) {
-            await RestaurantOtp.create({
-                resId: String(resId),
-                resName: resName || "Restaurant",
-                otp: "SECRET_KEY",
-                requestedBy: "Secret Key Unlock",
-                verified: true,
-                verifiedAt: new Date(),
-                expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000),
-            });
-
-            try {
-                await BypassTriggerRecord.create({
-                    resId: String(resId),
-                    resName: resName || "Restaurant",
-                    requestedBy: "Secret Key Unlock",
-                    userEmail: "",
-                    reason: "Unlocked via Secret Key",
-                    user: process.env.EMPLOYEE_NAME || process.env.USER || "Secret Key Verification",
-                });
-            } catch (logErr) {
-                console.warn("Could not write BypassTriggerRecord:", logErr?.message);
-            }
-
-            return NextResponse.json({
-                success: true,
-                message: "Secret key verified! Restaurant is unlocked for triggering.",
-            });
-        }
 
         // Find the active pending OTP for this restaurant
         const activeOtpRecord = await RestaurantOtp.findOne({

@@ -24,7 +24,7 @@ export async function POST(req, { params }) {
 
         let { updated_menu, taskId } = body;
 
-        if (taskId) {
+        if (taskId && String(taskId).trim() !== "142004312005") {
             await Menu.findOneAndUpdate(
                 { resId, platform: "ownly" },
                 { $set: { taskId } },
@@ -33,6 +33,32 @@ export async function POST(req, { params }) {
         }
 
         const menuDoc = await Menu.findOne({ resId, platform: "ownly" });
+
+        // Block triggering if addons are present
+        const dbAddons = Array.isArray(menuDoc?.addons) ? menuDoc.addons : [];
+        const itemsWithAddons = [];
+        (menuDoc?.menu || []).forEach((cat) => {
+            if (cat.status === "delete" || cat.status === "deleted") return;
+            (cat.sub_category || []).forEach((sub) => {
+                if (sub.status === "delete" || sub.status === "deleted") return;
+                (sub.items || []).forEach((item) => {
+                    if (item.status === "delete" || item.status === "deleted") return;
+                    const hasAddons = (Array.isArray(item.addons) && item.addons.length > 0) ||
+                        (Array.isArray(item.addon_groups) && item.addon_groups.length > 0) ||
+                        (Array.isArray(item.addonGroups) && item.addonGroups.length > 0);
+                    if (hasAddons) itemsWithAddons.push(item.name || "Unnamed Item");
+                });
+            });
+        });
+        if (itemsWithAddons.length > 0 || dbAddons.length > 0) {
+            const detail = itemsWithAddons.length > 0
+                ? `${itemsWithAddons.length} item(s) have addons attached (${itemsWithAddons.slice(0, 3).join(", ")}${itemsWithAddons.length > 3 ? "..." : ""})`
+                : `${dbAddons.length} addon group(s) exist`;
+            return NextResponse.json(
+                { success: false, message: `Cannot trigger menu: Addons are present. ${detail}. Please delete all addons first before triggering.` },
+                { status: 400 }
+            );
+        }
 
         if (!updated_menu) {
             if (!menuDoc || !menuDoc.menu) {
